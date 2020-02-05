@@ -1,9 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>BFRES_Importer</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NintenTools.Bfres\src\Syroot.NintenTools.Bfres.Script\Syroot.NintenTools.Bfres.Script.csproj" />
+    <ProjectReference Include="..\NintenTools.Bfres\src\Syroot.NintenTools.Bfres.Test\Syroot.NintenTools.Bfres.Test.csproj" />
+    <ProjectReference Include="..\NintenTools.Bfres\src\Syroot.NintenTools.Bfres\Syroot.NintenTools.Bfres.csproj" />
+  </ItemGroup>
 
 </Project>

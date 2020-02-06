@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fbxsdk.h>
+#include "FBXCube.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    FBXCube* cube = new FBXCube();
+    cube->CreateCube();
 }

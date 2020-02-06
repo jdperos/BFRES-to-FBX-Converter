@@ -6,17 +6,15 @@ namespace BFRES_Importer
 {
     class Program
     {
-        public static ResU.ResFile res;
-
         static void Main(string[] args)
         {
-            res = new ResU.ResFile("C:/Users/Jon/Desktop/Npc_Gerudo_Queen.bfres");
+            ResU.ResFile res = new ResU.ResFile("C:/Users/jonathan.peros/Documents/BotW Stuff/GerudoQueenGraphicsPackage/Npc_Gerudo_Queen.bfres");
             LoadFile(res);
         }
 
         public static void LoadFile(ResU.ResFile res)
         {
-            StreamWriter writer = new StreamWriter("C:/Users/Jon/Desktop/Dump.txt");
+            StreamWriter writer = new StreamWriter("C:/Users/jonathan.peros/Documents/BotW Stuff/Dump.txt");
             if (res.Models.Count > 0)
             {
                 for (int ii = 0; ii < res.Models.Count; ii++)

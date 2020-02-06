@@ -151,10 +151,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BFRES to FBX Converter.cpp" />
-    <ClCompile Include="FBXCube.cpp" />
+    <ClCompile Include="MyFBXCube.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FBXCube.h" />
+    <ClInclude Include="MyFBXCube.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,12 +18,12 @@
     <ClCompile Include="BFRES to FBX Converter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FBXCube.cpp">
+    <ClCompile Include="MyFBXCube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FBXCube.h">
+    <ClInclude Include="MyFBXCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

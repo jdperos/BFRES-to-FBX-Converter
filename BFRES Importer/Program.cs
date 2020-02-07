@@ -15,6 +15,7 @@ namespace BFRES_Importer
         public static void LoadFile(ResU.ResFile res)
         {
             StreamWriter writer = new StreamWriter("../../../../TestAssets/Dump.txt");
+            writer.AutoFlush = true;
             if (res.Models.Count > 0)
             {
                 for (int ii = 0; ii < res.Models.Count; ii++)

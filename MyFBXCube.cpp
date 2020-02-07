@@ -42,76 +42,56 @@ void MyFBXCube::CreateCube(FbxScene* pScene)
     FbxVector4 vertex7(-50, 100, -50);
 
     // Initialize the control point array of the mesh.
-    lMesh->InitControlPoints(24);
+    uint uiNumControlPoints(24);
+    uint uiPolySize(4);
+    lMesh->InitControlPoints(uiNumControlPoints);
     FbxVector4* lControlPoints = lMesh->GetControlPoints();
 
     // Define each face of the cube.
     // Face 1
-    lMesh->BeginPolygon();
     lControlPoints[0] = vertex0;
     lControlPoints[1] = vertex1;
     lControlPoints[2] = vertex2;
     lControlPoints[3] = vertex3;
-    lMesh->AddPolygon(0);
-    lMesh->AddPolygon(1);
-    lMesh->AddPolygon(2);
-    lMesh->AddPolygon(3);
-    lMesh->EndPolygon();
     // Face 2
-    lMesh->BeginPolygon();
     lControlPoints[4] = vertex1;
     lControlPoints[5] = vertex5;
     lControlPoints[6] = vertex6;
     lControlPoints[7] = vertex2;
-    lMesh->AddPolygon(4);
-    lMesh->AddPolygon(5);
-    lMesh->AddPolygon(6);
-    lMesh->AddPolygon(7);
-    lMesh->EndPolygon();
     // Face 3
-    lMesh->BeginPolygon();
     lControlPoints[8] = vertex5;
     lControlPoints[9] = vertex4;
     lControlPoints[10] = vertex7;
     lControlPoints[11] = vertex6;
-    lMesh->AddPolygon(8);
-    lMesh->AddPolygon(9);
-    lMesh->AddPolygon(10);
-    lMesh->AddPolygon(11);
-    lMesh->EndPolygon();
     // Face 4
-    lMesh->BeginPolygon();
     lControlPoints[12] = vertex4;
     lControlPoints[13] = vertex0;
     lControlPoints[14] = vertex3;
     lControlPoints[15] = vertex7;
-    lMesh->AddPolygon(12);
-    lMesh->AddPolygon(13);
-    lMesh->AddPolygon(14);
-    lMesh->AddPolygon(15);
-    lMesh->EndPolygon();
     // Face 5
-    lMesh->BeginPolygon();
     lControlPoints[16] = vertex3;
     lControlPoints[17] = vertex2;
     lControlPoints[18] = vertex6;
     lControlPoints[19] = vertex7;
-    lMesh->AddPolygon(16);
-    lMesh->AddPolygon(17);
-    lMesh->AddPolygon(18);
-    lMesh->AddPolygon(19);
-    lMesh->EndPolygon();
     // Face 6
-    lMesh->BeginPolygon();
     lControlPoints[20] = vertex1;
     lControlPoints[21] = vertex0;
     lControlPoints[22] = vertex4;
     lControlPoints[23] = vertex5;
-    lMesh->AddPolygon(20);
-    lMesh->AddPolygon(21);
-    lMesh->AddPolygon(22);
-    lMesh->AddPolygon(23);
-    lMesh->EndPolygon();
+
+    // Define which control points belong to a poly
+    for(uint i = 0; i < uiNumControlPoints; ++i)
+    {
+        // first index
+	    if((i % uiPolySize) == 0)
+		    lMesh->BeginPolygon();
+	
+        lMesh->AddPolygon(i);
+	
+        // last index
+	    if((i + 1) % uiPolySize == 0)
+		    lMesh->EndPolygon();
+    }
 
     // Define normal vectors along each axis.
     FbxVector4 lNormalXPos(1, 0, 0);

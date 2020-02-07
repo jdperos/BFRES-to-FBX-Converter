@@ -43,7 +43,7 @@ void MyFBXCube::CreateCube(FbxScene* pScene)
 
     // Initialize the control point array of the mesh.
     unsigned int uiNumControlPoints(24);
-    unsigned int uiPolySize(3);
+    unsigned int uiPolySize(4);
     lMesh->InitControlPoints(uiNumControlPoints);
     FbxVector4* lControlPoints = lMesh->GetControlPoints();
 

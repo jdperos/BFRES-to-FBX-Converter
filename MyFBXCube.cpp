@@ -42,8 +42,8 @@ void MyFBXCube::CreateCube(FbxScene* pScene)
     FbxVector4 vertex7(-50, 100, -50);
 
     // Initialize the control point array of the mesh.
-    uint uiNumControlPoints(24);
-    uint uiPolySize(4);
+    unsigned int uiNumControlPoints(24);
+    unsigned int uiPolySize(3);
     lMesh->InitControlPoints(uiNumControlPoints);
     FbxVector4* lControlPoints = lMesh->GetControlPoints();
 
@@ -80,7 +80,7 @@ void MyFBXCube::CreateCube(FbxScene* pScene)
     lControlPoints[23] = vertex5;
 
     // Define which control points belong to a poly
-    for(uint i = 0; i < uiNumControlPoints; ++i)
+    for(unsigned int i = 0; i < uiNumControlPoints; ++i)
     {
         // first index
 	    if((i % uiPolySize) == 0)

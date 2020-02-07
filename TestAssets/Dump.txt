@@ -1,0 +1,391 @@
+
+[[FMDL]]
+Name: Item_Armor_115_Queen
+FVTX Count: 1
+FSHP Count: 1
+FMAT Count: 1
+Total Vertices: 3034
+
+[[FVTX]]
+Attributes Count:6
+Name: _p0
+Buffer Index: 0
+Offset: 0
+Format: Format_16_16_16_16_Single
+Name: _n0
+Buffer Index: 1
+Offset: 0
+Format: Format_10_10_10_2_SNorm
+Name: _t0
+Buffer Index: 1
+Offset: 4
+Format: Format_8_8_8_8_SNorm
+Name: _b0
+Buffer Index: 2
+Offset: 0
+Format: Format_8_8_8_8_SNorm
+Name: _u0
+Buffer Index: 1
+Offset: 8
+Format: Format_16_16_UNorm
+Name: _u1
+Buffer Index: 1
+Offset: 12
+Format: Format_16_16_UNorm
+Buffers Count:3
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 227520
+Stride: 16
+Data: System.Byte[][]
+Buffer Offset: 251840
+Stride: 4
+Data: System.Byte[][]
+Buffer Offset: 300416
+Vertex Count:3034
+Vertex Skin Count:0
+
+[[FMDL]]
+Name: Npc_Gerudo_Queen
+FVTX Count: 7
+FSHP Count: 7
+FMAT Count: 7
+Total Vertices: 12945
+
+[[FVTX]]
+Attributes Count:8
+Name: _p0
+Buffer Index: 0
+Offset: 0
+Format: Format_16_16_16_16_Single
+Name: _n0
+Buffer Index: 2
+Offset: 0
+Format: Format_10_10_10_2_SNorm
+Name: _t0
+Buffer Index: 2
+Offset: 4
+Format: Format_8_8_8_8_SNorm
+Name: _b0
+Buffer Index: 3
+Offset: 0
+Format: Format_8_8_8_8_SNorm
+Name: _u0
+Buffer Index: 2
+Offset: 8
+Format: Format_16_16_Single
+Name: _u1
+Buffer Index: 2
+Offset: 12
+Format: Format_16_16_UNorm
+Name: _i0
+Buffer Index: 1
+Offset: 4
+Format: Format_8_8_8_8_UInt
+Name: _w0
+Buffer Index: 1
+Offset: 0
+Format: Format_8_8_8_8_UNorm
+Buffers Count:4
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 312576
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 350976
+Stride: 16
+Data: System.Byte[][]
+Buffer Offset: 389376
+Stride: 4
+Data: System.Byte[][]
+Buffer Offset: 466176
+Vertex Count:4797
+Vertex Skin Count:4
+
+[[FVTX]]
+Attributes Count:8
+Name: _p0
+Buffer Index: 0
+Offset: 0
+Format: Format_16_16_16_16_Single
+Name: _n0
+Buffer Index: 2
+Offset: 0
+Format: Format_10_10_10_2_SNorm
+Name: _t0
+Buffer Index: 2
+Offset: 4
+Format: Format_8_8_8_8_SNorm
+Name: _b0
+Buffer Index: 3
+Offset: 0
+Format: Format_8_8_8_8_SNorm
+Name: _u0
+Buffer Index: 2
+Offset: 8
+Format: Format_16_16_UNorm
+Name: _u1
+Buffer Index: 2
+Offset: 12
+Format: Format_16_16_SNorm
+Name: _i0
+Buffer Index: 1
+Offset: 4
+Format: Format_8_8_8_8_UInt
+Name: _w0
+Buffer Index: 1
+Offset: 0
+Format: Format_8_8_8_8_UNorm
+Buffers Count:4
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 485376
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 502272
+Stride: 16
+Data: System.Byte[][]
+Buffer Offset: 519168
+Stride: 4
+Data: System.Byte[][]
+Buffer Offset: 552896
+Vertex Count:2108
+Vertex Skin Count:3
+
+[[FVTX]]
+Attributes Count:7
+Name: _p0
+Buffer Index: 0
+Offset: 0
+Format: Format_16_16_16_16_Single
+Name: _n0
+Buffer Index: 2
+Offset: 0
+Format: Format_10_10_10_2_SNorm
+Name: _t0
+Buffer Index: 2
+Offset: 4
+Format: Format_8_8_8_8_SNorm
+Name: _b0
+Buffer Index: 3
+Offset: 0
+Format: Format_8_8_8_8_SNorm
+Name: _u0
+Buffer Index: 2
+Offset: 8
+Format: Format_16_16_Single
+Name: _u1
+Buffer Index: 2
+Offset: 12
+Format: Format_16_16_Single
+Name: _i0
+Buffer Index: 1
+Offset: 0
+Format: Format_8_UInt
+Buffers Count:4
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 561344
+Stride: 1
+Data: System.Byte[][]
+Buffer Offset: 574208
+Stride: 16
+Data: System.Byte[][]
+Buffer Offset: 575872
+Stride: 4
+Data: System.Byte[][]
+Buffer Offset: 601600
+Vertex Count:1608
+Vertex Skin Count:1
+
+[[FVTX]]
+Attributes Count:7
+Name: _p0
+Buffer Index: 0
+Offset: 0
+Format: Format_16_16_16_16_Single
+Name: _n0
+Buffer Index: 2
+Offset: 0
+Format: Format_10_10_10_2_SNorm
+Name: _t0
+Buffer Index: 2
+Offset: 4
+Format: Format_8_8_8_8_SNorm
+Name: _b0
+Buffer Index: 3
+Offset: 0
+Format: Format_8_8_8_8_SNorm
+Name: _c0
+Buffer Index: 2
+Offset: 12
+Format: Format_8_8_8_8_UNorm
+Name: _u0
+Buffer Index: 2
+Offset: 8
+Format: Format_16_16_Single
+Name: _i0
+Buffer Index: 1
+Offset: 0
+Format: Format_8_UInt
+Buffers Count:4
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 608064
+Stride: 1
+Data: System.Byte[][]
+Buffer Offset: 608640
+Stride: 16
+Data: System.Byte[][]
+Buffer Offset: 608768
+Stride: 4
+Data: System.Byte[][]
+Buffer Offset: 609856
+Vertex Count:68
+Vertex Skin Count:1
+
+[[FVTX]]
+Attributes Count:7
+Name: _p0
+Buffer Index: 0
+Offset: 0
+Format: Format_16_16_16_16_Single
+Name: _n0
+Buffer Index: 2
+Offset: 0
+Format: Format_10_10_10_2_SNorm
+Name: _t0
+Buffer Index: 2
+Offset: 4
+Format: Format_8_8_8_8_SNorm
+Name: _b0
+Buffer Index: 3
+Offset: 0
+Format: Format_8_8_8_8_SNorm
+Name: _c0
+Buffer Index: 2
+Offset: 12
+Format: Format_8_8_8_8_UNorm
+Name: _u0
+Buffer Index: 2
+Offset: 8
+Format: Format_16_16_SNorm
+Name: _i0
+Buffer Index: 1
+Offset: 0
+Format: Format_8_UInt
+Buffers Count:4
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 610176
+Stride: 1
+Data: System.Byte[][]
+Buffer Offset: 610752
+Stride: 16
+Data: System.Byte[][]
+Buffer Offset: 610880
+Stride: 4
+Data: System.Byte[][]
+Buffer Offset: 611968
+Vertex Count:68
+Vertex Skin Count:1
+
+[[FVTX]]
+Attributes Count:9
+Name: _p0
+Buffer Index: 0
+Offset: 0
+Format: Format_16_16_16_16_Single
+Name: _n0
+Buffer Index: 2
+Offset: 0
+Format: Format_10_10_10_2_SNorm
+Name: _t0
+Buffer Index: 2
+Offset: 4
+Format: Format_8_8_8_8_SNorm
+Name: _b0
+Buffer Index: 3
+Offset: 0
+Format: Format_8_8_8_8_SNorm
+Name: _c0
+Buffer Index: 2
+Offset: 16
+Format: Format_8_8_8_8_UNorm
+Name: _u0
+Buffer Index: 2
+Offset: 8
+Format: Format_16_16_UNorm
+Name: _u1
+Buffer Index: 2
+Offset: 12
+Format: Format_16_16_UNorm
+Name: _i0
+Buffer Index: 1
+Offset: 4
+Format: Format_8_8_8_8_UInt
+Name: _w0
+Buffer Index: 1
+Offset: 0
+Format: Format_8_8_8_8_UNorm
+Buffers Count:4
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 612288
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 628096
+Stride: 20
+Data: System.Byte[][]
+Buffer Offset: 643904
+Stride: 4
+Data: System.Byte[][]
+Buffer Offset: 683392
+Vertex Count:1974
+Vertex Skin Count:4
+
+[[FVTX]]
+Attributes Count:7
+Name: _p0
+Buffer Index: 0
+Offset: 0
+Format: Format_16_16_16_16_Single
+Name: _n0
+Buffer Index: 2
+Offset: 0
+Format: Format_10_10_10_2_SNorm
+Name: _t0
+Buffer Index: 2
+Offset: 4
+Format: Format_8_8_8_8_SNorm
+Name: _b0
+Buffer Index: 3
+Offset: 0
+Format: Format_8_8_8_8_SNorm
+Name: _u0
+Buffer Index: 2
+Offset: 8
+Format: Format_16_16_UNorm
+Name: _i0
+Buffer Index: 1
+Offset: 4
+Format: Format_8_8_8_8_UInt
+Name: _w0
+Buffer Index: 1
+Offset: 0
+Format: Format_8_8_8_8_UNorm
+Buffers Count:4
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 691328
+Stride: 8
+Data: System.Byte[][]
+Buffer Offset: 709952
+Stride: 12
+Data: System.Byte[][]
+Buffer Offset: 728576
+Stride: 4
+Data: System.Byte[][]
+Buffer Offset: 756480
+Vertex Count:2322
+Vertex Skin Count:4

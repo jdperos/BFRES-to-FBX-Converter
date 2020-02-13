@@ -17,9 +17,32 @@ namespace BFRES_Importer
             writer.WriteLine("FMAT Count: " + model.Materials.Count);
             writer.WriteLine("Total Vertices: " + model.TotalVertexCount);
 
-            FVTX.DumpFVTXData(model, writer);
+            // FVTX.DumpFVTXData(model, writer);
+
+            foreach (Material mat in model.Materials.Values)
+            {
+                // Read Materials Function
+            }
+            foreach (Shape shp in model.Shapes.Values)
+            {
+                VertexBuffer vertexBuffer = model.VertexBuffers[shp.VertexBufferIndex];
+                Material material = model.Materials[shp.MaterialIndex];
+                ReadShapesVertices(writer, shp, vertexBuffer, model);
+            }
 
             writer.Flush();
+        }
+
+        public static void ReadShapesVertices(StreamWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
+        {
+            // Clear Bounding Boxes
+            // Clear Bounding Radius
+            // Clear Bone Indices
+
+            foreach (Bounding bnd in shp.SubMeshBoundings)
+            {
+                writer.WriteLine(bnd.Center.X + );
+            }
         }
     }
 
@@ -37,49 +60,7 @@ namespace BFRES_Importer
 
                 for (int j = 0; j < model.VertexBuffers[i].Attributes.Count; j++)
                 {
-                    writer.Write("Name: ");
-                    switch (model.VertexBuffers[i].Attributes[j].Name)
-                    {
-                        case "_p0":
-                            writer.Write("position0");
-                            break;
-                        case "_n0":
-                            writer.Write("normal0");
-                            break;
-                        case "_t0":
-                            writer.Write("tangent0");
-                            break;
-                        case "_b0":
-                            writer.Write("binormal0");
-                            break;
-                        case "_w0":
-                            writer.Write("blendweight0");
-                            break;
-                        case "_i0":
-                            writer.Write("blendindex0");
-                            break;
-                        case "_u0":
-                            writer.Write("uv0");
-                            break;
-                        case "_u1":
-                            writer.Write("uv1");
-                            break;
-                        case "_u2":
-                            writer.Write("uv2");
-                            break;
-                        case "_u3":
-                            writer.Write("uv3");
-                            break;
-                        case "_c0":
-                            writer.Write("color0");
-                            break;
-                        case "_c1":
-                            writer.Write("color1");
-                            break;
-                        default:
-                            break;
-                    }
-                    writer.Write("\n");
+                    writer.WriteLine("Name: " + model.VertexBuffers[i].Attributes[j].Name);
                     writer.WriteLine("Buffer Index: " + model.VertexBuffers[i].Attributes[j].BufferIndex);
                     writer.WriteLine("Offset: " + model.VertexBuffers[i].Attributes[j].Offset);
                     writer.WriteLine("Format: " + model.VertexBuffers[i].Attributes[j].Format);

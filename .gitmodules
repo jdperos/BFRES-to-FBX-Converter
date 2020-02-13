@@ -1,3 +1,6 @@
 [submodule "NintenTools.Bfres"]
 	path = NintenTools.Bfres
 	url = https://github.com/KillzXGaming/NintenTools.Bfres.git
+[submodule "Maths"]
+	path = Maths
+	url = https://gitlab.com/Syroot/Maths.git

@@ -1,7 +1,12 @@
 ﻿using System.IO;
 using ResU = Syroot.NintenTools.Bfres;
 using Syroot.NintenTools.Bfres;
+using Syroot.NintenTools.Bfres.Core;
 using Syroot.NintenTools.Bfres.Helpers;
+using Syroot.NintenTools.Bfres.GX2;
+using Syroot.BinaryData;
+using Syroot.BinaryData.Core;
+using Syroot.Maths;
 
 namespace BFRES_Importer
 {
@@ -35,14 +40,49 @@ namespace BFRES_Importer
 
         public static void ReadShapesVertices(StreamWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
         {
-            // Clear Bounding Boxes
-            // Clear Bounding Radius
-            // Clear Bone Indices
+            // TODO: Clear Bounding Boxes
+            // TODO: Clear Bounding Radius
+            // TODO: Clear Bone Indices
+            writer.WriteLine("Shape name: " + shp.Name);
 
             foreach (Bounding bnd in shp.SubMeshBoundings)
             {
-                writer.WriteLine(bnd.Center.X + );
+                writer.WriteLine("Bounding Center: (" + bnd.Center.X + ", " + bnd.Center.Y + ", " + bnd.Center.Z + ")");
+                writer.WriteLine("Bounding Extent: (" + bnd.Extent.X + ", " + bnd.Extent.Y + ", " + bnd.Extent.Z + ")");
             }
+
+            foreach (float rad in shp.RadiusArray)
+            {
+                // ???
+            }
+
+            writer.WriteLine("Shape Vertex Buffer Index: " + shp.VertexBufferIndex);
+            writer.WriteLine("Shape Vertex Skin Count: " + shp.VertexSkinCount);
+            writer.WriteLine("Shape Bone Index: " + shp.BoneIndex);
+            writer.WriteLine("Shape Target Attribute Count: " + shp.TargetAttribCount);
+            writer.WriteLine("Shape Material Index: " + shp.MaterialIndex);
+
+            if (shp.SkinBoneIndices != null)
+            {
+                writer.Write("Shape Skin Bone Indices: {");
+                foreach (ushort bn in shp.SkinBoneIndices)
+                {
+                    writer.Write(bn + ", ");
+                }
+                writer.Write("}\n");
+            }
+
+            //ReadMeshes()
+            ReadVertexBuffer(writer, shp, vertexBuffer, model);
+        }
+
+        private static void ReadVertexBuffer(StreamWriter writer, Shape shp, VertexBuffer vtx, ResU.Model model)
+        {
+            // TODO: Clear vertices
+            // TODO: Clear vertex attributes
+
+            //Create a buffer instance which stores all the buffer data
+            VertexBufferHelper helper = new VertexBufferHelper(vtx, Syroot.BinaryData.ByteOrder.BigEndian);
         }
     }
 

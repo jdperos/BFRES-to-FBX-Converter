@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BinaryData\src\Syroot.BinaryData.Core\Syroot.BinaryData.Core.csproj" />
+    <ProjectReference Include="..\BinaryData\src\Syroot.BinaryData\Syroot.BinaryData.csproj" />
     <ProjectReference Include="..\Maths\src\Syroot.Maths\Syroot.Maths.csproj" />
     <ProjectReference Include="..\NintenTools.Bfres\src\Syroot.NintenTools.Bfres\Syroot.NintenTools.Bfres.csproj" />
   </ItemGroup>

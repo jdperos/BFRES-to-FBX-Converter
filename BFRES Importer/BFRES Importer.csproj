@@ -7,10 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BinaryData\src\Syroot.BinaryData.Core\Syroot.BinaryData.Core.csproj" />
-    <ProjectReference Include="..\BinaryData\src\Syroot.BinaryData\Syroot.BinaryData.csproj" />
-    <ProjectReference Include="..\Maths\src\Syroot.Maths\Syroot.Maths.csproj" />
     <ProjectReference Include="..\NintenTools.Bfres\src\Syroot.NintenTools.Bfres\Syroot.NintenTools.Bfres.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Syroot.BinaryData">
+      <HintPath>..\BinaryData\src\Syroot.BinaryData\bin\Debug\netstandard2.1\Syroot.BinaryData.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.Maths">
+      <HintPath>..\Maths\src\Syroot.Maths\bin\Debug\netstandard2.0\Syroot.Maths.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

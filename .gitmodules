@@ -4,3 +4,6 @@
 [submodule "Maths"]
 	path = Maths
 	url = https://gitlab.com/Syroot/Maths.git
+[submodule "BinaryData"]
+	path = BinaryData
+	url = https://gitlab.com/Syroot/BinaryData.git

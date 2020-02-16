@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Xml;
 using ResU = Syroot.NintenTools.Bfres;
 
 namespace BFRES_Importer

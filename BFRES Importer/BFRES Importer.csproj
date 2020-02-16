@@ -11,6 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="OpenTK">
+      <HintPath>Lib\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="Syroot.BinaryData">
       <HintPath>..\BinaryData\src\Syroot.BinaryData\bin\Debug\netstandard2.1\Syroot.BinaryData.dll</HintPath>
     </Reference>

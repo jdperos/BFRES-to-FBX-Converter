@@ -1,5 +1,6 @@
 ﻿using Syroot.NintenTools.Bfres;
 using Syroot.NintenTools.Bfres.Helpers;
+using Syroot.NintenTools.Bfres.GX2;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -10,7 +11,7 @@ namespace BFRES_Importer
 {
     public class FMDL
     {
-        public void DumpFMDLData(ResU.Model model, XmlWriter writer)
+        public void WriteFMDLData(ResU.Model model, XmlWriter writer)
         {
             writer.WriteStartElement("FMDL");
             writer.WriteAttributeString("Name",model.Name);
@@ -32,11 +33,14 @@ namespace BFRES_Importer
 
             //model.ModelU = mdl;
 
-            
+            writer.WriteStartElement("Materials");
             foreach (Material mat in model.Materials.Values)
             {
-                // Read Materials Function
+                FMAT.ReadMaterial(writer, mat);
             }
+            writer.WriteEndElement();
+
+            writer.WriteStartElement("Shapes");
             foreach (Shape shp in model.Shapes.Values)
             {
                 writer.WriteStartElement("FSHP");
@@ -45,6 +49,8 @@ namespace BFRES_Importer
                 ReadShapesVertices(writer, shp, vertexBuffer, model);
                 writer.WriteEndElement();
             }
+            writer.WriteEndElement();
+
             writer.WriteEndElement();
             writer.Flush();
         }
@@ -66,7 +72,7 @@ namespace BFRES_Importer
                 writer.Flush();
                 nodes++;
             }
-            tempBoneList.Trim(',');
+            tempBoneList = tempBoneList.Trim(',');
             writer.WriteAttributeString("BoneList", tempBoneList);
 
             int boneIndex = 0;
@@ -109,9 +115,6 @@ namespace BFRES_Importer
 
         public static void ReadShapesVertices(XmlWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
         {
-            // TODO: Clear Bounding Boxes
-            // TODO: Clear Bounding Radius
-            // TODO: Clear Bone Indices
             writer.WriteAttributeString("Name", shp.Name);
             writer.WriteAttributeString("VertexBufferIndex", shp.VertexBufferIndex.ToString());
             writer.WriteAttributeString("VertexSkinCount", shp.VertexSkinCount.ToString());
@@ -119,7 +122,16 @@ namespace BFRES_Importer
             writer.WriteAttributeString("TargetAttributeCount", shp.TargetAttribCount.ToString());
             writer.WriteAttributeString("MaterialIndex", shp.MaterialIndex.ToString());
 
+            // Write Bounding Radius
+            string tempRadiusArray = "";
+            foreach (float rad in shp.RadiusArray)
+            {
+                tempRadiusArray += (rad.ToString() + ',');
+            }
+            tempRadiusArray = tempRadiusArray.Trim(',');
+            writer.WriteAttributeString("BoundingRadius", tempRadiusArray);
 
+            // Write Skin Bone Indices
             if (shp.SkinBoneIndices != null)
             {
                 string tempSkinBoneIndices = "";
@@ -127,10 +139,11 @@ namespace BFRES_Importer
                 {
                     tempSkinBoneIndices += (bn + ",");
                 }
-                tempSkinBoneIndices.Trim(',');
+                tempSkinBoneIndices = tempSkinBoneIndices.Trim(',');
                 writer.WriteAttributeString("SkinBoneIndices", tempSkinBoneIndices);
             }
 
+            // Write Bounding Boxes
             foreach (Bounding bnd in shp.SubMeshBoundings)
             {
                 writer.WriteStartElement("Bounding");
@@ -139,20 +152,65 @@ namespace BFRES_Importer
                 writer.WriteEndElement();
             }
 
-            foreach (float rad in shp.RadiusArray)
-            {
-                // ???
-            }
-
-            //ReadMeshes()
+            ReadMeshes(writer, shp);
             ReadVertexBuffer(writer, shp, vertexBuffer, model);
+        }
+
+        /// <summary>
+        /// Works out polygon data in the meshes
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="shp"></param>
+        private static void ReadMeshes(XmlWriter writer, Shape shp)
+        {
+            writer.WriteStartElement("Meshes");
+            foreach (Mesh msh in shp.Meshes)
+            {
+                uint FaceCount = msh.IndexCount;
+                uint[] indicesArray = msh.GetIndices().ToArray();
+
+
+                // FSHP.LOD_Mesh lod = new FSHP.LOD_Mesh();
+                writer.WriteStartElement("LODMesh");
+
+
+                // lod.IndexFormat = (STIndexFormat)msh.IndexFormat;
+                writer.WriteAttributeString("IndexFormat", msh.IndexFormat.ToString());
+
+                writer.WriteAttributeString("PrimitiveType", msh.PrimitiveType.ToString());
+
+                // lod.FirstVertex = msh.FirstVertex;
+                writer.WriteAttributeString("FirstVertex", msh.FirstVertex.ToString());
+
+                List<int> tempFaceList = new List<int>();
+                for (int face = 0; face < FaceCount; face++)
+                    tempFaceList.Add((int)indicesArray[face] + (int)msh.FirstVertex);
+                string tempFaces = "";
+                foreach (int fc in tempFaceList)
+                    tempFaces += (fc + ",");
+                tempFaces = tempFaces.Trim(',');
+                writer.WriteAttributeString("FaceVertices", tempFaces);
+
+                foreach (SubMesh subMsh in msh.SubMeshes)
+                {
+                    // FSHP.LOD_Mesh.SubMesh sub = new FSHP.LOD_Mesh.SubMesh();
+                    writer.WriteStartElement("SubMesh");
+                    // sub.size = subMsh.Count;
+                    writer.WriteAttributeString("Count", subMsh.Count.ToString());
+                    // sub.offset = subMsh.Offset;
+                    writer.WriteAttributeString("Offset", subMsh.Offset.ToString());
+                    /// lod.subMeshes.Add(sub);
+                    writer.WriteEndElement();
+                }
+
+                //fshp.lodMeshes.Add(lod);
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
         }
 
         private static void ReadVertexBuffer(XmlWriter writer, Shape shp, VertexBuffer vtx, ResU.Model model)
         {
-            // TODO: Clear vertices
-            // TODO: Clear vertex attributes
-
             //Create a buffer instance which stores all the buffer data
             VertexBufferHelper helper = new VertexBufferHelper(vtx, Syroot.BinaryData.ByteOrder.BigEndian);
 
@@ -351,6 +409,8 @@ namespace BFRES_Importer
 
             }
 
+            // Write Vertex Data
+            writer.WriteStartElement("Vertices");
             for (int i = 0; i < vertices.Count; i++)
             {
                 writer.WriteStartElement("FVTX");
@@ -373,7 +433,7 @@ namespace BFRES_Importer
                 {
                     tempBoneWeights += (w.ToString() + ',');
                 }
-                tempBoneWeights.Trim(',');
+                tempBoneWeights = tempBoneWeights.Trim(',');
                 writer.WriteAttributeString("BlendWeights", tempBoneWeights);
 
                 string tempBoneIds = "";
@@ -381,12 +441,11 @@ namespace BFRES_Importer
                 {
                     tempBoneIds += (w.ToString() + ',');
                 }
-                tempBoneIds.Trim(',');
+                tempBoneIds = tempBoneIds.Trim(',');
                 writer.WriteAttributeString("BlendIndex", tempBoneIds);
-
-
                 writer.WriteEndElement();
             }
+            writer.WriteEndElement();
 
 
 

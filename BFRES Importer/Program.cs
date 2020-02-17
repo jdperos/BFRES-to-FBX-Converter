@@ -15,8 +15,6 @@ namespace BFRES_Importer
 
         public static void LoadFile(ResU.ResFile res)
         {
-            //StreamWriter writer = new StreamWriter("../../../../TestAssets/Dump.txt");
-            //writer.AutoFlush = true;
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             settings.IndentChars = "    ";
@@ -32,7 +30,7 @@ namespace BFRES_Importer
                 for (int ii = 0; ii < res.Models.Count; ii++)
                 {
                     FMDL fMDL = new FMDL();
-                    fMDL.DumpFMDLData(res.Models[ii], writer);
+                    fMDL.WriteFMDLData(res.Models[ii], writer);
                 }
             }
             writer.WriteEndElement();

@@ -152,10 +152,12 @@
   <ItemGroup>
     <ClCompile Include="BFRES to FBX Converter.cpp" />
     <ClCompile Include="MyFBXCube.cpp" />
+    <ClCompile Include="XmlParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyFBXCube.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="XmlParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BFRES to FBX Converter.rc" />

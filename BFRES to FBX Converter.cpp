@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fbxsdk.h>
 #include "MyFBXCube.h"
+#include "XmlParser.h"
 
 #ifdef IOS_REF
     #undef  IOS_REF
@@ -72,13 +73,15 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
 
 int main()
 {
-    FbxManager* lSdkManager = FbxManager::Create();
-    FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
+    XmlParser::Parse();
 
-    MyFBXCube* cube = new MyFBXCube();
-    cube->CreateCube(pScene);
+    //FbxManager* lSdkManager = FbxManager::Create();
+    //FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
 
-    SaveDocument(lSdkManager, pScene, "Name.fbx");
+    //MyFBXCube* cube = new MyFBXCube();
+    //cube->CreateCube(pScene);
+
+    //SaveDocument(lSdkManager, pScene, "Name.fbx");
 
     return 0;
 }

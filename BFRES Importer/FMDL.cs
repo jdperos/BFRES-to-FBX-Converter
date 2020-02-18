@@ -15,25 +15,12 @@ namespace BFRES_Importer
         {
             writer.WriteStartElement("FMDL");
             writer.WriteAttributeString("Name"         , model.Name                          );
-            writer.WriteAttributeString("FVTXCount"    , model.VertexBuffers.Count.ToString());
-            writer.WriteAttributeString("FSHPCount"    , model.Shapes.Count.ToString()       );
-            writer.WriteAttributeString("FMATCount"    , model.Materials.Count.ToString()    );
-            writer.WriteAttributeString("TotalVertices", model.TotalVertexCount.ToString()   );
 
+            // TODO Wrap these functions in if exists conditions, so that the xml only contains relevant data
             ReadSkeleton(writer, model.Skeleton);
 
-            //if (model == null)
-            //    model = new FMDL();
-
-            //model.Text = mdl.Name;
-            //model.Skeleton = new FSKL(mdl.Skeleton);
-
-            //model.Nodes.RemoveAt(2);
-            //model.Nodes.Add(model.Skeleton.node);
-
-            //model.ModelU = mdl;
-
             writer.WriteStartElement("Materials");
+            writer.WriteAttributeString("FMATCount", model.Materials.Count.ToString());
             foreach (Material mat in model.Materials.Values)
             {
                 FMAT.ReadMaterial(writer, mat);
@@ -41,6 +28,9 @@ namespace BFRES_Importer
             writer.WriteEndElement();
 
             writer.WriteStartElement("Shapes");
+            writer.WriteAttributeString("FSHPCount", model.Shapes.Count.ToString());
+            writer.WriteAttributeString("FVTXCount", model.VertexBuffers.Count.ToString());
+            writer.WriteAttributeString("TotalVertices", model.TotalVertexCount.ToString());
             foreach (Shape shp in model.Shapes.Values)
             {
                 writer.WriteStartElement("FSHP");
@@ -64,7 +54,6 @@ namespace BFRES_Importer
             writer.WriteAttributeString("SkeletonBoneCount", skeleton.MatrixToBoneList.Count.ToString());
 
             int nodes = 0;
-            writer.WriteStartElement("Bones");
             string tempBoneList = "";
             foreach (ushort node in skeleton.MatrixToBoneList)
             {
@@ -84,7 +73,6 @@ namespace BFRES_Importer
                 writer.WriteEndElement();
                 boneIndex++;
             }
-            writer.WriteEndElement();
             writer.WriteEndElement();
         }
 
@@ -149,6 +137,7 @@ namespace BFRES_Importer
             // Summary:
             //     Represents a spatial bounding box.
             writer.WriteStartElement("SubMeshBoundings");
+            writer.WriteAttributeString("SubMeshBoundingsCount", shp.SubMeshBoundings.Count.ToString());
             foreach (Bounding bnd in shp.SubMeshBoundings)
             {
                 writer.WriteStartElement("SubMeshBounding");
@@ -163,6 +152,7 @@ namespace BFRES_Importer
             //     Represents a node in a Syroot.NintenTools.Bfres.SubMesh bounding tree to determine
             //     when to show which sub mesh of a Syroot.NintenTools.Bfres.Mesh.
             writer.WriteStartElement("SubMeshBoundingNodes");
+            writer.WriteAttributeString("SubMeshBoundingNodesCount", shp.SubMeshBoundingNodes.Count.ToString());
             foreach (BoundingNode node in shp.SubMeshBoundingNodes)
             {
                 writer.WriteStartElement("SubMeshBoundingNode");
@@ -178,6 +168,7 @@ namespace BFRES_Importer
 
             // Write SubMesh Bounding Indices
             writer.WriteStartElement("SubMeshBoundingIndices");
+            writer.WriteAttributeString("SubMeshBoundingIndicesCount", shp.SubMeshBoundingIndices.Count.ToString());
             if (shp.SubMeshBoundingIndices != null)
             {
                 string tempSubMeshBoundingIndices = "";
@@ -202,6 +193,7 @@ namespace BFRES_Importer
         private static void ReadMeshes(XmlWriter writer, Shape shp)
         {
             writer.WriteStartElement("Meshes");
+            writer.WriteAttributeString("LODMeshCount", shp.Meshes.Count.ToString());
             foreach (Mesh msh in shp.Meshes)
             {
                 uint FaceCount = msh.IndexCount;
@@ -437,9 +429,10 @@ namespace BFRES_Importer
 
             // Write Vertex Data
             writer.WriteStartElement("Vertices");
+            writer.WriteAttributeString("VertexCount", vtx.VertexCount.ToString());
             for (int i = 0; i < vertices.Count; i++)
             {
-                writer.WriteStartElement("FVTX");
+                writer.WriteStartElement("Vertex");
 
                 writer.WriteAttributeString("Index"    , i.ToString()                              );
                 writer.WriteAttributeString("Position0", Program.Vector3ToString(vertices[i].pos)  );

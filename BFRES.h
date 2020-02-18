@@ -7,7 +7,10 @@ using namespace std;
 
 class BFRES
 {
+
+
 public:
+
 	enum eRotationType
 	{
 		Quaternion = 0,
@@ -107,6 +110,47 @@ public:
 		UInt32 = 9
 	};
 
+	struct ShaderAssign
+	{
+		// TODO
+	};
+
+	struct ShaderParams 
+	{
+		// TODO
+	};
+
+	struct RenderInfo 
+	{
+		// TODO
+	};
+
+	struct FMAT
+	{
+		string       name;
+		bool         isVisible;
+		RenderInfo   renderInfo;
+		ShaderAssign shaderAssign;
+		ShaderParams shaderParams;
+		// TODO
+	};
+
+	//
+	// Summary:
+	//     Represents a node in a Syroot.NintenTools.Bfres.SubMesh bounding tree to determine
+	//     when to show which sub mesh of a Syroot.NintenTools.Bfres.Mesh.
+	struct SubMeshBounding 
+	{
+		Math::vector3F center;
+		Math::vector3F extent;
+	};
+
+	struct SubMesh 
+	{
+		int count;
+		int offset;
+	};
+
 	struct FVTX 
 	{
 		int index;
@@ -125,12 +169,6 @@ public:
 		Math::vector4  blendIndex;
 	};
 
-	struct SubMesh 
-	{
-		int count;
-		int offset;
-	};
-
 	struct LODMesh 
 	{
 		GX2PrimitiveType primitiveType;
@@ -139,16 +177,6 @@ public:
 		int              firstVertex;
 		vector<int>      faceVertices;
 		SubMesh          subMesh;
-	};
-
-	//
-	// Summary:
-	//     Represents a node in a Syroot.NintenTools.Bfres.SubMesh bounding tree to determine
-	//     when to show which sub mesh of a Syroot.NintenTools.Bfres.Mesh.
-	struct SubMeshBounding 
-	{
-		Math::vector3F center;
-		Math::vector3F extent;
 	};
 
 	struct FSHP
@@ -165,31 +193,6 @@ public:
 		vector<LODMesh>         lodMeshes;
 		vector<FVTX>            vertices;
 
-	};
-
-	struct ShaderParams 
-	{
-		// TODO
-	};
-
-	struct ShaderAssign
-	{
-		// TODO
-	};
-
-	struct RenderInfo 
-	{
-		// TODO
-	};
-
-	struct FMAT
-	{
-		string       name;
-		bool         isVisible;
-		RenderInfo   renderInfo;
-		ShaderAssign shaderAssign;
-		ShaderParams shaderParams;
-		// TODO
 	};
 
 	struct Bone 
@@ -237,7 +240,6 @@ public:
 	{
 		vector<FMDL> fmdl;
 	};
-
 
 };
 

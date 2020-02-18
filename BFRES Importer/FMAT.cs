@@ -99,7 +99,7 @@ namespace BFRES_Importer
             ReadShaderParams(writer, mat);
             ReadTextureRefs(writer, mat);
             ReadRenderState(writer, mat.RenderState);
-            //UpdateRenderPass();
+            UpdateRenderPass(writer, mat);
 
             writer.WriteEndElement();
         }
@@ -376,15 +376,6 @@ namespace BFRES_Importer
                 writer.WriteStartElement("Texture");
                 TextureName = tex.Name;
 
-                if (tex.Texture != null)
-                {
-                    // TODO fill out the texture section and make it work for Tex1 bfres files, to dump all the Texture data
-                    writer.WriteAttributeString("TestName" , tex.Texture.Name                );
-                    writer.WriteAttributeString("AAMode"   , tex.Texture.AAMode.ToString()   );
-                    writer.WriteAttributeString("Alignment", tex.Texture.Alignment.ToString());
-                    // etc...
-                }
-
                 writer.WriteAttributeString("TextureName", tex.Name);
                 writer.WriteAttributeString("ClampX", mat.Samplers[id].TexSampler.ClampX.ToString());
                 writer.WriteAttributeString("ClampY", mat.Samplers[id].TexSampler.ClampY.ToString());
@@ -421,6 +412,7 @@ namespace BFRES_Importer
 
                 if (useSampler == "s_diffuse")
                 {
+                    // TODO This "HasDiffuseMap" etc, should be set as an attribute on the material, not the texture
                     writer.WriteAttributeString("HasDiffuseMap", "True");
                     AlbedoCount++;
                     writer.WriteAttributeString("Type", "Diffuse");
@@ -512,6 +504,36 @@ namespace BFRES_Importer
                 //m.TextureMaps.Add(texture);
                 writer.WriteEndElement();
 
+                if (tex.Texture != null)
+                {
+                    writer.WriteStartElement("TextureInfo");
+                    
+                    // TODO test that this works with texture bfres files
+                    writer.WriteAttributeString("CompSelR"   , tex.Texture.CompSelR.ToString()   );
+                    writer.WriteAttributeString("CompSelG"   , tex.Texture.CompSelG.ToString()   );
+                    writer.WriteAttributeString("CompSelB"   , tex.Texture.CompSelB.ToString()   );
+                    writer.WriteAttributeString("CompSelA"   , tex.Texture.CompSelA.ToString()   );
+                    writer.WriteAttributeString("Name"       , tex.Texture.Name                  );
+                    writer.WriteAttributeString("Path"       , tex.Texture.Path                  );
+                    writer.WriteAttributeString("Width"      , tex.Texture.Width.ToString()      );
+                    writer.WriteAttributeString("Height"     , tex.Texture.Height.ToString()     );
+                    writer.WriteAttributeString("Depth"      , tex.Texture.Depth.ToString()      );
+                    writer.WriteAttributeString("Swizzle"    , tex.Texture.Swizzle.ToString()    );
+                    writer.WriteAttributeString("Alignment"  , tex.Texture.Alignment.ToString()  );
+                    writer.WriteAttributeString("ArrayLength", tex.Texture.ArrayLength.ToString());
+                    writer.WriteAttributeString("Pitch"      , tex.Texture.Pitch.ToString()      );
+                    writer.WriteAttributeString("TileMode"   , tex.Texture.TileMode.ToString()   );
+                    writer.WriteAttributeString("AAMode"     , tex.Texture.AAMode.ToString()     );
+                    writer.WriteAttributeString("Dim"        , tex.Texture.Dim.ToString()        );
+                    writer.WriteAttributeString("Format"     , tex.Texture.Format.ToString()     );
+                    writer.WriteAttributeString("Data"       , tex.Texture.Data.ToString()       );
+                    writer.WriteAttributeString("MipData"    , tex.Texture.MipData.ToString()    );
+                    writer.WriteAttributeString("Regs"       , tex.Texture.Regs.ToString()       );
+                    writer.WriteAttributeString("UserData"   , tex.Texture.UserData.ToString()   );
+                    
+                    writer.WriteEndElement();
+                }
+
                 id++;
 
             }
@@ -542,6 +564,24 @@ namespace BFRES_Importer
 
 
 
+            writer.WriteEndElement();
+        }
+
+        public static void UpdateRenderPass(XmlWriter writer, Material mat)
+        {
+            writer.WriteStartElement("RenderPass");
+            if (mat != null)
+            {
+                bool bIsOpaque          = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Opaque;
+                bool bIsTranslucent     = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Translucent;
+                bool bIsTransparentMask = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.AlphaMask;
+                bool bIsCustom          = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Custom;
+
+                writer.WriteAttributeString("IsOpaque"         , bIsOpaque.ToString()         );
+                writer.WriteAttributeString("IsTranslucent"    , bIsTranslucent.ToString()    );
+                writer.WriteAttributeString("IsTransparentMask", bIsTransparentMask.ToString());
+                writer.WriteAttributeString("IsCustom"         , bIsCustom.ToString()         );
+            }
             writer.WriteEndElement();
         }
     }

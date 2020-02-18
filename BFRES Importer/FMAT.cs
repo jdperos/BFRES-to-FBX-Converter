@@ -98,7 +98,7 @@ namespace BFRES_Importer
             //SetActiveGame();
             ReadShaderParams(writer, mat);
             ReadTextureRefs(writer, mat);
-            //ReadRenderState(mat.RenderState);
+            ReadRenderState(writer, mat.RenderState);
             //UpdateRenderPass();
 
             writer.WriteEndElement();
@@ -515,6 +515,33 @@ namespace BFRES_Importer
                 id++;
 
             }
+            writer.WriteEndElement();
+        }
+        
+        public static void ReadRenderState(XmlWriter writer, RenderState renderState)
+        {
+            writer.WriteStartElement("RenderState");
+
+            writer.WriteAttributeString("DepthTestEnabled", renderState.DepthTestEnabled.ToString());
+            writer.WriteAttributeString("DepthWriteEnabled", renderState.DepthWriteEnabled.ToString());
+            writer.WriteAttributeString("DepthFunc", renderState.DepthFunc.ToString());
+            writer.WriteAttributeString("StencilTestEnabled", renderState.StencilTestEnabled.ToString());
+            writer.WriteAttributeString("BackStencilEnabled", renderState.BackStencilEnabled.ToString());
+            writer.WriteAttributeString("FrontStencilFunc", renderState.FrontStencilFunc.ToString());
+            writer.WriteAttributeString("FrontStencilFail", renderState.FrontStencilFail.ToString());
+
+            writer.WriteAttributeString("FrontStencilZPass", renderState.FrontStencilZPass.ToString());
+            writer.WriteAttributeString("FrontStencilZFail", renderState.FrontStencilZFail.ToString());
+            writer.WriteAttributeString("BackStencilFunc", renderState.BackStencilFunc.ToString());
+            writer.WriteAttributeString("BackStencilFail", renderState.BackStencilFail.ToString());
+            writer.WriteAttributeString("BackStencilZPass", renderState.BackStencilZPass.ToString());
+            writer.WriteAttributeString("BackStencilZFail", renderState.BackStencilZFail.ToString());
+
+            writer.WriteAttributeString("PolygonControl", renderState.PolygonControl.ToString());
+            // TODO etc...
+
+
+
             writer.WriteEndElement();
         }
     }

@@ -9,7 +9,7 @@ namespace BFRES_Importer
     {
         static void Main(string[] args)
         {
-            ResU.ResFile res = new ResU.ResFile("../../../../TestAssets/Npc_Gerudo_Queen.bfres");
+            ResU.ResFile res = new ResU.ResFile("../../../../TestAssets/Npc_Gerudo_Queen.Tex1.bfres");
             WriteResToXML(res);
         }
 
@@ -30,9 +30,21 @@ namespace BFRES_Importer
                 for (int ii = 0; ii < res.Models.Count; ii++)
                 {
                     FMDL fMDL = new FMDL();
-                    fMDL.WriteFMDLData(res.Models[ii], writer);
+                    fMDL.WriteFMDLData(writer, res.Models[ii]);
                 }
             }
+
+            if (res.Textures.Count > 0)
+            {
+                writer.WriteStartElement("FTEXes");
+                for (int ii = 0; ii < res.Textures.Count; ii++)
+                {
+                    FTEX.WriteFTEXData(writer, res.Textures[ii]);
+                }
+                writer.WriteEndElement();
+            }
+
+
             writer.WriteEndElement();
             writer.WriteEndDocument();
             writer.Close();

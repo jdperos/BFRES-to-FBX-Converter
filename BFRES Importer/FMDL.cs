@@ -11,7 +11,7 @@ namespace BFRES_Importer
 {
     public class FMDL
     {
-        public void WriteFMDLData(ResU.Model model, XmlWriter writer)
+        public void WriteFMDLData(XmlWriter writer, ResU.Model model)
         {
             writer.WriteStartElement("FMDL");
             writer.WriteAttributeString("Name"         , model.Name                          );
@@ -28,9 +28,10 @@ namespace BFRES_Importer
             writer.WriteEndElement();
 
             writer.WriteStartElement("Shapes");
-            writer.WriteAttributeString("FSHPCount", model.Shapes.Count.ToString());
-            writer.WriteAttributeString("FVTXCount", model.VertexBuffers.Count.ToString());
-            writer.WriteAttributeString("TotalVertices", model.TotalVertexCount.ToString());
+
+            writer.WriteAttributeString("FSHPCount"    , model.Shapes.Count       .ToString());
+            writer.WriteAttributeString("FVTXCount"    , model.VertexBuffers.Count.ToString());
+            writer.WriteAttributeString("TotalVertices", model.TotalVertexCount   .ToString());
             foreach (Shape shp in model.Shapes.Values)
             {
                 writer.WriteStartElement("FSHP");
@@ -80,21 +81,21 @@ namespace BFRES_Importer
         {
             writer.WriteAttributeString("Name"             , bn.Name                                       );
             writer.WriteAttributeString("IsVisible"        , bn.Flags.HasFlag(BoneFlags.Visible).ToString());
-            writer.WriteAttributeString("RigidMatrixIndex" , bn.RigidMatrixIndex.ToString()                );
-            writer.WriteAttributeString("SmoothMatrixIndex", bn.SmoothMatrixIndex.ToString()               );
-            writer.WriteAttributeString("BillboardIndex"   , bn.BillboardIndex.ToString()                  );
+            writer.WriteAttributeString("RigidMatrixIndex" , bn.RigidMatrixIndex                .ToString());
+            writer.WriteAttributeString("SmoothMatrixIndex", bn.SmoothMatrixIndex               .ToString());
+            writer.WriteAttributeString("BillboardIndex"   , bn.BillboardIndex                  .ToString());
 
             bool bUseRigidMatrix = bn.RigidMatrixIndex != -1;
-            writer.WriteAttributeString("UseRigidMatrix"   , bUseRigidMatrix.ToString());
+            writer.WriteAttributeString("UseRigidMatrix", bUseRigidMatrix.ToString());
             bool bUseSmoothMatrix = bn.SmoothMatrixIndex != -1;
-            writer.WriteAttributeString("UseSmoothMatrix"  , bUseSmoothMatrix.ToString());
+            writer.WriteAttributeString("UseSmoothMatrix", bUseSmoothMatrix.ToString());
 
             if (SetParent)
-                writer.WriteAttributeString("ParentIndex"  , bn.ParentIndex.ToString());
+                writer.WriteAttributeString("ParentIndex", bn.ParentIndex.ToString());
             if (bn.FlagsRotation == BoneFlagsRotation.Quaternion)
-                writer.WriteAttributeString("RotationType" , "Quaternion");
+                writer.WriteAttributeString("RotationType", "Quaternion");
             else if (bn.FlagsRotation == BoneFlagsRotation.EulerXYZ)
-                writer.WriteAttributeString("RotationType" , "EulerXYZ");
+                writer.WriteAttributeString("RotationType", "EulerXYZ");
 
             writer.WriteAttributeString("Scale"   , Program.Vector3FToString(bn.Scale)   );
             writer.WriteAttributeString("Rotation", Program.Vector4FToString(bn.Rotation));
@@ -105,10 +106,10 @@ namespace BFRES_Importer
         {
             writer.WriteAttributeString("Name"                , shp.Name                        );
             writer.WriteAttributeString("VertexBufferIndex"   , shp.VertexBufferIndex.ToString());
-            writer.WriteAttributeString("VertexSkinCount"     , shp.VertexSkinCount.ToString()  );
-            writer.WriteAttributeString("BoneIndex"           , shp.BoneIndex.ToString()        );
+            writer.WriteAttributeString("VertexSkinCount"     , shp.VertexSkinCount  .ToString());
+            writer.WriteAttributeString("BoneIndex"           , shp.BoneIndex        .ToString());
             writer.WriteAttributeString("TargetAttributeCount", shp.TargetAttribCount.ToString());
-            writer.WriteAttributeString("MaterialIndex"       , shp.MaterialIndex.ToString()    );
+            writer.WriteAttributeString("MaterialIndex"       , shp.MaterialIndex    .ToString());
 
             // Write Bounding Radius
             string tempRadiusArray = "";
@@ -156,12 +157,14 @@ namespace BFRES_Importer
             foreach (BoundingNode node in shp.SubMeshBoundingNodes)
             {
                 writer.WriteStartElement("SubMeshBoundingNode");
-                writer.WriteAttributeString("LeftChildIndex" , node.LeftChildIndex.ToString() );
-                writer.WriteAttributeString("NextSibling"    , node.NextSibling.ToString()    );
+
+                writer.WriteAttributeString("LeftChildIndex" , node.LeftChildIndex .ToString());
+                writer.WriteAttributeString("NextSibling"    , node.NextSibling    .ToString());
                 writer.WriteAttributeString("RightChildIndex", node.RightChildIndex.ToString());
-                writer.WriteAttributeString("Unknown"        , node.Unknown.ToString()        );
-                writer.WriteAttributeString("SubMeshIndex"   , node.SubMeshIndex.ToString()   );
-                writer.WriteAttributeString("SubMeshCount"   , node.SubMeshCount.ToString()   );
+                writer.WriteAttributeString("Unknown"        , node.Unknown        .ToString());
+                writer.WriteAttributeString("SubMeshIndex"   , node.SubMeshIndex   .ToString());
+                writer.WriteAttributeString("SubMeshCount"   , node.SubMeshCount   .ToString());
+
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -201,10 +204,11 @@ namespace BFRES_Importer
 
 
                 writer.WriteStartElement("LODMesh");
+
                 writer.WriteAttributeString("PrimitiveType", msh.PrimitiveType.ToString());
-                writer.WriteAttributeString("IndexFormat"  , msh.IndexFormat.ToString()  );
-                writer.WriteAttributeString("IndexCount"   , msh.IndexCount.ToString()   );
-                writer.WriteAttributeString("FirstVertex"  , msh.FirstVertex.ToString()  );
+                writer.WriteAttributeString("IndexFormat"  , msh.IndexFormat  .ToString());
+                writer.WriteAttributeString("IndexCount"   , msh.IndexCount   .ToString());
+                writer.WriteAttributeString("FirstVertex"  , msh.FirstVertex  .ToString());
 
                 List<int> tempFaceList = new List<int>();
                 for (int face = 0; face < FaceCount; face++)
@@ -218,7 +222,7 @@ namespace BFRES_Importer
                 foreach (SubMesh subMsh in msh.SubMeshes)
                 {
                     writer.WriteStartElement("SubMesh");
-                    writer.WriteAttributeString("Count" , subMsh.Count.ToString() );
+                    writer.WriteAttributeString("Count" , subMsh.Count.ToString());
                     writer.WriteAttributeString("Offset", subMsh.Offset.ToString());
                     writer.WriteEndElement();
                 }
@@ -434,7 +438,7 @@ namespace BFRES_Importer
             {
                 writer.WriteStartElement("Vertex");
 
-                writer.WriteAttributeString("Index"    , i.ToString()                              );
+                writer.WriteAttributeString("Index"    , i                              .ToString());
                 writer.WriteAttributeString("Position0", Program.Vector3ToString(vertices[i].pos)  );
                 writer.WriteAttributeString("Position1", Program.Vector3ToString(vertices[i].pos1) );
                 writer.WriteAttributeString("Position2", Program.Vector3ToString(vertices[i].pos2) );

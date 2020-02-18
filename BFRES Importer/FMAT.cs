@@ -161,7 +161,7 @@ namespace BFRES_Importer
                 mat.ShaderAssign.SamplerAssigns = new ResDict<ResString>();
 
             writer.WriteAttributeString("ShaderArchive", mat.ShaderAssign.ShaderArchiveName);
-            writer.WriteAttributeString("ShaderModel", mat.ShaderAssign.ShadingModelName);
+            writer.WriteAttributeString("ShaderModel"  , mat.ShaderAssign.ShadingModelName );
 
             writer.WriteStartElement("ShaderOptions");
             foreach (var op in mat.ShaderAssign.ShaderOptions)
@@ -196,21 +196,22 @@ namespace BFRES_Importer
             BinaryDataReader reader = new BinaryDataReader(new System.IO.MemoryStream(mat.ShaderParamData));
             reader.ByteOrder = Syroot.BinaryData.ByteOrder.BigEndian;
             foreach (ShaderParam param in mat.ShaderParams.Values)
-                {
+            {
                 writer.WriteStartElement("ShaderParam");
-                writer.WriteAttributeString("Type"         , param.Type.ToString()         );
+
+                writer.WriteAttributeString("Type"         , param.Type         .ToString());
                 writer.WriteAttributeString("Name"         , param.Name                    );
-                writer.WriteAttributeString("HasPadding"   , param.UsePadding.ToString()   );
+                writer.WriteAttributeString("HasPadding"   , param.UsePadding   .ToString());
                 writer.WriteAttributeString("PaddingLength", param.PaddingLength.ToString());
                 writer.WriteAttributeString("DependedIndex", param.DependedIndex.ToString());
-                writer.WriteAttributeString("DependIndex"  , param.DependIndex.ToString()  );
+                writer.WriteAttributeString("DependIndex"  , param.DependIndex  .ToString());
 
                 reader.Seek(param.DataOffset, System.IO.SeekOrigin.Begin);
                 WriteValue(writer, reader, (int)param.DataSize, param.Type);
 
 
                 writer.WriteEndElement();
-                }
+            }
             reader.Close();
             writer.WriteEndElement();
         }
@@ -400,14 +401,14 @@ namespace BFRES_Importer
                 if (mat.Samplers[id].TexSampler.MagFilter == GX2TexXYFilterType.Bilinear)
                     writer.WriteAttributeString("MagFilter", "Linear");
 
-                writer.WriteAttributeString("ZFilter"            , mat.Samplers[id].TexSampler.ZFilter.ToString()            );
-                writer.WriteAttributeString("MipFilter"          , mat.Samplers[id].TexSampler.MipFilter.ToString()          );
+                writer.WriteAttributeString("ZFilter"            , mat.Samplers[id].TexSampler.ZFilter            .ToString());
+                writer.WriteAttributeString("MipFilter"          , mat.Samplers[id].TexSampler.MipFilter          .ToString());
                 writer.WriteAttributeString("MaxAnisotropicRatio", mat.Samplers[id].TexSampler.MaxAnisotropicRatio.ToString());
-                writer.WriteAttributeString("BorderType"         , mat.Samplers[id].TexSampler.BorderType.ToString()         );
-                writer.WriteAttributeString("DepthCompareFunc"   , mat.Samplers[id].TexSampler.DepthCompareFunc.ToString()   );
-                writer.WriteAttributeString("MinLod"             , mat.Samplers[id].TexSampler.MinLod.ToString()             );
-                writer.WriteAttributeString("MaxLod"             , mat.Samplers[id].TexSampler.MaxLod.ToString()             );
-                writer.WriteAttributeString("LodBias"            , mat.Samplers[id].TexSampler.LodBias.ToString()            );
+                writer.WriteAttributeString("BorderType"         , mat.Samplers[id].TexSampler.BorderType         .ToString());
+                writer.WriteAttributeString("DepthCompareFunc"   , mat.Samplers[id].TexSampler.DepthCompareFunc   .ToString());
+                writer.WriteAttributeString("MinLod"             , mat.Samplers[id].TexSampler.MinLod             .ToString());
+                writer.WriteAttributeString("MaxLod"             , mat.Samplers[id].TexSampler.MaxLod             .ToString());
+                writer.WriteAttributeString("LodBias"            , mat.Samplers[id].TexSampler.LodBias            .ToString());
                 writer.WriteAttributeString("DepthCompareEnabled", mat.Samplers[id].TexSampler.DepthCompareEnabled.ToString());
 
                 if (useSampler == "s_diffuse")
@@ -507,30 +508,30 @@ namespace BFRES_Importer
                 if (tex.Texture != null)
                 {
                     writer.WriteStartElement("TextureInfo");
-                    
+
                     // TODO test that this works with texture bfres files
-                    writer.WriteAttributeString("CompSelR"   , tex.Texture.CompSelR.ToString()   );
-                    writer.WriteAttributeString("CompSelG"   , tex.Texture.CompSelG.ToString()   );
-                    writer.WriteAttributeString("CompSelB"   , tex.Texture.CompSelB.ToString()   );
-                    writer.WriteAttributeString("CompSelA"   , tex.Texture.CompSelA.ToString()   );
+                    writer.WriteAttributeString("CompSelR"   , tex.Texture.CompSelR   .ToString());
+                    writer.WriteAttributeString("CompSelG"   , tex.Texture.CompSelG   .ToString());
+                    writer.WriteAttributeString("CompSelB"   , tex.Texture.CompSelB   .ToString());
+                    writer.WriteAttributeString("CompSelA"   , tex.Texture.CompSelA   .ToString());
                     writer.WriteAttributeString("Name"       , tex.Texture.Name                  );
                     writer.WriteAttributeString("Path"       , tex.Texture.Path                  );
-                    writer.WriteAttributeString("Width"      , tex.Texture.Width.ToString()      );
-                    writer.WriteAttributeString("Height"     , tex.Texture.Height.ToString()     );
-                    writer.WriteAttributeString("Depth"      , tex.Texture.Depth.ToString()      );
-                    writer.WriteAttributeString("Swizzle"    , tex.Texture.Swizzle.ToString()    );
-                    writer.WriteAttributeString("Alignment"  , tex.Texture.Alignment.ToString()  );
+                    writer.WriteAttributeString("Width"      , tex.Texture.Width      .ToString());
+                    writer.WriteAttributeString("Height"     , tex.Texture.Height     .ToString());
+                    writer.WriteAttributeString("Depth"      , tex.Texture.Depth      .ToString());
+                    writer.WriteAttributeString("Swizzle"    , tex.Texture.Swizzle    .ToString());
+                    writer.WriteAttributeString("Alignment"  , tex.Texture.Alignment  .ToString());
                     writer.WriteAttributeString("ArrayLength", tex.Texture.ArrayLength.ToString());
-                    writer.WriteAttributeString("Pitch"      , tex.Texture.Pitch.ToString()      );
-                    writer.WriteAttributeString("TileMode"   , tex.Texture.TileMode.ToString()   );
-                    writer.WriteAttributeString("AAMode"     , tex.Texture.AAMode.ToString()     );
-                    writer.WriteAttributeString("Dim"        , tex.Texture.Dim.ToString()        );
-                    writer.WriteAttributeString("Format"     , tex.Texture.Format.ToString()     );
-                    writer.WriteAttributeString("Data"       , tex.Texture.Data.ToString()       );
-                    writer.WriteAttributeString("MipData"    , tex.Texture.MipData.ToString()    );
-                    writer.WriteAttributeString("Regs"       , tex.Texture.Regs.ToString()       );
-                    writer.WriteAttributeString("UserData"   , tex.Texture.UserData.ToString()   );
-                    
+                    writer.WriteAttributeString("Pitch"      , tex.Texture.Pitch      .ToString());
+                    writer.WriteAttributeString("TileMode"   , tex.Texture.TileMode   .ToString());
+                    writer.WriteAttributeString("AAMode"     , tex.Texture.AAMode     .ToString());
+                    writer.WriteAttributeString("Dim"        , tex.Texture.Dim        .ToString());
+                    writer.WriteAttributeString("Format"     , tex.Texture.Format     .ToString());
+                    writer.WriteAttributeString("Data"       , tex.Texture.Data       .ToString());
+                    writer.WriteAttributeString("MipData"    , tex.Texture.MipData    .ToString());
+                    writer.WriteAttributeString("Regs"       , tex.Texture.Regs       .ToString());
+                    writer.WriteAttributeString("UserData"   , tex.Texture.UserData   .ToString());
+
                     writer.WriteEndElement();
                 }
 
@@ -577,10 +578,10 @@ namespace BFRES_Importer
                 bool bIsTransparentMask = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.AlphaMask;
                 bool bIsCustom          = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Custom;
 
-                writer.WriteAttributeString("IsOpaque"         , bIsOpaque.ToString()         );
-                writer.WriteAttributeString("IsTranslucent"    , bIsTranslucent.ToString()    );
+                writer.WriteAttributeString("IsOpaque"         , bIsOpaque         .ToString());
+                writer.WriteAttributeString("IsTranslucent"    , bIsTranslucent    .ToString());
                 writer.WriteAttributeString("IsTransparentMask", bIsTransparentMask.ToString());
-                writer.WriteAttributeString("IsCustom"         , bIsCustom.ToString()         );
+                writer.WriteAttributeString("IsCustom"         , bIsCustom         .ToString());
             }
             writer.WriteEndElement();
         }

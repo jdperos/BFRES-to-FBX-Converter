@@ -156,14 +156,16 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("Extent", Program.Vector3FToString(bnd.Extent));
                 writer.WriteEndElement();
             }
+            writer.WriteEndElement();
 
             //
             // Summary:
             //     Represents a node in a Syroot.NintenTools.Bfres.SubMesh bounding tree to determine
             //     when to show which sub mesh of a Syroot.NintenTools.Bfres.Mesh.
+            writer.WriteStartElement("SubMeshBoundingNodes");
             foreach (BoundingNode node in shp.SubMeshBoundingNodes)
             {
-                writer.WriteStartElement("SubMeshBounding");
+                writer.WriteStartElement("SubMeshBoundingNode");
                 writer.WriteAttributeString("LeftChildIndex" , node.LeftChildIndex.ToString() );
                 writer.WriteAttributeString("NextSibling"    , node.NextSibling.ToString()    );
                 writer.WriteAttributeString("RightChildIndex", node.RightChildIndex.ToString());
@@ -172,8 +174,10 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("SubMeshCount"   , node.SubMeshCount.ToString()   );
                 writer.WriteEndElement();
             }
+            writer.WriteEndElement();
 
             // Write SubMesh Bounding Indices
+            writer.WriteStartElement("SubMeshBoundingIndices");
             if (shp.SubMeshBoundingIndices != null)
             {
                 string tempSubMeshBoundingIndices = "";
@@ -184,7 +188,6 @@ namespace BFRES_Importer
                 tempSubMeshBoundingIndices = tempSubMeshBoundingIndices.Trim(',');
                 writer.WriteAttributeString("SubMeshBoundingIndices", tempSubMeshBoundingIndices);
             }
-
             writer.WriteEndElement();
 
             ReadMeshes(writer, shp);

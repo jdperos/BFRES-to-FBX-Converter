@@ -12,14 +12,14 @@ namespace BFRES_Importer
 {
     class FMAT
     {
-        public static float[] ValueFloat;
-        public static bool[] ValueBool;
-        public static uint[] ValueUint;
-        public static int[] ValueInt;
-        public static byte[] ValueReserved;
-        public static Srt2D ValueSrt2D;
-        public static Srt3D ValueSrt3D;
-        public static TexSrt ValueTexSrt;
+        public static float[]  ValueFloat;
+        public static bool[]   ValueBool;
+        public static uint[]   ValueUint;
+        public static int[]    ValueInt;
+        public static byte[]   ValueReserved;
+        public static Srt2D    ValueSrt2D;
+        public static Srt3D    ValueSrt3D;
+        public static TexSrt   ValueTexSrt;
         public static TexSrtEx ValueTexSrtEx;
 
         private static void ReadSRT2D(BinaryDataReader reader)

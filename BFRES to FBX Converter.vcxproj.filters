@@ -24,6 +24,12 @@
     <ClCompile Include="XmlParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BFRES.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyFBXCube.h">
@@ -33,6 +39,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XmlParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BFRES.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

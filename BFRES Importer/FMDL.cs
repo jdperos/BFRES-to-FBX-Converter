@@ -14,11 +14,11 @@ namespace BFRES_Importer
         public void WriteFMDLData(ResU.Model model, XmlWriter writer)
         {
             writer.WriteStartElement("FMDL");
-            writer.WriteAttributeString("Name",model.Name);
-            writer.WriteAttributeString("FVTXCount", model.VertexBuffers.Count.ToString());
-            writer.WriteAttributeString("FSHPCount", model.Shapes.Count.ToString());
-            writer.WriteAttributeString("FMATCount",model.Materials.Count.ToString());
-            writer.WriteAttributeString("TotalVertices", model.TotalVertexCount.ToString());
+            writer.WriteAttributeString("Name"         , model.Name                          );
+            writer.WriteAttributeString("FVTXCount"    , model.VertexBuffers.Count.ToString());
+            writer.WriteAttributeString("FSHPCount"    , model.Shapes.Count.ToString()       );
+            writer.WriteAttributeString("FMATCount"    , model.Materials.Count.ToString()    );
+            writer.WriteAttributeString("TotalVertices", model.TotalVertexCount.ToString()   );
 
             ReadSkeleton(writer, model.Skeleton);
 
@@ -90,37 +90,37 @@ namespace BFRES_Importer
 
         public static void WriteBones(XmlWriter writer, Bone bn, bool SetParent = true)
         {
-            writer.WriteAttributeString("Name", bn.Name);
-            writer.WriteAttributeString("IsVisible", bn.Flags.HasFlag(BoneFlags.Visible).ToString());
-            writer.WriteAttributeString("RigidMatrixIndex", bn.RigidMatrixIndex.ToString());
-            writer.WriteAttributeString("SmoothMatrixIndex", bn.SmoothMatrixIndex.ToString());
-            writer.WriteAttributeString("BillboardIndex", bn.BillboardIndex.ToString());
+            writer.WriteAttributeString("Name"             , bn.Name                                       );
+            writer.WriteAttributeString("IsVisible"        , bn.Flags.HasFlag(BoneFlags.Visible).ToString());
+            writer.WriteAttributeString("RigidMatrixIndex" , bn.RigidMatrixIndex.ToString()                );
+            writer.WriteAttributeString("SmoothMatrixIndex", bn.SmoothMatrixIndex.ToString()               );
+            writer.WriteAttributeString("BillboardIndex"   , bn.BillboardIndex.ToString()                  );
 
             bool bUseRigidMatrix = bn.RigidMatrixIndex != -1;
-            writer.WriteAttributeString("UseRigidMatrix", bUseRigidMatrix.ToString());
+            writer.WriteAttributeString("UseRigidMatrix"   , bUseRigidMatrix.ToString());
             bool bUseSmoothMatrix = bn.SmoothMatrixIndex != -1;
-            writer.WriteAttributeString("UseSmoothMatrix", bUseSmoothMatrix.ToString());
+            writer.WriteAttributeString("UseSmoothMatrix"  , bUseSmoothMatrix.ToString());
 
             if (SetParent)
-                writer.WriteAttributeString("ParentIndex", bn.ParentIndex.ToString());
+                writer.WriteAttributeString("ParentIndex"  , bn.ParentIndex.ToString());
             if (bn.FlagsRotation == BoneFlagsRotation.Quaternion)
-                writer.WriteAttributeString("RotationType", "Quaternion");
+                writer.WriteAttributeString("RotationType" , "Quaternion");
             else if (bn.FlagsRotation == BoneFlagsRotation.EulerXYZ)
-                writer.WriteAttributeString("RotationType", "EulerXYZ");
+                writer.WriteAttributeString("RotationType" , "EulerXYZ");
 
-            writer.WriteAttributeString("Scale", Program.Vector3FToString(bn.Scale));
+            writer.WriteAttributeString("Scale"   , Program.Vector3FToString(bn.Scale)   );
             writer.WriteAttributeString("Rotation", Program.Vector4FToString(bn.Rotation));
             writer.WriteAttributeString("Position", Program.Vector3FToString(bn.Position));
         }
 
         public static void ReadShapesVertices(XmlWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
         {
-            writer.WriteAttributeString("Name", shp.Name);
-            writer.WriteAttributeString("VertexBufferIndex", shp.VertexBufferIndex.ToString());
-            writer.WriteAttributeString("VertexSkinCount", shp.VertexSkinCount.ToString());
-            writer.WriteAttributeString("BoneIndex", shp.BoneIndex.ToString());
+            writer.WriteAttributeString("Name"                , shp.Name                        );
+            writer.WriteAttributeString("VertexBufferIndex"   , shp.VertexBufferIndex.ToString());
+            writer.WriteAttributeString("VertexSkinCount"     , shp.VertexSkinCount.ToString()  );
+            writer.WriteAttributeString("BoneIndex"           , shp.BoneIndex.ToString()        );
             writer.WriteAttributeString("TargetAttributeCount", shp.TargetAttribCount.ToString());
-            writer.WriteAttributeString("MaterialIndex", shp.MaterialIndex.ToString());
+            writer.WriteAttributeString("MaterialIndex"       , shp.MaterialIndex.ToString()    );
 
             // Write Bounding Radius
             string tempRadiusArray = "";
@@ -143,14 +143,49 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("SkinBoneIndices", tempSkinBoneIndices);
             }
 
+
             // Write Bounding Boxes
+            //
+            // Summary:
+            //     Represents a spatial bounding box.
+            writer.WriteStartElement("SubMeshBoundings");
             foreach (Bounding bnd in shp.SubMeshBoundings)
             {
-                writer.WriteStartElement("Bounding");
-                writer.WriteAttributeString("BoundingCenter", Program.Vector3FToString(bnd.Center));
-                writer.WriteAttributeString("BoundingExtent", Program.Vector3FToString(bnd.Extent));
+                writer.WriteStartElement("SubMeshBounding");
+                writer.WriteAttributeString("Center", Program.Vector3FToString(bnd.Center));
+                writer.WriteAttributeString("Extent", Program.Vector3FToString(bnd.Extent));
                 writer.WriteEndElement();
             }
+
+            //
+            // Summary:
+            //     Represents a node in a Syroot.NintenTools.Bfres.SubMesh bounding tree to determine
+            //     when to show which sub mesh of a Syroot.NintenTools.Bfres.Mesh.
+            foreach (BoundingNode node in shp.SubMeshBoundingNodes)
+            {
+                writer.WriteStartElement("SubMeshBounding");
+                writer.WriteAttributeString("LeftChildIndex" , node.LeftChildIndex.ToString() );
+                writer.WriteAttributeString("NextSibling"    , node.NextSibling.ToString()    );
+                writer.WriteAttributeString("RightChildIndex", node.RightChildIndex.ToString());
+                writer.WriteAttributeString("Unknown"        , node.Unknown.ToString()        );
+                writer.WriteAttributeString("SubMeshIndex"   , node.SubMeshIndex.ToString()   );
+                writer.WriteAttributeString("SubMeshCount"   , node.SubMeshCount.ToString()   );
+                writer.WriteEndElement();
+            }
+
+            // Write SubMesh Bounding Indices
+            if (shp.SubMeshBoundingIndices != null)
+            {
+                string tempSubMeshBoundingIndices = "";
+                foreach (ushort smbi in shp.SubMeshBoundingIndices)
+                {
+                    tempSubMeshBoundingIndices += (smbi + ",");
+                }
+                tempSubMeshBoundingIndices = tempSubMeshBoundingIndices.Trim(',');
+                writer.WriteAttributeString("SubMeshBoundingIndices", tempSubMeshBoundingIndices);
+            }
+
+            writer.WriteEndElement();
 
             ReadMeshes(writer, shp);
             ReadVertexBuffer(writer, shp, vertexBuffer, model);
@@ -170,17 +205,11 @@ namespace BFRES_Importer
                 uint[] indicesArray = msh.GetIndices().ToArray();
 
 
-                // FSHP.LOD_Mesh lod = new FSHP.LOD_Mesh();
                 writer.WriteStartElement("LODMesh");
-
-
-                // lod.IndexFormat = (STIndexFormat)msh.IndexFormat;
-                writer.WriteAttributeString("IndexFormat", msh.IndexFormat.ToString());
-
                 writer.WriteAttributeString("PrimitiveType", msh.PrimitiveType.ToString());
-
-                // lod.FirstVertex = msh.FirstVertex;
-                writer.WriteAttributeString("FirstVertex", msh.FirstVertex.ToString());
+                writer.WriteAttributeString("IndexFormat"  , msh.IndexFormat.ToString()  );
+                writer.WriteAttributeString("IndexCount"   , msh.IndexCount.ToString()   );
+                writer.WriteAttributeString("FirstVertex"  , msh.FirstVertex.ToString()  );
 
                 List<int> tempFaceList = new List<int>();
                 for (int face = 0; face < FaceCount; face++)
@@ -193,17 +222,11 @@ namespace BFRES_Importer
 
                 foreach (SubMesh subMsh in msh.SubMeshes)
                 {
-                    // FSHP.LOD_Mesh.SubMesh sub = new FSHP.LOD_Mesh.SubMesh();
                     writer.WriteStartElement("SubMesh");
-                    // sub.size = subMsh.Count;
-                    writer.WriteAttributeString("Count", subMsh.Count.ToString());
-                    // sub.offset = subMsh.Offset;
+                    writer.WriteAttributeString("Count" , subMsh.Count.ToString() );
                     writer.WriteAttributeString("Offset", subMsh.Offset.ToString());
-                    /// lod.subMeshes.Add(sub);
                     writer.WriteEndElement();
                 }
-
-                //fshp.lodMeshes.Add(lod);
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -216,16 +239,16 @@ namespace BFRES_Importer
 
             //Set each array first from the lib if exist. Then add the data all in one loop
             Syroot.Maths.Vector4F[] vec4Positions = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4Normals = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4uv0 = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4uv1 = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4uv2 = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4c0 = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4c1 = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4t0 = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4b0 = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4w0 = new Syroot.Maths.Vector4F[0];
-            Syroot.Maths.Vector4F[] vec4i0 = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4Normals   = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4uv0       = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4uv1       = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4uv2       = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4c0        = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4c1        = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4t0        = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4b0        = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4w0        = new Syroot.Maths.Vector4F[0];
+            Syroot.Maths.Vector4F[] vec4i0        = new Syroot.Maths.Vector4F[0];
 
             //For shape morphing
             Syroot.Maths.Vector4F[] vec4Positions1 = new Syroot.Maths.Vector4F[0];
@@ -268,19 +291,19 @@ namespace BFRES_Importer
             {
                 Vertex v = new Vertex();
                 if (vec4Positions.Length > 0)
-                    v.pos = new OpenTK.Vector3(vec4Positions[i].X, vec4Positions[i].Y, vec4Positions[i].Z);
+                    v.pos  = new OpenTK.Vector3(vec4Positions[i].X,  vec4Positions[i].Y,  vec4Positions[i].Z);
                 if (vec4Positions1.Length > 0)
                     v.pos1 = new OpenTK.Vector3(vec4Positions1[i].X, vec4Positions1[i].Y, vec4Positions1[i].Z);
                 if (vec4Positions2.Length > 0)
                     v.pos2 = new OpenTK.Vector3(vec4Positions2[i].X, vec4Positions2[i].Y, vec4Positions2[i].Z);
                 if (vec4Normals.Length > 0)
-                    v.nrm = new OpenTK.Vector3(vec4Normals[i].X, vec4Normals[i].Y, vec4Normals[i].Z);
+                    v.nrm  = new OpenTK.Vector3(vec4Normals[i].X, vec4Normals[i].Y, vec4Normals[i].Z);
                 if (vec4uv0.Length > 0)
-                    v.uv0 = new OpenTK.Vector2(vec4uv0[i].X, vec4uv0[i].Y);
+                    v.uv0  = new OpenTK.Vector2(vec4uv0[i].X, vec4uv0[i].Y);
                 if (vec4uv1.Length > 0)
-                    v.uv1 = new OpenTK.Vector2(vec4uv1[i].X, vec4uv1[i].Y);
+                    v.uv1  = new OpenTK.Vector2(vec4uv1[i].X, vec4uv1[i].Y);
                 if (vec4uv2.Length > 0)
-                    v.uv2 = new OpenTK.Vector2(vec4uv2[i].X, vec4uv2[i].Y);
+                    v.uv2  = new OpenTK.Vector2(vec4uv2[i].X, vec4uv2[i].Y);
                 if (vec4w0.Length > 0)
                 {
                     v.boneWeights.Add(vec4w0[i].X);
@@ -297,13 +320,13 @@ namespace BFRES_Importer
                 }
 
                 if (vec4t0.Length > 0)
-                    v.tan = new OpenTK.Vector4(vec4t0[i].X, vec4t0[i].Y, vec4t0[i].Z, vec4t0[i].W);
+                    v.tan   = new OpenTK.Vector4(vec4t0[i].X, vec4t0[i].Y, vec4t0[i].Z, vec4t0[i].W);
                 if (vec4b0.Length > 0)
                     v.bitan = new OpenTK.Vector4(vec4b0[i].X, vec4b0[i].Y, vec4b0[i].Z, vec4b0[i].W);
                 if (vec4c0.Length > 0)
-                    v.col = new OpenTK.Vector4(vec4c0[i].X, vec4c0[i].Y, vec4c0[i].Z, vec4c0[i].W);
+                    v.col   = new OpenTK.Vector4(vec4c0[i].X, vec4c0[i].Y, vec4c0[i].Z, vec4c0[i].W);
                 if (vec4c1.Length > 0)
-                    v.col2 = new OpenTK.Vector4(vec4c1[i].X, vec4c1[i].Y, vec4c1[i].Z, vec4c1[i].W);
+                    v.col2  = new OpenTK.Vector4(vec4c1[i].X, vec4c1[i].Y, vec4c1[i].Z, vec4c1[i].W);
 
 
                 int[] nodeArray = new int[model.Skeleton.MatrixToBoneList.Count];
@@ -415,18 +438,18 @@ namespace BFRES_Importer
             {
                 writer.WriteStartElement("FVTX");
 
-                writer.WriteAttributeString("Index", i.ToString());
-                writer.WriteAttributeString("Position0", Program.Vector3ToString(vertices[i].pos));
-                writer.WriteAttributeString("Position1", Program.Vector3ToString(vertices[i].pos1));
-                writer.WriteAttributeString("Position2", Program.Vector3ToString(vertices[i].pos2));
-                writer.WriteAttributeString("Normal", Program.Vector3ToString(vertices[i].nrm));
-                writer.WriteAttributeString("UV0", Program.Vector2ToString(vertices[i].uv0));
-                writer.WriteAttributeString("UV1", Program.Vector2ToString(vertices[i].uv1));
-                writer.WriteAttributeString("UV2", Program.Vector2ToString(vertices[i].uv2));
-                writer.WriteAttributeString("Color0", Program.Vector4ToString(vertices[i].col));
-                writer.WriteAttributeString("Color1", Program.Vector4ToString(vertices[i].col2));
-                writer.WriteAttributeString("Tangent", Program.Vector4ToString(vertices[i].tan));
-                writer.WriteAttributeString("Binormal", Program.Vector4ToString(vertices[i].bitan));
+                writer.WriteAttributeString("Index"    , i.ToString()                              );
+                writer.WriteAttributeString("Position0", Program.Vector3ToString(vertices[i].pos)  );
+                writer.WriteAttributeString("Position1", Program.Vector3ToString(vertices[i].pos1) );
+                writer.WriteAttributeString("Position2", Program.Vector3ToString(vertices[i].pos2) );
+                writer.WriteAttributeString("Normal"   , Program.Vector3ToString(vertices[i].nrm)  );
+                writer.WriteAttributeString("UV0"      , Program.Vector2ToString(vertices[i].uv0)  );
+                writer.WriteAttributeString("UV1"      , Program.Vector2ToString(vertices[i].uv1)  );
+                writer.WriteAttributeString("UV2"      , Program.Vector2ToString(vertices[i].uv2)  );
+                writer.WriteAttributeString("Color0"   , Program.Vector4ToString(vertices[i].col)  );
+                writer.WriteAttributeString("Color1"   , Program.Vector4ToString(vertices[i].col2) );
+                writer.WriteAttributeString("Tangent"  , Program.Vector4ToString(vertices[i].tan)  );
+                writer.WriteAttributeString("Binormal" , Program.Vector4ToString(vertices[i].bitan));
                 
                 string tempBoneWeights = "";
                 foreach (var w in vertices[i].boneWeights)

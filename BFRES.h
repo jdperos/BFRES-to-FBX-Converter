@@ -133,33 +133,37 @@ public:
 
 	struct LODMesh 
 	{
-		GX2IndexFormat   indexFormat;
 		GX2PrimitiveType primitiveType;
+		GX2IndexFormat   indexFormat;
 		int              indexCount;
 		int              firstVertex;
 		vector<int>      faceVertices;
 		SubMesh          subMesh;
 	};
 
-	struct Bounding 
+	//
+	// Summary:
+	//     Represents a node in a Syroot.NintenTools.Bfres.SubMesh bounding tree to determine
+	//     when to show which sub mesh of a Syroot.NintenTools.Bfres.Mesh.
+	struct SubMeshBounding 
 	{
-		Math::vector3F boundingCenter;
-		Math::vector3F boundingExtent;
+		Math::vector3F center;
+		Math::vector3F extent;
 	};
 
 	struct FSHP
 	{
-		string           name;
-		int              vertexBufferIndex;
-		int              vertexSkinCount;
-		int              boneIndex;
-		int              targetAttributeCount;
-		int              materialIndex;
-		Math::vector2F   boundingRadius;
-		vector<int>      skinBoneIndices;
-		vector<Bounding> boundings;
-		vector<LODMesh>  lodMeshes;
-		vector<FVTX>     vertices;
+		string                  name;
+		int                     vertexBufferIndex;
+		int                     vertexSkinCount;
+		int                     boneIndex;
+		int                     targetAttributeCount;
+		int                     materialIndex;
+		Math::vector2F          boundingRadius;
+		vector<int>             skinBoneIndices;
+		vector<SubMeshBounding> boundings;
+		vector<LODMesh>         lodMeshes;
+		vector<FVTX>            vertices;
 
 	};
 

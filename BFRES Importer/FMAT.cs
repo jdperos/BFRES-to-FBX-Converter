@@ -179,12 +179,12 @@ namespace BFRES_Importer
             foreach (ShaderParam param in mat.ShaderParams.Values)
                 {
                 writer.WriteStartElement("ShaderParam");
-                writer.WriteAttributeString("Type", param.Type.ToString());
-                writer.WriteAttributeString("Name", param.Name);
-                writer.WriteAttributeString("HasPadding", param.UsePadding.ToString());
+                writer.WriteAttributeString("Type"         , param.Type.ToString()         );
+                writer.WriteAttributeString("Name"         , param.Name                    );
+                writer.WriteAttributeString("HasPadding"   , param.UsePadding.ToString()   );
                 writer.WriteAttributeString("PaddingLength", param.PaddingLength.ToString());
                 writer.WriteAttributeString("DependedIndex", param.DependedIndex.ToString());
-                writer.WriteAttributeString("DependIndex", param.DependIndex.ToString());
+                writer.WriteAttributeString("DependIndex"  , param.DependIndex.ToString()  );
 
                 reader.Seek(param.DataOffset, System.IO.SeekOrigin.Begin);
                 WriteValue(writer, reader, (int)param.DataSize, param.Type);

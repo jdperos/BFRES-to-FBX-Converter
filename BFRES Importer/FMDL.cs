@@ -17,7 +17,7 @@ namespace BFRES_Importer
             writer.WriteAttributeString("Name"         , model.Name                          );
 
             // TODO Wrap these functions in if exists conditions, so that the xml only contains relevant data
-            ReadSkeleton(writer, model.Skeleton);
+            WriteSkeleton(writer, model.Skeleton);
 
             writer.WriteStartElement("Materials");
             writer.WriteAttributeString("FMATCount", model.Materials.Count.ToString());
@@ -36,7 +36,7 @@ namespace BFRES_Importer
                 writer.WriteStartElement("FSHP");
                 VertexBuffer vertexBuffer = model.VertexBuffers[shp.VertexBufferIndex];
                 Material material = model.Materials[shp.MaterialIndex];
-                ReadShapesVertices(writer, shp, vertexBuffer, model);
+                WriteShapesVertices(writer, shp, vertexBuffer, model);
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -45,7 +45,7 @@ namespace BFRES_Importer
             writer.Flush();
         }
 
-        public static void ReadSkeleton(XmlWriter writer, Skeleton skeleton)
+        public static void WriteSkeleton(XmlWriter writer, Skeleton skeleton)
         {
             writer.WriteStartElement("FSKL");
             if (skeleton.MatrixToBoneList == null)
@@ -101,7 +101,7 @@ namespace BFRES_Importer
             writer.WriteAttributeString("Position", Program.Vector3FToString(bn.Position));
         }
 
-        public static void ReadShapesVertices(XmlWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
+        public static void WriteShapesVertices(XmlWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
         {
             writer.WriteAttributeString("Name"                , shp.Name                        );
             writer.WriteAttributeString("VertexBufferIndex"   , shp.VertexBufferIndex.ToString());
@@ -181,8 +181,8 @@ namespace BFRES_Importer
             }
             writer.WriteEndElement();
 
-            ReadMeshes(writer, shp);
-            ReadVertexBuffer(writer, shp, vertexBuffer, model);
+            WriteMeshes(writer, shp);
+            WriteVertexBuffer(writer, shp, vertexBuffer, model);
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace BFRES_Importer
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="shp"></param>
-        private static void ReadMeshes(XmlWriter writer, Shape shp)
+        private static void WriteMeshes(XmlWriter writer, Shape shp)
         {
             writer.WriteStartElement("Meshes");
             writer.WriteAttributeString("LODMeshCount", shp.Meshes.Count.ToString());
@@ -227,7 +227,7 @@ namespace BFRES_Importer
             writer.WriteEndElement();
         }
 
-        private static void ReadVertexBuffer(XmlWriter writer, Shape shp, VertexBuffer vtx, ResU.Model model)
+        private static void WriteVertexBuffer(XmlWriter writer, Shape shp, VertexBuffer vtx, ResU.Model model)
         {
             //Create a buffer instance which stores all the buffer data
             VertexBufferHelper helper = new VertexBufferHelper(vtx, Syroot.BinaryData.ByteOrder.BigEndian);

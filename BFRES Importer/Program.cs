@@ -10,10 +10,10 @@ namespace BFRES_Importer
         static void Main(string[] args)
         {
             ResU.ResFile res = new ResU.ResFile("../../../../TestAssets/Npc_Gerudo_Queen.bfres");
-            LoadFile(res);
+            WriteResToXML(res);
         }
 
-        public static void LoadFile(ResU.ResFile res)
+        public static void WriteResToXML(ResU.ResFile res)
         {
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;

@@ -11,6 +11,11 @@ namespace BFRES_Importer
 {
     public class FMDL
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="model"></param>
         public void WriteFMDLData(XmlWriter writer, ResU.Model model)
         {
             writer.WriteStartElement("FMDL");
@@ -45,7 +50,11 @@ namespace BFRES_Importer
             writer.WriteEndElement();
             writer.Flush();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="skeleton"></param>
         public static void WriteSkeleton(XmlWriter writer, Skeleton skeleton)
         {
             writer.WriteStartElement("FSKL");
@@ -76,7 +85,12 @@ namespace BFRES_Importer
             }
             writer.WriteEndElement();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="bn"></param>
+        /// <param name="SetParent"></param>
         public static void WriteBones(XmlWriter writer, Bone bn, bool SetParent = true)
         {
             writer.WriteAttributeString("Name"             , bn.Name                                       );
@@ -101,7 +115,13 @@ namespace BFRES_Importer
             writer.WriteAttributeString("Rotation", Program.Vector4FToString(bn.Rotation));
             writer.WriteAttributeString("Position", Program.Vector3FToString(bn.Position));
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="shp"></param>
+        /// <param name="vertexBuffer"></param>
+        /// <param name="model"></param>
         public static void WriteShapesVertices(XmlWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
         {
             writer.WriteAttributeString("Name"                , shp.Name                        );
@@ -230,7 +250,13 @@ namespace BFRES_Importer
             }
             writer.WriteEndElement();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="shp"></param>
+        /// <param name="vtx"></param>
+        /// <param name="model"></param>
         private static void WriteVertexBuffer(XmlWriter writer, Shape shp, VertexBuffer vtx, ResU.Model model)
         {
             //Create a buffer instance which stores all the buffer data
@@ -473,11 +499,26 @@ namespace BFRES_Importer
 
 
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="att"></param>
+        /// <param name="helper"></param>
+        /// <param name="attName"></param>
+        /// <returns></returns>
         static Syroot.Maths.Vector4F[] AttributeData(VertexAttrib att, VertexBufferHelper helper, string attName)
         {
             VertexBufferHelperAttrib attd = helper[attName];
             return attd.Data;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="z"></param>
+        /// <param name="y"></param>
+        /// <param name="x"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
         static OpenTK.Quaternion FromQuaternionAngles(float z, float y, float x, float w)
         {
             {

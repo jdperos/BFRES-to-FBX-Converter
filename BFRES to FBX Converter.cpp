@@ -2,11 +2,14 @@
 #include <fbxsdk.h>
 #include "MyFBXCube.h"
 #include "XmlParser.h"
+#include "BFRES.h"
 
 #ifdef IOS_REF
     #undef  IOS_REF
     #define IOS_REF (*(pManager->GetIOSettings()))
 #endif
+
+#define FILE_PATH "TestAssets/Dump.xml"
 
 // Export document, the format is ascii by default
 bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFilename, int pFileFormat = -1, bool pEmbedMedia = false)
@@ -73,7 +76,8 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
 
 int main()
 {
-    XmlParser::Parse();
+    BFRESStructs::BFRES bfres;
+    XML::XmlParser::Parse(FILE_PATH, bfres);
 
     //FbxManager* lSdkManager = FbxManager::Create();
     //FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");

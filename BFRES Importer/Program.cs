@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
+using System.Text;
 using ResU = Syroot.NintenTools.Bfres;
 
 namespace BFRES_Importer
@@ -9,7 +10,7 @@ namespace BFRES_Importer
     {
         static void Main(string[] args)
         {
-            ResU.ResFile res = new ResU.ResFile("../../../../TestAssets/Npc_Gerudo_Queen.Tex1.bfres");
+            ResU.ResFile res = new ResU.ResFile("../../../../TestAssets/Npc_Gerudo_Queen.bfres");
             WriteResToXML(res);
         }
 
@@ -20,6 +21,7 @@ namespace BFRES_Importer
             settings.IndentChars = "    ";
             settings.NewLineOnAttributes = false;
             settings.OmitXmlDeclaration = true;
+            settings.Encoding = new UTF8Encoding(false); // The false means, do not emit the BOM.
 
             XmlWriter writer = XmlWriter.Create("../../../../TestAssets/Dump.xml", settings);
             

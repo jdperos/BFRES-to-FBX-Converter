@@ -1,7 +1,6 @@
 #pragma once
-class Math
+namespace Math
 {
-public:
 	struct vector2
 	{
 		int X, Y;
@@ -31,5 +30,5 @@ public:
 	{
 		float X, Y, Z, W;
 	};
-};
+}
 

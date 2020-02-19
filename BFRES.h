@@ -8,7 +8,7 @@ namespace BFRESStructs
 
 using namespace std;
 
-enum eRotationType
+enum RotationType
 {
     Quaternion = 0,
     EulerXYZ = 4096
@@ -222,16 +222,16 @@ struct FSHP
 // -----------------------------------------------------------------------
 struct Bone
 {
-    int            index;
+    uint32         index;
     string         name;
     bool           isVisible;
-    int            rigidMatrixIndex;
-    int            smoothMatrixIndex;
-    int            billboardIndex;
+    int32          rigidMatrixIndex;
+    int32          smoothMatrixIndex;
+    int32          billboardIndex;
     bool           useRigidMatrix;
     bool           useSmoothMatrix;
-    int            parentIndex;
-    eRotationType  rotationType;
+    uint32         parentIndex;
+    RotationType   rotationType;
     Math::vector3F scale;
     Math::vector4F rotation;
     Math::vector3F position;
@@ -242,8 +242,8 @@ struct Bone
 // -----------------------------------------------------------------------
 struct FSKL
 {
-    size_t         boneCount;
-    vector<size_t> boneList;
+    uint32         boneCount;
+    vector<uint32> boneList;
     vector<Bone>   bones;
 };
 
@@ -252,7 +252,7 @@ struct FSKL
 // -----------------------------------------------------------------------
 struct FMDL
 {
-    string       Name;
+    string       name;
     int          fvtxCount;
     int          fshpCount;
     int          fmatCount;

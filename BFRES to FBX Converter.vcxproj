@@ -160,6 +160,7 @@
     <ClInclude Include="BFRES.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MyFBXCube.h" />
+    <ClInclude Include="Primitives.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="XmlParser.h" />
   </ItemGroup>

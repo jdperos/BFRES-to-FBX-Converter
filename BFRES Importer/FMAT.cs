@@ -40,7 +40,10 @@ namespace BFRES_Importer
         public bool HasRoughnessMap = false;
         public bool HasMRA = false;
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
         private static void ReadSRT2D(BinaryDataReader reader)
         {
             ValueSrt2D = new Srt2D();
@@ -50,6 +53,10 @@ namespace BFRES_Importer
             Syroot.Maths.Vector2F transVector2F = new Syroot.Maths.Vector2F(reader.ReadSingle(), reader.ReadSingle());
             ValueSrt2D.Translation = transVector2F;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
         private static void ReadSRT3D(BinaryDataReader reader)
         {
             ValueSrt3D = new Srt3D();
@@ -60,6 +67,10 @@ namespace BFRES_Importer
             Syroot.Maths.Vector3F transVector3F = new Syroot.Maths.Vector3F(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
             ValueSrt3D.Translation = transVector3F;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
         private static void ReadTexSrt(BinaryDataReader reader)
         {
             ValueTexSrt = new TexSrt();
@@ -70,6 +81,10 @@ namespace BFRES_Importer
             Syroot.Maths.Vector2F transVector2F = new Syroot.Maths.Vector2F(reader.ReadSingle(), reader.ReadSingle());
             ValueTexSrt.Translation = transVector2F;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
         private static void ReadTexSrtEx(BinaryDataReader reader)
         {
             ValueTexSrtEx = new TexSrtEx();
@@ -81,6 +96,11 @@ namespace BFRES_Importer
             ValueTexSrtEx.Translation = transVector2F;
             ValueTexSrtEx.MatrixPointer = reader.ReadUInt32();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="mat"></param>
         public static void ReadMaterial(XmlWriter writer, Material mat)
         {
             writer.WriteStartElement("FMAT");
@@ -103,7 +123,11 @@ namespace BFRES_Importer
 
             writer.WriteEndElement();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="mat"></param>
         public static void ReadRenderInfo(XmlWriter writer, Material mat)
         {
             writer.WriteStartElement("RenderInfo");
@@ -146,7 +170,11 @@ namespace BFRES_Importer
             }
             writer.WriteEndElement();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="mat"></param>
         public static void ReadShaderAssign(XmlWriter writer, Material mat)
         {
             writer.WriteStartElement("ShaderAssign");
@@ -185,7 +213,11 @@ namespace BFRES_Importer
             }
             writer.WriteEndElement();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="mat"></param>
         public static void ReadShaderParams(XmlWriter writer, Material mat)
         {
             writer.WriteStartElement("ShaderParams");
@@ -215,7 +247,13 @@ namespace BFRES_Importer
             reader.Close();
             writer.WriteEndElement();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="reader"></param>
+        /// <param name="Size"></param>
+        /// <param name="type"></param>
         public static void WriteValue(XmlWriter writer, BinaryDataReader reader, int Size, ShaderParamType type)
         {
             switch (type)
@@ -359,7 +397,11 @@ namespace BFRES_Importer
                     break;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="mat"></param>
         public static void ReadTextureRefs(XmlWriter writer, Material mat)
         {
             writer.WriteStartElement("TextureRefs");
@@ -540,7 +582,11 @@ namespace BFRES_Importer
             }
             writer.WriteEndElement();
         }
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="renderState"></param>
         public static void ReadRenderState(XmlWriter writer, RenderState renderState)
         {
             writer.WriteStartElement("RenderState");
@@ -567,7 +613,11 @@ namespace BFRES_Importer
 
             writer.WriteEndElement();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="mat"></param>
         public static void UpdateRenderPass(XmlWriter writer, Material mat)
         {
             writer.WriteStartElement("RenderPass");

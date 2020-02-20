@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "Math.h"
+#include "Primitives.h"
 
 namespace BFRESStructs
 {

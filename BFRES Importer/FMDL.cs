@@ -62,6 +62,10 @@ namespace BFRES_Importer
                 skeleton.MatrixToBoneList = new List<ushort>();
 
             writer.WriteAttributeString("SkeletonBoneCount", skeleton.MatrixToBoneList.Count.ToString());
+            writer.WriteAttributeString("FlagsRotation", skeleton.FlagsRotation.ToString());
+            writer.WriteAttributeString("FlagsScaling", skeleton.FlagsScaling.ToString());
+            // TODO figure out what the hell this Inverse Model Matrices is
+            writer.WriteAttributeString("InverseModelMatrices", skeleton.InverseModelMatrices.ToString());
 
             int nodes = 0;
             string tempBoneList = "";
@@ -93,11 +97,15 @@ namespace BFRES_Importer
         /// <param name="SetParent"></param>
         public static void WriteBones(XmlWriter writer, Bone bn, bool SetParent = true)
         {
-            writer.WriteAttributeString("Name"             , bn.Name                                       );
-            writer.WriteAttributeString("IsVisible"        , bn.Flags.HasFlag(BoneFlags.Visible).ToString());
-            writer.WriteAttributeString("RigidMatrixIndex" , bn.RigidMatrixIndex                .ToString());
-            writer.WriteAttributeString("SmoothMatrixIndex", bn.SmoothMatrixIndex               .ToString());
-            writer.WriteAttributeString("BillboardIndex"   , bn.BillboardIndex                  .ToString());
+            writer.WriteAttributeString("Name"                    , bn.Name                                       );
+            writer.WriteAttributeString("IsVisible"               , bn.Flags.HasFlag(BoneFlags.Visible).ToString());
+            writer.WriteAttributeString("RigidMatrixIndex"        , bn.RigidMatrixIndex                .ToString());
+            writer.WriteAttributeString("SmoothMatrixIndex"       , bn.SmoothMatrixIndex               .ToString());
+            writer.WriteAttributeString("BillboardIndex"          , bn.BillboardIndex                  .ToString());
+            writer.WriteAttributeString("FlagsRotation"           , bn.FlagsRotation                   .ToString());
+            writer.WriteAttributeString("FlagsBillboard"          , bn.FlagsBillboard                  .ToString());
+            writer.WriteAttributeString("FlagsTransform"          , bn.FlagsTransform                  .ToString());
+            writer.WriteAttributeString("FlagsTransformCumulative", bn.FlagsTransformCumulative        .ToString());
 
             bool bUseRigidMatrix = bn.RigidMatrixIndex != -1;
             writer.WriteAttributeString("UseRigidMatrix", bUseRigidMatrix.ToString());

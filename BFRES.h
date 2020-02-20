@@ -16,6 +16,87 @@ enum RotationType
 
 };
 
+enum BoneFlagsRotation
+{
+    /// <summary>
+    /// A quaternion represents the rotation.
+    /// </summary>
+    Quaternion,
+
+    /// <summary>
+    /// A <see cref="Vector3F"/> represents the Euler rotation in XYZ order.
+    /// </summary>
+    EulerXYZ
+};
+
+enum BoneFlagsBillboard
+{
+    /// <summary>
+    /// No transformation is applied.
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// Transforms of the child are applied.
+    /// </summary>
+    Child,
+
+    /// <summary>
+    /// Transforms the Z axis parallel to the camera.
+    /// </summary>
+    WorldViewVector,
+
+    /// <summary>
+    /// Transforms the Z axis parallel to the direction of the camera.
+    /// </summary>
+    WorldViewPoint,
+
+    /// <summary>
+    /// Transforms the Y axis parallel to the camera up vector, and the Z parallel to the camera up-vector.
+    /// </summary>
+    ScreenViewVector,
+
+    /// <summary>
+    /// Transforms the Y axis parallel to the camera up vector, and the Z axis parallel to the direction of the
+    /// camera.
+    /// </summary>
+    ScreenViewPoint,
+
+    /// <summary>
+    /// Transforms the Z axis parallel to the camera by rotating only the Y axis.
+    /// </summary>
+    YAxisViewVector,
+
+    /// <summary>
+    /// Transforms the Z axis parallel to the direction of the camera by rotating only the Y axis.
+    /// </summary>
+    YAxisViewPoint
+};
+
+enum BoneFlagsTransform
+{
+    None,
+    ScaleUniform,
+    ScaleVolumeOne,
+    RotateZero,
+    TranslateZero,
+    ScaleOne,
+    RotateTranslateZero,
+    Identity
+};
+
+enum BoneFlagsTransformCumulative
+{
+	None,
+	ScaleUniform,
+	ScaleVolumeOne,
+	RotateZero,
+	TranslateZero,
+	ScaleOne,
+	RotateTranslateZero,
+	Identity
+};
+
 enum GX2PrimitiveType
 {
     //
@@ -223,19 +304,23 @@ struct FSHP
 // -----------------------------------------------------------------------
 struct Bone
 {
-    uint32         index;
-    string         name;
-    bool           isVisible;
-    int32          rigidMatrixIndex;
-    int32          smoothMatrixIndex;
-    int32          billboardIndex;
-    bool           useRigidMatrix;
-    bool           useSmoothMatrix;
-    uint32         parentIndex;
-    RotationType   rotationType;
-    Math::vector3F scale;
-    Math::vector4F rotation;
-    Math::vector3F position;
+    uint32                       index;
+    string                       name;
+    bool                         isVisible;
+    int32                        rigidMatrixIndex;
+    int32                        smoothMatrixIndex;
+    int32                        billboardIndex;
+    BoneFlagsRotation            boneFlagsRotation;
+    BoneFlagsBillboard           boneFlagsBillboard;
+    BoneFlagsTransform           boneFlagsTransform;
+    BoneFlagsTransformCumulative boneFlagsTransformCumulative;
+    bool                         useRigidMatrix;
+    bool                         useSmoothMatrix;
+    uint32                       parentIndex;
+    RotationType                 rotationType;
+    Math::vector3F               scale;
+    Math::vector4F               rotation;
+    Math::vector3F               position;
 };
 
 

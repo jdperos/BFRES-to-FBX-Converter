@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fbxsdk.h>
 #include "MyFBXCube.h"
+#include "FBXWriter.h"
 #include "XmlParser.h"
 #include "BFRES.h"
 
@@ -79,13 +80,13 @@ int main()
     BFRESStructs::BFRES bfres;
     XML::XmlParser::Parse(FILE_PATH, bfres);
 
-    //FbxManager* lSdkManager = FbxManager::Create();
-    //FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
+    FbxManager* lSdkManager = FbxManager::Create();
+    FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
 
-    //MyFBXCube* cube = new MyFBXCube();
-    //cube->CreateCube(pScene);
+    FBXWriter* fbx = new FBXWriter();
+    fbx->CreateFBX(pScene, bfres);
 
-    //SaveDocument(lSdkManager, pScene, "Name.fbx");
+    SaveDocument(lSdkManager, pScene, "Name.fbx");
 
     return 0;
 }

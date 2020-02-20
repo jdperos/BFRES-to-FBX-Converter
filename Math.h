@@ -1,19 +1,21 @@
 #pragma once
+#include "Primitives.h"
+
 namespace Math
 {
 	struct vector2
 	{
-		int X, Y;
+		uint32 X, Y;
 	};
 
 	struct vector3
 	{
-		int X, Y, Z;
+		uint32 X, Y, Z;
 	};
 
 	struct vector4
 	{
-		int X, Y, Z, W;
+		uint32 X, Y, Z, W;
 	};
 
 	struct vector2F

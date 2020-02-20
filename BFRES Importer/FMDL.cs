@@ -133,12 +133,10 @@ namespace BFRES_Importer
         public static void WriteShapesVertices(XmlWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
         {
             writer.WriteAttributeString("Name"                , shp.Name                        );
-            writer.WriteAttributeString("VertexBufferIndex"   , shp.VertexBufferIndex.ToString());
-            writer.WriteAttributeString("VertexSkinCount"     , shp.VertexSkinCount  .ToString());
-            writer.WriteAttributeString("BoneIndex"           , shp.BoneIndex        .ToString());
-            writer.WriteAttributeString("TargetAttributeCount", shp.TargetAttribCount.ToString());
+            writer.WriteAttributeString("Flags"               , shp.Flags            .ToString());
             writer.WriteAttributeString("MaterialIndex"       , shp.MaterialIndex    .ToString());
-
+            writer.WriteAttributeString("BoneIndex"           , shp.BoneIndex        .ToString());
+            writer.WriteAttributeString("VertexBufferIndex"   , shp.VertexBufferIndex.ToString());
             // Write Bounding Radius
             string tempRadiusArray = "";
             foreach (float rad in shp.RadiusArray)
@@ -146,7 +144,10 @@ namespace BFRES_Importer
                 tempRadiusArray += (rad.ToString() + ',');
             }
             tempRadiusArray = tempRadiusArray.Trim(',');
-            writer.WriteAttributeString("BoundingRadius", tempRadiusArray);
+            
+            writer.WriteAttributeString("RadiusArray"         , tempRadiusArray                 );
+            writer.WriteAttributeString("VertexSkinCount"     , shp.VertexSkinCount  .ToString());
+            writer.WriteAttributeString("TargetAttributeCount", shp.TargetAttribCount.ToString());
 
             // Write Skin Bone Indices
             if (shp.SkinBoneIndices != null)
@@ -159,6 +160,8 @@ namespace BFRES_Importer
                 tempSkinBoneIndices = tempSkinBoneIndices.Trim(',');
                 writer.WriteAttributeString("SkinBoneIndices", tempSkinBoneIndices);
             }
+
+            // TODO Write Key Shapes
 
 
             // Write Bounding Boxes

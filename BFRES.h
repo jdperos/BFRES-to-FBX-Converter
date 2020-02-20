@@ -189,6 +189,19 @@ enum class GX2IndexFormat
     UInt32 = 9
 };
 
+enum class ShapeFlags
+{
+    /// <summary>
+    /// The <see cref="Shape"/> instance references a <see cref="VertexBuffer"/>.
+    /// </summary>
+    HasVertexBuffer = 1 << 1,
+
+    /// <summary>
+    /// The boundings in all submeshes are consistent.
+    /// </summary>
+    SubMeshBoundaryConsistent = 1 << 2
+};
+
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
@@ -251,7 +264,7 @@ struct SubMesh
 // -----------------------------------------------------------------------
 struct FVTX
 {
-    int index;
+    uint32         index;
     Math::vector3F position0;
     Math::vector3F position1;
     Math::vector3F position2;
@@ -274,9 +287,9 @@ struct LODMesh
 {
     GX2PrimitiveType primitiveType;
     GX2IndexFormat   indexFormat;
-    int              indexCount;
-    int              firstVertex;
-    vector<int>      faceVertices;
+    uint32           indexCount;
+    uint32           firstVertex;
+    vector<int32>    faceVertices; // TODO should this be uint32?
     SubMesh          subMesh;
 };
 
@@ -286,15 +299,18 @@ struct LODMesh
 struct FSHP
 {
     string                  name;
-    int                     vertexBufferIndex;
-    int                     vertexSkinCount;
-    int                     boneIndex;
-    int                     targetAttributeCount;
-    int                     materialIndex;
-    Math::vector2F          boundingRadius;
-    vector<int>             skinBoneIndices;
-    vector<SubMeshBounding> boundings;
+    ShapeFlags              flags;
+    uint32                  materialIndex;
+    uint32                  boneIndex;
+    uint32                  vertexBufferIndex;
+    vector<float>           radiusArray;
+    uint32                  vertexSkinCount;
+    uint32                  targetAttributeCount;
     vector<LODMesh>         lodMeshes;
+    vector<uint32>          skinBoneIndices;
+    // TODO add KeyShapes
+    vector<SubMeshBounding> boundings;
+    // TODO add SubmeshBoundingNodes and SubmeshBoundingIndices
     vector<FVTX>            vertices;
 
 };
@@ -331,6 +347,7 @@ struct FSKL
     uint32         boneCount;
     vector<uint32> boneList;
     vector<Bone>   bones;
+    // TODO check that there is not more data to grab from the FSKL class in Nintentools
 };
 
 

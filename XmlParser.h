@@ -31,6 +31,10 @@ public:
     static void ParseFMDL(BFRESStructs::FMDL& fmdl, Element* pElement);
     static void ParseFSKL(BFRESStructs::FSKL& fskl, Element* pElement);
     static void ParseBone(BFRESStructs::Bone& bone, Element* pElement);
+    static void ParseShapes(std::vector<BFRESStructs::FSHP>& fshps, Element* pElement);
+    static void ParseFSHP(BFRESStructs::FSHP& fshp, Element* pElement);
+    static void ParseLODMesh(BFRESStructs::LODMesh& lodMesh, Element* pElement);
+    static void ParseFVTX(BFRESStructs::FVTX& fvtx, Element* pElement);
 
     // General type parsers
     template<uint32 uiLen>
@@ -242,6 +246,48 @@ public:
     {
         std::vector<float> vals;
         if (!ParseAttributeFloatArray(vals, pElement, attrName))
+            return false;
+
+        vec.X = vals[0];
+        vec.Y = vals[1];
+        vec.Z = vals[2];
+        vec.W = vals[3];
+
+        return true;
+    }
+
+    template<uint32 uiLen>
+    static bool ParseAttributeVector2(Math::vector2& vec, Element* pElement, const char(&attrName)[uiLen])
+    {
+        std::vector<uint32> vals;
+        if (!ParseAttributeUIntArray(vals, pElement, attrName))
+            return false;
+
+        vec.X = vals[0];
+        vec.Y = vals[1];
+
+        return true;
+    }
+
+    template<uint32 uiLen>
+    static bool ParseAttributeVector3(Math::vector3& vec, Element* pElement, const char(&attrName)[uiLen])
+    {
+        std::vector<uint32> vals;
+        if (!ParseAttributeUIntArray(vals, pElement, attrName))
+            return false;
+
+        vec.X = vals[0];
+        vec.Y = vals[1];
+        vec.Z = vals[2];
+
+        return true;
+    }
+
+    template<uint32 uiLen>
+    static bool ParseAttributeVector4(Math::vector4& vec, Element* pElement, const char(&attrName)[uiLen])
+    {
+        std::vector<uint32> vals;
+        if (!ParseAttributeUIntArray(vals, pElement, attrName))
             return false;
 
         vec.X = vals[0];

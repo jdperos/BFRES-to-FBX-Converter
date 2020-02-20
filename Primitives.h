@@ -1,5 +1,8 @@
 #pragma once
 #include "stdint.h"
 
-typedef size_t             uint32;
-typedef intptr_t            int32;
+typedef unsigned short uint16;
+typedef unsigned int   uint32;
+
+typedef short          int16;
+typedef int            int32;

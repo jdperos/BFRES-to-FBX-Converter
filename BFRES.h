@@ -9,14 +9,14 @@ namespace BFRESStructs
 
 using namespace std;
 
-enum RotationType
+enum class RotationType
 {
     Quaternion = 0,
     EulerXYZ = 4096
 
 };
 
-enum BoneFlagsRotation
+enum class BoneFlagsRotation
 {
     /// <summary>
     /// A quaternion represents the rotation.
@@ -29,7 +29,7 @@ enum BoneFlagsRotation
     EulerXYZ
 };
 
-enum BoneFlagsBillboard
+enum class BoneFlagsBillboard
 {
     /// <summary>
     /// No transformation is applied.
@@ -73,7 +73,7 @@ enum BoneFlagsBillboard
     YAxisViewPoint
 };
 
-enum BoneFlagsTransform
+enum class BoneFlagsTransform
 {
     None,
     ScaleUniform,
@@ -85,7 +85,7 @@ enum BoneFlagsTransform
     Identity
 };
 
-enum BoneFlagsTransformCumulative
+enum class BoneFlagsTransformCumulative
 {
 	None,
 	ScaleUniform,
@@ -97,7 +97,7 @@ enum BoneFlagsTransformCumulative
 	Identity
 };
 
-enum GX2PrimitiveType
+enum class GX2PrimitiveType
 {
     //
     // Summary:
@@ -181,7 +181,7 @@ enum GX2PrimitiveType
     TessellateQuadStrip = 148
 };
 
-enum GX2IndexFormat
+enum class GX2IndexFormat
 {
     UInt16LittleEndian = 0,
     UInt32LittleEndian = 1,

@@ -13,10 +13,6 @@ FBXWriter::~FBXWriter()
 
 void FBXWriter::CreateFBX(FbxScene* pScene, const BFRESStructs::BFRES& bfres)
 {
-	FbxNode* lNode = FbxNode::Create(pScene, "Root");
-	FbxSkeleton* pSkeleton = FbxSkeleton::Create(pScene, "");
-	lNode->SetNodeAttribute(pSkeleton);
-	pScene->GetRootNode()->AddChild(lNode);
     WriteModel(pScene, bfres.fmdl[1]);
 }
 
@@ -38,31 +34,34 @@ void FBXWriter::WriteModel(FbxScene* pScene, const BFRESStructs::FMDL& fmdl)
 // -----------------------------------------------------------------------
 void FBXWriter::WriteSkeleton(FbxScene* pScene, const BFRESStructs::FSKL& fskl)
 {
-    for (int32 i = 0; i < fskl.bones.size(); i++)
+    const uint32 uiTotalBones = fskl.bones.size();
+    std::vector<FbxNode*> boneNodes(uiTotalBones);
+    for (int32 i = 0; i < uiTotalBones; i++)
+        CreateBone(pScene, fskl.bones[i], boneNodes[i]);
+
+    for (int32 i = 0; i < uiTotalBones; i++)
     {
-        WriteBone(pScene, fskl.bones[i]);
+        const BFRESStructs::Bone& bone = fskl.bones[i];
+        if (bone.parentIndex >= 0 && bone.parentIndex < uiTotalBones)
+            boneNodes[bone.parentIndex]->AddChild(boneNodes[i]);
+        else
+            pScene->GetRootNode()->AddChild(boneNodes[i]);
     }
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteBone(FbxScene* pScene, const BFRESStructs::Bone& bone)
+void FBXWriter::CreateBone(FbxScene* pScene, const BFRESStructs::Bone& bone, FbxNode*& lBoneNode)
 {
     // Create a node for our mesh in the scene.
-    FbxNode* lBoneNode = FbxNode::Create(pScene, bone.name.c_str());
+    lBoneNode = FbxNode::Create(pScene, bone.name.c_str());
 
     // Create a bone.
-    FbxSkeleton* lBone = FbxSkeleton::Create(pScene, "");
+    FbxSkeleton* lBone = FbxSkeleton::Create(pScene, bone.name.c_str());
 
     // Set the node attribute of the bone node.
     lBoneNode->SetNodeAttribute(lBone);
-
-    // Add the mesh node to the root node in the scene.
-    FbxNode* lRootNode = pScene->GetRootNode();
-    lRootNode->AddChild(lBoneNode);
-
-    lBoneNode->SetGeometricScaling();
 }
 
 

@@ -8,9 +8,12 @@ namespace BFRES_Importer
 {
     class Program
     {
+        const string AssetDir = "../../../../TestAssets/";
+        const string OutputDir = "../../../../MedianDumps/";
+
         static void Main(string[] args)
         {
-            ResU.ResFile res = new ResU.ResFile("../../../../TestAssets/Npc_Gerudo_Queen.bfres");
+            ResU.ResFile res = new ResU.ResFile(AssetDir + "Npc_Gerudo_Queen.bfres");
             WriteResToXML(res);
         }
 
@@ -23,8 +26,10 @@ namespace BFRES_Importer
             settings.OmitXmlDeclaration = true;
             settings.Encoding = new UTF8Encoding(false); // The false means, do not emit the BOM.
 
-            XmlWriter writer = XmlWriter.Create("../../../../TestAssets/Dump.xml", settings);
-            
+            if (!Directory.Exists(Program.OutputDir))
+                Directory.CreateDirectory(Program.OutputDir);
+            XmlWriter writer = XmlWriter.Create(Program.OutputDir + "Dump.xml", settings);
+
             writer.WriteStartDocument();
             writer.WriteStartElement("BFRES");
             if (res.Models.Count > 0)

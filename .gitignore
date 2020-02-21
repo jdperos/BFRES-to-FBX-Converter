@@ -339,3 +339,5 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /libs/FBX SDK/2020.0.1/samples
+/MedianDumps/
+/FBXExports/

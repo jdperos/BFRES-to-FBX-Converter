@@ -4,13 +4,15 @@
 #include "FBXWriter.h"
 #include "XmlParser.h"
 #include "BFRES.h"
+#include <windows.h>
 
 #ifdef IOS_REF
     #undef  IOS_REF
     #define IOS_REF (*(pManager->GetIOSettings()))
 #endif
 
-#define FILE_PATH "TestAssets/Dump.xml"
+#define MEDIAN_FILE_DIR "MedianDumps/"
+#define OUTPUT_FILE_DIR "FBXExports/"
 
 // Export document, the format is ascii by default
 bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFilename, int pFileFormat = -1, bool pEmbedMedia = false)
@@ -77,8 +79,11 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
 
 int main()
 {
+    std::string medianFilePath = MEDIAN_FILE_DIR;
+    medianFilePath.append( "Dump.xml" );
+
     BFRESStructs::BFRES bfres;
-    XML::XmlParser::Parse(FILE_PATH, bfres);
+    XML::XmlParser::Parse(medianFilePath.c_str(), bfres);
 
     FbxManager* lSdkManager = FbxManager::Create();
     FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
@@ -86,7 +91,21 @@ int main()
     FBXWriter* fbx = new FBXWriter();
     fbx->CreateFBX(pScene, bfres);
 
-    SaveDocument(lSdkManager, pScene, "Name.fbx");
+#pragma region CreateDirectory
+    // CreateDirectory if it doesn't exist
+    {
+        int wchars_num = MultiByteToWideChar( CP_UTF8, 0, OUTPUT_FILE_DIR, -1, NULL, 0 );
+        wchar_t* wstr = new wchar_t[wchars_num];
+        MultiByteToWideChar( CP_UTF8, 0, OUTPUT_FILE_DIR, -1, wstr, wchars_num );
+        if( !CreateDirectory( wstr, NULL ) && ERROR_ALREADY_EXISTS != GetLastError() )         
+            assert( 0 && "Failed to create directory." );
+    }
+#pragma endregion
+
+    std::string fbxExportPath = OUTPUT_FILE_DIR;
+    fbxExportPath.append( "Name.fbx" );
+
+    SaveDocument(lSdkManager, pScene, fbxExportPath.c_str());
 
     return 0;
 }

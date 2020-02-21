@@ -15,10 +15,10 @@
       <HintPath>Lib\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="Syroot.BinaryData">
-      <HintPath>..\BinaryData\src\Syroot.BinaryData\bin\Debug\netstandard2.1\Syroot.BinaryData.dll</HintPath>
+      <HintPath>Lib\Syroot.BinaryData.dll</HintPath>
     </Reference>
     <Reference Include="Syroot.Maths">
-      <HintPath>..\Maths\src\Syroot.Maths\bin\Debug\netstandard2.0\Syroot.Maths.dll</HintPath>
+      <HintPath>Lib\Syroot.Maths.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

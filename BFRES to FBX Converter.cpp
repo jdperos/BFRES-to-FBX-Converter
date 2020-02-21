@@ -109,7 +109,7 @@ int main()
 	std::cout << pScene->GetMemberCount() << "\n\n";
 	
 #ifdef PRINT_DEBUG_INFO
-	for (uint32 i = 0; i < pScene->GetNodeCount(); i++)
+	for (int32 i = 0; i < pScene->GetNodeCount(); i++)
 	{
 		std::cout << "Name: " << pScene->GetNode(i)->GetName() << "\n";
 		if (pScene->GetNode(i)->GetNodeAttribute())
@@ -132,7 +132,7 @@ int main()
 		if (pScene->GetNode(i)->GetParent())
 			std::cout << "Parent: " << pScene->GetNode(i)->GetParent()->GetName() << "\n";
 
-		for (uint32 j = 0; j < pScene->GetNode(i)->GetChildCount(); j++)
+		for (int32 j = 0; j < pScene->GetNode(i)->GetChildCount(); j++)
 		{
 			if (pScene->GetNode(i)->GetChild(j))
 				std::cout << "Child: " << pScene->GetNode(i)->GetChild(j)->GetName() << "\n";

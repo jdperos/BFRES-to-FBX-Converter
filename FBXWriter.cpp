@@ -25,10 +25,44 @@ void FBXWriter::CreateFBX(FbxScene* pScene, const BFRESStructs::BFRES& bfres)
 // -----------------------------------------------------------------------
 void FBXWriter::WriteModel(FbxScene* pScene, const BFRESStructs::FMDL& fmdl)
 {
+    WriteSkeleton(pScene, fmdl.fskl);
+
     for (uint32 i = 0; i < fmdl.fshps.size(); i++)
     {
         WriteShape(pScene, fmdl.fshps[i]);
     }
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void FBXWriter::WriteSkeleton(FbxScene* pScene, const BFRESStructs::FSKL& fskl)
+{
+    for (int32 i = 0; i < fskl.bones.size(); i++)
+    {
+        WriteBone(pScene, fskl.bones[i]);
+    }
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void FBXWriter::WriteBone(FbxScene* pScene, const BFRESStructs::Bone& bone)
+{
+    // Create a node for our mesh in the scene.
+    FbxNode* lBoneNode = FbxNode::Create(pScene, bone.name.c_str());
+
+    // Create a bone.
+    FbxSkeleton* lBone = FbxSkeleton::Create(pScene, "");
+
+    // Set the node attribute of the bone node.
+    lBoneNode->SetNodeAttribute(lBone);
+
+    // Add the mesh node to the root node in the scene.
+    FbxNode* lRootNode = pScene->GetRootNode();
+    lRootNode->AddChild(lBoneNode);
+
+    lBoneNode->SetGeometricScaling();
 }
 
 

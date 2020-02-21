@@ -92,16 +92,9 @@ int main()
     FBXWriter* fbx = new FBXWriter();
     fbx->CreateFBX(pScene, bfres);
 
-#pragma region CreateDirectory
-    // CreateDirectory if it doesn't exist
-    {
-        int wchars_num = MultiByteToWideChar( CP_UTF8, 0, OUTPUT_FILE_DIR, -1, NULL, 0 );
-        wchar_t* wstr = new wchar_t[wchars_num];
-        MultiByteToWideChar( CP_UTF8, 0, OUTPUT_FILE_DIR, -1, wstr, wchars_num );
-        if( !CreateDirectory( wstr, NULL ) && ERROR_ALREADY_EXISTS != GetLastError() )         
-            assert( 0 && "Failed to create directory." );
-    }
-#pragma endregion
+
+    if( !CreateDirectoryA( OUTPUT_FILE_DIR, NULL ) && ERROR_ALREADY_EXISTS != GetLastError() )
+        assert( 0 && "Failed to create directory." );
 
     std::string fbxExportPath = OUTPUT_FILE_DIR;
     fbxExportPath.append( "Name.fbx" );

@@ -13,6 +13,7 @@
 
 #define MEDIAN_FILE_DIR "MedianDumps/"
 #define OUTPUT_FILE_DIR "FBXExports/"
+#define PRINT_DEBUG_INFO false;
 
 // Export document, the format is ascii by default
 bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFilename, int pFileFormat = -1, bool pEmbedMedia = false)
@@ -104,6 +105,41 @@ int main()
 
     std::string fbxExportPath = OUTPUT_FILE_DIR;
     fbxExportPath.append( "Name.fbx" );
+
+	std::cout << pScene->GetMemberCount() << "\n\n";
+	
+#ifdef PRINT_DEBUG_INFO
+	for (uint32 i = 0; i < pScene->GetNodeCount(); i++)
+	{
+		std::cout << "Name: " << pScene->GetNode(i)->GetName() << "\n";
+		if (pScene->GetNode(i)->GetNodeAttribute())
+		{
+			std::string attributeType;
+			switch (pScene->GetNode(i)->GetNodeAttribute()->GetAttributeType())
+			{
+			case 3:
+				attributeType = "Skeleton";
+				break;
+			case 4:
+				attributeType = "Mesh";
+				break;
+			default:
+				break;
+			}
+			std::cout << "Attribute type: " << attributeType << "\n";
+		}
+
+		if (pScene->GetNode(i)->GetParent())
+			std::cout << "Parent: " << pScene->GetNode(i)->GetParent()->GetName() << "\n";
+
+		for (uint32 j = 0; j < pScene->GetNode(i)->GetChildCount(); j++)
+		{
+			if (pScene->GetNode(i)->GetChild(j))
+				std::cout << "Child: " << pScene->GetNode(i)->GetChild(j)->GetName() << "\n";
+		}
+		std::cout << "\n";
+	}
+#endif // PRINT_DEBUG_INFO
 
     SaveDocument(lSdkManager, pScene, fbxExportPath.c_str());
 

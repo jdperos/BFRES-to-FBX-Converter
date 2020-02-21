@@ -79,34 +79,84 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
 
 int main()
 {
-    std::string medianFilePath = MEDIAN_FILE_DIR;
-    medianFilePath.append( "Dump.xml" );
+//    std::string medianFilePath = MEDIAN_FILE_DIR;
+//    medianFilePath.append( "Dump.xml" );
+//
+//    BFRESStructs::BFRES bfres;
+//    XML::XmlParser::Parse(medianFilePath.c_str(), bfres);
+//
+//    FbxManager* lSdkManager = FbxManager::Create();
+//    FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
+//
+//    FBXWriter* fbx = new FBXWriter();
+//    fbx->CreateFBX(pScene, bfres);
+//
+//#pragma region CreateDirectory
+//    // CreateDirectory if it doesn't exist
+//    {
+//        int wchars_num = MultiByteToWideChar( CP_UTF8, 0, OUTPUT_FILE_DIR, -1, NULL, 0 );
+//        wchar_t* wstr = new wchar_t[wchars_num];
+//        MultiByteToWideChar( CP_UTF8, 0, OUTPUT_FILE_DIR, -1, wstr, wchars_num );
+//        if( !CreateDirectory( wstr, NULL ) && ERROR_ALREADY_EXISTS != GetLastError() )         
+//            assert( 0 && "Failed to create directory." );
+//    }
+//#pragma endregion
+//
+//    std::string fbxExportPath = OUTPUT_FILE_DIR;
+//    fbxExportPath.append( "Name.fbx" );
+//
+//    SaveDocument(lSdkManager, pScene, fbxExportPath.c_str());
 
-    BFRESStructs::BFRES bfres;
-    XML::XmlParser::Parse(medianFilePath.c_str(), bfres);
-
+    // create a SdkManager
     FbxManager* lSdkManager = FbxManager::Create();
-    FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
+    // create an IOSettings object
+    FbxIOSettings* ios = FbxIOSettings::Create( lSdkManager, IOSROOT );
+    // set some IOSettings options 
+    ios->SetBoolProp( IMP_FBX_MATERIAL, true );
+    ios->SetBoolProp( IMP_FBX_TEXTURE, true );
+    // create an empty scene
+    FbxScene* pScene = FbxScene::Create( lSdkManager, "" );
+    // Create an importer.
+    FbxImporter* lImporter = FbxImporter::Create( lSdkManager, "" );
+    // Initialize the importer by providing a filename and the IOSettings to use
+    lImporter->Initialize( "TestAssets/QueenModelASCII.fbx", -1, ios );
+    // Import the scene.
+    lImporter->Import( pScene );
+    // Destroy the importer.
+    lImporter->Destroy();
 
-    FBXWriter* fbx = new FBXWriter();
-    fbx->CreateFBX(pScene, bfres);
+    std::cout << pScene->GetMemberCount() << "\n\n";
 
-#pragma region CreateDirectory
-    // CreateDirectory if it doesn't exist
+    for( uint32 i = 0; i < pScene->GetNodeCount(); i++ )
     {
-        int wchars_num = MultiByteToWideChar( CP_UTF8, 0, OUTPUT_FILE_DIR, -1, NULL, 0 );
-        wchar_t* wstr = new wchar_t[wchars_num];
-        MultiByteToWideChar( CP_UTF8, 0, OUTPUT_FILE_DIR, -1, wstr, wchars_num );
-        if( !CreateDirectory( wstr, NULL ) && ERROR_ALREADY_EXISTS != GetLastError() )         
-            assert( 0 && "Failed to create directory." );
+        std::cout << "Name: " << pScene->GetNode( i )->GetName() << "\n";
+        if( pScene->GetNode( i )->GetNodeAttribute() )
+        {
+            std::string attributeType;
+            switch( pScene->GetNode( i )->GetNodeAttribute()->GetAttributeType() )
+            {
+            case 3:
+                attributeType = "Skeleton";
+                break;
+            case 4:
+                attributeType = "Mesh";
+                break;
+            default:
+                break;
+            }
+            std::cout << "Attribute type: " << attributeType << "\n";
+        }
+
+        if( pScene->GetNode( i )->GetParent() )
+            std::cout << "Parent: " << pScene->GetNode( i )->GetParent()->GetName() << "\n";
+
+        for( uint32 j = 0; j < pScene->GetNode( i )->GetChildCount(); j++ )
+        {
+            if( pScene->GetNode( i )->GetChild( j ) )
+                std::cout << "Child: " << pScene->GetNode( i )->GetChild( j )->GetName() << "\n";
+        }
+        std::cout << "\n";
     }
-#pragma endregion
-
-    std::string fbxExportPath = OUTPUT_FILE_DIR;
-    fbxExportPath.append( "Name.fbx" );
-
-    SaveDocument(lSdkManager, pScene, fbxExportPath.c_str());
-
     return 0;
 }
 

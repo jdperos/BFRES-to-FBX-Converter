@@ -11,5 +11,5 @@ public:
     void CreateFBX(FbxScene* pScene, const BFRESStructs::BFRES& bfres);
     void WriteModel(FbxScene* pScene, const BFRESStructs::FMDL& fmdl);
     void WriteShape(FbxScene* pScene, const BFRESStructs::FSHP& fshp);
-    void WriteMesh(FbxScene* pScene, const BFRESStructs::LODMesh& lodMesh, const std::vector<BFRESStructs::FVTX>& vertices);
+    void WriteMesh(FbxScene* pScene, const BFRESStructs::LODMesh& lodMesh, const std::vector<BFRESStructs::FVTX>& vertices, const BFRESStructs::FSHP& fshp);
 };

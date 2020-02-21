@@ -13,6 +13,10 @@ FBXWriter::~FBXWriter()
 
 void FBXWriter::CreateFBX(FbxScene* pScene, const BFRESStructs::BFRES& bfres)
 {
+    FbxNode* lNode = FbxNode::Create(pScene, "Root");
+    FbxSkeleton* pSkeleton = FbxSkeleton::Create( pScene, "" );
+    lNode->SetNodeAttribute(pSkeleton);
+    pScene->GetRootNode()->AddChild( lNode );
     WriteModel(pScene, bfres.fmdl[1]);
 }
 
@@ -21,10 +25,8 @@ void FBXWriter::CreateFBX(FbxScene* pScene, const BFRESStructs::BFRES& bfres)
 // -----------------------------------------------------------------------
 void FBXWriter::WriteModel(FbxScene* pScene, const BFRESStructs::FMDL& fmdl)
 {
-
-
-    WriteShape(pScene, fmdl.fshps[0]);
-    
+    for( uint32 i = 0; i < fmdl.fshps.size(); ++i )
+        WriteShape( pScene, fmdl.fshps[i] );
 }
 
 
@@ -32,19 +34,19 @@ void FBXWriter::WriteModel(FbxScene* pScene, const BFRESStructs::FMDL& fmdl)
 // -----------------------------------------------------------------------
 void FBXWriter::WriteShape(FbxScene* pScene, const BFRESStructs::FSHP& fshp)
 {
-    WriteMesh(pScene, fshp.lodMeshes[0], fshp.vertices);
+    WriteMesh(pScene, fshp.lodMeshes[0], fshp.vertices, fshp);
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteMesh(FbxScene* pScene, const BFRESStructs::LODMesh& lodMesh, const std::vector<BFRESStructs::FVTX>& vertices)
+void FBXWriter::WriteMesh(FbxScene* pScene, const BFRESStructs::LODMesh& lodMesh, const std::vector<BFRESStructs::FVTX>& vertices, const BFRESStructs::FSHP& fshp)
 {
     // Create a node for our mesh in the scene.
-    FbxNode* lMeshNode = FbxNode::Create(pScene, "meshNode");
+    FbxNode* lMeshNode = FbxNode::Create(pScene, fshp.name.c_str());
 
     // Create a mesh.
-    FbxMesh* lMesh = FbxMesh::Create(pScene, "mesh");
+    FbxMesh* lMesh = FbxMesh::Create(pScene, "");
 
     // Set the node attribute of the mesh node.
     lMeshNode->SetNodeAttribute(lMesh);

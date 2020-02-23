@@ -134,24 +134,19 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 
     std::vector<SkinCluster> vSkinClusters((*m_pBfres).fmdl[1].fskl.boneList.size());
 
-    FbxVector4 normal(0, 0, 0, 1.0f);
     for (uint32 i = 0; i < uiNumControlPoints; i++)
     {
         // TODO make this iterative
         const Math::vector3F& posVec = fshp.vertices[i].position0;
         lControlPoints[i] = FbxVector4(posVec.X, posVec.Y, posVec.Z);
 
-        normal.mData[0] = fshp.vertices[i].normal.X;
-        normal.mData[1] = fshp.vertices[i].normal.Y;
-        normal.mData[2] = fshp.vertices[i].normal.Z;
-        normal.mData[3] = 1.0f;
+        const Math::vector3F& normalVec = fshp.vertices[i].normal;
+        lLayerElementNormal->GetDirectArray().Add(FbxVector4(normalVec.X, normalVec.Y, normalVec.Z));
 
-        lLayerElementNormal->GetDirectArray().Add(normal);
-
-        CreateVertBlendDataToSkinCluster(fshp, vSkinClusters); 
+        CreateSkinClusterData(fshp.vertices[i], i, vSkinClusters);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
     }
 
-    //WriteSkin(pScene, lMesh, vSkinClusters);
+    WriteSkin(pScene, lMesh, vSkinClusters);
 
     // Create layer 0 for the mesh if it does not already exist.
     // This is where we will define our normals.
@@ -194,7 +189,8 @@ void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::vector<SkinCl
     {
         SkinCluster& skinCluster = vSkinClusters[uiSkinCluster];
 
-        std::string boneName = fskl.bones[skinCluster.m_uiBoneIndex].name;
+        uint32 uiBoneIndex = (*m_pBfres).fmdl[1].fskl.boneList[uiSkinCluster];
+        std::string boneName = fskl.bones[uiBoneIndex].name;
 
         FbxNode* pBoneNode = pScene->FindNodeByName(FbxString(boneName.c_str()));
         assert(pBoneNode != NULL);
@@ -226,27 +222,19 @@ void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::vector<SkinCl
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::CreateVertBlendDataToSkinCluster(const BFRESStructs::FSHP& fshp, std::vector<SkinCluster>& vSkinClusters)
+void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::vector<SkinCluster>& vSkinClusters)
 {
-    const std::vector<BFRESStructs::FVTX>& verts = fshp.vertices;
-
-    for(uint32 uiVertIndex = 0; uiVertIndex < verts.size(); ++uiVertIndex)
+    uint32 uiBlendIndices[4] = { vert.blendIndex.X, vert.blendIndex.Y, vert.blendIndex.Z, vert.blendIndex.W };
+    float  fBlendWeights[4] = { vert.blendWeights.X, vert.blendWeights.Y, vert.blendWeights.Z, vert.blendWeights.W };
+    for (uint32 uiBlendEntry = 0; uiBlendEntry < 4; ++uiBlendEntry) // max limit for uiBlendEntry is 4 because FLOAT FUCKING 4
     {
-        const BFRESStructs::FVTX& vert = verts[uiVertIndex];
-
-        uint32 uiBlendIndices[4] = { vert.blendIndex.X, vert.blendIndex.Y, vert.blendIndex.Z, vert.blendIndex.W };
-        float  fBlendWeights[4]  = { vert.blendWeights.X, vert.blendWeights.Y, vert.blendWeights.Z, vert.blendWeights.W };
-        for(uint32 uiBlendEntry = 0; uiBlendEntry < 4; ++uiBlendEntry) // max limit for uiBlendEntry is 4 because FLOAT FUCKING 4
+        if (fBlendWeights[uiBlendEntry] > 0)
         {
-            if (fBlendWeights[uiBlendEntry] > 0)
-            {
-                uint32 uiBlendIndex = uiBlendIndices[uiBlendEntry]; // index into the SkinBoneIndices array
-                
-                SkinCluster& skinCluster = vSkinClusters[uiBlendIndex];
-                skinCluster.m_uiBoneIndex = (*m_pBfres).fmdl[1].fskl.boneList[uiBlendIndex];
-                skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
-                skinCluster.m_vControlPointWeights.push_back(fBlendWeights[uiBlendEntry]);
-            }
+            uint32 uiBlendIndex = uiBlendIndices[uiBlendEntry]; // index into the SkinBoneIndices array
+
+            SkinCluster& skinCluster = vSkinClusters[uiBlendIndex];
+            skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
+            skinCluster.m_vControlPointWeights.push_back(fBlendWeights[uiBlendEntry]);
         }
-    }   
+    }
 }

@@ -10,7 +10,6 @@ public:
 
     struct SkinCluster 
     {
-        uint32              m_uiBoneIndex;
         std::vector<uint32> m_vControlPointIndices;
         std::vector<float>  m_vControlPointWeights;
     };
@@ -24,6 +23,6 @@ public:
     void WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh);
     void WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::vector<SkinCluster>& vSkinClusters);
 
-    void CreateVertBlendDataToSkinCluster(const BFRESStructs::FSHP& fshp, std::vector<SkinCluster>& vSkinClusters);
+    void CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::vector<SkinCluster>& vSkinClusters);
     void CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, FbxNode*& lBoneNode);
 };

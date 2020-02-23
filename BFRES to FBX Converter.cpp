@@ -77,6 +77,141 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
     return lStatus;
 }
 
+void PrintMesh(FbxNode* currNode)
+{
+	FbxMesh* inMesh = currNode->GetMesh();
+	// Node Geomtric Transformation
+	FbxAMatrix geometryTransform = FbxAMatrix(currNode->GetGeometricTranslation(FbxNode::eSourcePivot), currNode->GetGeometricRotation(FbxNode::eSourcePivot), currNode->GetGeometricScaling(FbxNode::eSourcePivot));
+
+	// Get Number of Deformers
+	uint32 numOfDeformers = inMesh->GetDeformerCount();
+	std::cout << "Deformer count: " << numOfDeformers << "\n";
+
+	// Loop through Node Deformers for Skins to get Cluster Data
+	for (uint32 deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
+	{
+		// Check if Deformer is a Skin
+		FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(inMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+		if (!currSkin)
+		{
+			continue;
+		}
+
+		std::cout << "Skin: " << currSkin->GetName() << "\n";
+
+		// Get Number of Clusters in Skin
+		uint32 numOfClusters = currSkin->GetClusterCount();
+
+		// Process Cluster Data
+		for (uint32 clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
+		{
+			// Get Cluster from Skin
+			FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
+
+			// Get Joint Name
+			FbxNode* currJoint = currCluster->GetLink();
+			std::cout << "Joint Begin: " << currJoint->GetName() << "\n";
+
+			uint32 numOfIndices = currCluster->GetControlPointIndicesCount();
+			std::cout << "Control point indices count: " << numOfIndices << "\n";
+
+			int*    controlPointIndices = currCluster->GetControlPointIndices();
+			double* controlPointWeights = currCluster->GetControlPointWeights();
+			for (uint32 idxCount = 0; idxCount < numOfIndices; ++idxCount)
+			{
+				std::cout << "Control point index : " << controlPointIndices[idxCount] << "\n";
+				std::cout << "Control point weight: " << controlPointWeights[idxCount] << "\n";
+			}
+
+			std::cout << "Joint End: " << currJoint->GetName() << "\n";
+			//// Get Joint and Joint Index from Name
+			//ModelObject::Joint* joint = nullptr;
+			//uint32 jointIdx = FindJointIndexUsingName(currJointName, &joint);
+			
+			//// Matrices
+			//FbxAMatrix transformMatrix;					// Mesh Tranformation at Binding Time
+			//FbxAMatrix transformLinkMatrix;				// The Transformation of the Cluster(joint) at Binding Time from Joint Space to World Space
+			//FbxAMatrix globalBindposeInverseMatrix;		// Bindpose Inverse Matrix
+
+			//// Get Matrix Data
+			//currCluster->GetTransformMatrix(transformMatrix);
+			//currCluster->GetTransformLinkMatrix(transformLinkMatrix);
+			//globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+
+			//// Update Joint Matrix Data
+			//joint->globalBindposeInverse = FbxAMatrixToMatrix44(globalBindposeInverseMatrix);
+
+			//// Associate Each Joint with the Control Points it Affects
+			//uint32 numOfIndices = currCluster->GetControlPointIndicesCount();
+			//for (uint32 idxCount = 0; idxCount < numOfIndices; ++idxCount)
+			//{
+			//	ModelObject::BlendingIndexWeightPair currBlendingIndexWeightPair;
+			//	currBlendingIndexWeightPair.blendingIndex = jointIdx;
+			//	currBlendingIndexWeightPair.blendingWeight = currCluster->GetControlPointWeights()[idxCount];
+
+			//	// If Blending Weight is Above Minimum Value
+			//	if (currBlendingIndexWeightPair.blendingWeight > 0.1f)
+			//	{
+			//		// Get Control Index
+			//		int ctrlIdx = currCluster->GetControlPointIndices()[idxCount];
+
+			//		// Get Model Blend Data Index
+			//		int blendIdx = 0;
+			//		for (blendIdx = 0; blendIdx < 4; blendIdx++)
+			//		{
+			//			if (m_meshHold.ctrl.data[ctrlIdx].blendingInfo[blendIdx].blendingWeight == 0)
+			//			{
+			//				// Add Blending Data to Control Point
+			//				m_meshHold.ctrl.data[ctrlIdx].blendingInfo[blendIdx] = currBlendingIndexWeightPair;
+			//				break;
+			//			}
+			//		}
+			//	}
+			//}
+
+			//// Get Animation Data
+			//// ( Currently only Supports one Take )
+			//FbxAnimStack* currAnimStack = m_fbxScene->GetSrcObject<FbxAnimStack>(0);
+
+			//// Get Animation Name
+			//FbxString animStackName = currAnimStack->GetName();
+			//m_animationName = animStackName.Buffer();
+
+			//// Get Take Info using Animation Name
+			//FbxTakeInfo* takeInfo = m_fbxScene->GetTakeInfo(animStackName);
+
+			//// Get Animation Length
+			//FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+			//FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+			//m_animationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
+
+			//// Create Frames Based on Animation Length
+			//joint->animation = new ModelObject::Frame[(int)m_animationLength];
+
+			//// Process Animation Data
+			//int animCount = 0;
+			//for (FbxLongLong frameCount = start.GetFrameCount(FbxTime::eFrames24); frameCount <= end.GetFrameCount(FbxTime::eFrames24); ++frameCount)
+			//{
+			//	// Set Frame Time
+			//	FbxTime currTime;
+			//	currTime.SetFrame(frameCount, FbxTime::eFrames24);
+
+			//	// Save Frame Number
+			//	joint->animation[animCount].curFrameNum = (int)frameCount;
+
+			//	// Get Global Transform Matrix
+			//	FbxAMatrix currentTransformOffset = currNode->EvaluateGlobalTransform(currTime) * geometryTransform;
+			//	FbxAMatrix globalMtx = currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime);
+			//	joint->animation[animCount].globalTransform = FbxAMatrixToMatrix44(globalMtx);
+
+			//	// Increase Animation Array Count
+			//	animCount++;
+			//}
+		}
+	}
+}
+
+
 int main()
 {
 //    std::string medianFilePath = MEDIAN_FILE_DIR;
@@ -140,6 +275,7 @@ int main()
                 break;
             case 4:
                 attributeType = "Mesh";
+				PrintMesh(pScene->GetNode(i));
                 break;
             default:
                 break;
@@ -159,4 +295,3 @@ int main()
     }
     return 0;
 }
-

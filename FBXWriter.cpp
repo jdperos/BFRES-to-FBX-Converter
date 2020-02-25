@@ -139,7 +139,7 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
     // element of the control point array.
     lLayerElementNormal->SetReferenceMode(FbxLayerElement::eDirect);
 
-    std::vector<SkinCluster> vSkinClusters((*m_pBfres).fmdl[1].fskl.boneList.size());
+    std::map<uint32, SkinCluster> BoneIndexToSkinClusterMap;
 
     for (uint32 i = 0; i < uiNumControlPoints; i++)
     {
@@ -150,10 +150,10 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         const Math::vector3F& normalVec = fshp.vertices[i].normal;
         lLayerElementNormal->GetDirectArray().Add(FbxVector4(normalVec.X, normalVec.Y, normalVec.Z));
 
-        CreateSkinClusterData(fshp.vertices[i], i, vSkinClusters);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
+        CreateSkinClusterData(fshp.vertices[i], i, BoneIndexToSkinClusterMap);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
     }
 
-    WriteSkin(pScene, lMesh, vSkinClusters);
+    WriteSkin(pScene, lMesh, BoneIndexToSkinClusterMap);
 
     // Create layer 0 for the mesh if it does not already exist.
     // This is where we will define our normals.
@@ -189,25 +189,23 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::vector<SkinCluster>& vSkinClusters)
+void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32,SkinCluster>& BoneIndexToSkinClusterMap)
 {
     FbxSkin* pSkin = FbxSkin::Create(pScene, "");
     FbxAMatrix& lXMatrix = pMesh->GetNode()->EvaluateGlobalTransform();
     const BFRESStructs::FSKL& fskl = (*m_pBfres).fmdl[1].fskl;
 
-    for (uint32 uiSkinCluster = 0; uiSkinCluster < vSkinClusters.size(); ++uiSkinCluster)
+    std::map<uint32, SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.begin();
+    std::map<uint32, SkinCluster>::iterator end  = BoneIndexToSkinClusterMap.end();
+    for (; iter!=end; ++iter)
     {
-        SkinCluster& skinCluster = vSkinClusters[uiSkinCluster];
-        if( skinCluster.m_vControlPointIndices.size() == 0 )
-            continue;
-
-        uint32 uiBoneIndex = (*m_pBfres).fmdl[1].fskl.boneList[uiSkinCluster];
-        std::string boneName = fskl.bones[uiBoneIndex].name;
+        SkinCluster& skinCluster = iter->second;
+        std::string boneName = fskl.bones[iter->first].name;
 
         FbxNode* pBoneNode = pScene->FindNodeByName(FbxString(boneName.c_str()));
         assert(pBoneNode != NULL);
 
-        FbxCluster* pCluster = FbxCluster::Create(pScene, "");
+        FbxCluster* pCluster = FbxCluster::Create(pScene, boneName.c_str());
         pCluster->SetLink(pBoneNode);
         // eTotalOne means Mode eTotalOne is identical to mode eNormalize except that the sum of the weights assigned to a control point is not normalized and must equal 1.0.
         // https://help.autodesk.com/view/FBX/2017/ENU/?guid=__cpp_ref_class_fbx_cluster_html
@@ -325,7 +323,7 @@ void FBXWriter::WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode)
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::vector<SkinCluster>& vSkinClusters)
+void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::map<uint32,SkinCluster>& BoneIndexToSkinClusterMap)
 {
     uint32 uiBlendIndices[4] = { vert.blendIndex.X, vert.blendIndex.Y, vert.blendIndex.Z, vert.blendIndex.W };
     float  fBlendWeights[4] = { vert.blendWeights.X, vert.blendWeights.Y, vert.blendWeights.Z, vert.blendWeights.W };
@@ -335,9 +333,19 @@ void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiV
         {
             uint32 uiBlendIndex = uiBlendIndices[uiBlendEntry]; // index into the SkinBoneIndices array
 
-            SkinCluster& skinCluster = vSkinClusters[uiBlendIndex];
-            skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
-            skinCluster.m_vControlPointWeights.push_back(fBlendWeights[uiBlendEntry]);
+            std::map<uint32,SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.find( uiBlendIndex );
+            if( iter != BoneIndexToSkinClusterMap.end() )
+            {
+                iter->second.m_vControlPointIndices.push_back( uiVertIndex );
+                iter->second.m_vControlPointWeights.push_back( fBlendWeights[ uiBlendEntry ] );
+            }
+            else
+            {
+                SkinCluster skinCluster;
+                skinCluster.m_vControlPointIndices.push_back( uiVertIndex );
+                skinCluster.m_vControlPointWeights.push_back( fBlendWeights[ uiBlendEntry ] );
+                BoneIndexToSkinClusterMap.insert( std::pair<uint32,SkinCluster>(uiBlendIndex, skinCluster) );
+            }
         }
     }
 }

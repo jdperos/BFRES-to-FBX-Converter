@@ -1,6 +1,7 @@
 #pragma once
 #include "Primitives.h"
 #include <math.h>
+#include <vector>
 
 namespace Math
 {
@@ -39,6 +40,18 @@ namespace Math
 	static double ConvertRadiansToDegrees(float rad)
 	{
 		return rad * ( 180.0f / pi() );
+	}
+
+	static bool IsValueInVector(uint32 value, std::vector<int32> vec)
+	{
+		for (uint32 i = 0; i < vec.size(); i++)
+		{
+			if (vec[i] == value)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

@@ -23,23 +23,27 @@ void FBXWriter::CreateFBX(FbxScene*& pScene, const BFRESStructs::BFRES& bfres)
 // -----------------------------------------------------------------------
 void FBXWriter::WriteModel(FbxScene*& pScene, const BFRESStructs::FMDL& fmdl)
 {
-    WriteSkeleton(pScene, fmdl.fskl);
+	// Create an array to store the smooth and rigid bone indices
+	std::vector<BoneListInfo> boneListInfos(fmdl.fskl.boneList.size());
+
+    WriteSkeleton(pScene, fmdl.fskl, boneListInfos);
 
     for (uint32 i = 0; i < fmdl.fshps.size(); i++)
     {
-        WriteShape(pScene, fmdl.fshps[i]);
+        WriteShape(pScene, fmdl.fshps[i], boneListInfos);
     }
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl)
+void FBXWriter::WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl, std::vector<BoneListInfo>& boneListInfos)
 {
     const uint32 uiTotalBones = fskl.bones.size();
     std::vector<FbxNode*> boneNodes(uiTotalBones);
+
     for (int32 i = 0; i < uiTotalBones; i++)
-        CreateBone(pScene, fskl.bones[i], boneNodes[i]);
+        CreateBone(pScene, fskl.bones[i], boneNodes[i], boneListInfos);
 
     for (int32 i = 0; i < uiTotalBones; i++)
     {
@@ -54,7 +58,7 @@ void FBXWriter::WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl)
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, FbxNode*& lBoneNode)
+void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, FbxNode*& lBoneNode, std::vector<BoneListInfo>& boneListInfos)
 {
     // Create a node for our mesh in the scene.
     lBoneNode = FbxNode::Create(pScene, bone.name.c_str());
@@ -68,9 +72,6 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, Fb
             Math::ConvertRadiansToDegrees(bone.rotation.X),
             Math::ConvertRadiansToDegrees(bone.rotation.Y),
             Math::ConvertRadiansToDegrees(bone.rotation.Z));
-			//bone.rotation.X,
-			//bone.rotation.Y,
-			//bone.rotation.Z);
         lBoneNode->LclRotation.Set(fBoneRot);
     }
     else
@@ -94,20 +95,34 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, Fb
 
     // Set the node attribute of the bone node.
     lBoneNode->SetNodeAttribute(lBone);
+
+	// Add bone data to the bone info list
+	if (bone.useSmoothMatrix)
+	{
+		boneListInfos[bone.smoothMatrixIndex].uiBoneIndex   = bone.index;
+		boneListInfos[bone.smoothMatrixIndex].szName        = bone.name;
+		boneListInfos[bone.smoothMatrixIndex].eSkinningType = SkinningType::eSmooth;
+	}
+	if (bone.useRigidMatrix)
+	{
+		boneListInfos[bone.rigidMatrixIndex].uiBoneIndex   = bone.index;
+		boneListInfos[bone.rigidMatrixIndex].szName        = bone.name;
+		boneListInfos[bone.rigidMatrixIndex].eSkinningType = SkinningType::eRigid;
+	}
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp)
+void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, std::vector<BoneListInfo> boneListInfos)
 {
-    WriteMesh(pScene, fshp, fshp.lodMeshes[0]);
+    WriteMesh(pScene, fshp, fshp.lodMeshes[0], boneListInfos);
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh)
+void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneListInfo> boneListInfos)
 {
 
     // Create a node for our mesh in the scene.
@@ -150,7 +165,7 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         const Math::vector3F& normalVec = fshp.vertices[i].normal;
         lLayerElementNormal->GetDirectArray().Add(FbxVector4(normalVec.X, normalVec.Y, normalVec.Z));
 
-        CreateSkinClusterData(fshp.vertices[i], i, vSkinClusters);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
+        CreateSkinClusterData(fshp.vertices[i], i, vSkinClusters, boneListInfos);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
     }
 
     WriteSkin(pScene, lMesh, vSkinClusters);
@@ -325,10 +340,28 @@ void FBXWriter::WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode)
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::vector<SkinCluster>& vSkinClusters)
+void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::vector<SkinCluster>& vSkinClusters, std::vector<BoneListInfo>& boneListInfos)
 {
     uint32 uiBlendIndices[4] = { vert.blendIndex.X, vert.blendIndex.Y, vert.blendIndex.Z, vert.blendIndex.W };
     float  fBlendWeights[4] = { vert.blendWeights.X, vert.blendWeights.Y, vert.blendWeights.Z, vert.blendWeights.W };
+
+	if (fBlendWeights[0] < 0) // Rigid skinning, weights are set to -1 in XML parse if no blend weights are set
+    {
+        uint32 uiBoneIndex = boneListInfos[uiBlendIndices[0]].uiBoneIndex; // Index of bone
+
+        if (boneListInfos[uiBlendIndices[0]].eSkinningType == SkinningType::eRigid)
+        {
+			SkinCluster& skinCluster = vSkinClusters[uiBoneIndex];
+			skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
+			skinCluster.m_vControlPointWeights.push_back(1);
+        }
+        else
+        {
+            // There is a negative value being set, but it shouldn't be rigid
+            assert(0);
+        }
+    }
+
     for (uint32 uiBlendEntry = 0; uiBlendEntry < 4; ++uiBlendEntry) // max limit for uiBlendEntry is 4 because FLOAT FUCKING 4
     {
         if (fBlendWeights[uiBlendEntry] > 0)

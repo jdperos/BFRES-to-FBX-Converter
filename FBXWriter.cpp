@@ -72,13 +72,14 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, Fb
 			//bone.rotation.Y,
 			//bone.rotation.Z);
         lBoneNode->LclRotation.Set(fBoneRot);
-        FbxDouble3 fBonePos = FbxDouble3(bone.position.X, bone.position.Y, bone.position.Z);
-        lBoneNode->LclTranslation.Set(fBonePos);
     }
     else
     {
         // This FbxWriter doesn't support bone quaternion rotation yet
+        assert(0 && "FbxWriter doesn't support bone quaternion rotation yet" );
     }
+    FbxDouble3 fBonePos = FbxDouble3(bone.position.X, bone.position.Y, bone.position.Z);
+    lBoneNode->LclTranslation.Set(fBonePos);
 
     // Create a bone.
     FbxSkeleton* lBone = FbxSkeleton::Create(pScene, bone.name.c_str());
@@ -180,6 +181,9 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         if ((i + 1) % uiPolySize == 0)
             lMesh->EndPolygon();
     }
+
+    // TODO move this function call into write animations
+    WriteBindPose(pScene, lMeshNode);
 }
 
 
@@ -223,6 +227,97 @@ void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::vector<SkinCl
     }
     
     pMesh->AddDeformer(pSkin);
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// Add the specified node to the node array. Also, add recursively
+// all the parent node of the specified node to the array.
+void AddNodeRecursively(FbxArray<FbxNode*>& pNodeArray, FbxNode* pNode)
+{
+    if (pNode)
+    {
+        AddNodeRecursively(pNodeArray, pNode->GetParent());
+
+        if (pNodeArray.Find(pNode) == -1)
+        {
+            // Node not in the list, add it
+            pNodeArray.Add(pNode);
+        }
+    }
+}
+
+void FBXWriter::WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode)
+{
+    // In the bind pose, we must store all the link's global matrix at the time of the bind.
+// Plus, we must store all the parent(s) global matrix of a link, even if they are not
+// themselves deforming any model.
+
+// In this example, since there is only one model deformed, we don't need walk through 
+// the scene
+//
+
+// Now list the all the link involve in the patch deformation
+    FbxArray<FbxNode*> lClusteredFbxNodes;
+    int                       i, j;
+
+    if (pMeshNode && pMeshNode->GetNodeAttribute())
+    {
+        int lSkinCount = 0;
+        int lClusterCount = 0;
+
+
+        lSkinCount = ((FbxGeometry*)pMeshNode->GetNodeAttribute())->GetDeformerCount(FbxDeformer::eSkin);
+        //Go through all the skins and count them
+        //then go through each skin and get their cluster count
+        for (i = 0; i < lSkinCount; ++i)
+        {
+            FbxSkin* lSkin = (FbxSkin*)((FbxGeometry*)pMeshNode->GetNodeAttribute())->GetDeformer(i, FbxDeformer::eSkin);
+            lClusterCount += lSkin->GetClusterCount();
+        }
+
+        //if we found some clusters we must add the node
+        if (lClusterCount)
+        {
+            //Again, go through all the skins get each cluster link and add them
+            for (i = 0; i < lSkinCount; ++i)
+            {
+                FbxSkin* lSkin = (FbxSkin*)((FbxGeometry*)pMeshNode->GetNodeAttribute())->GetDeformer(i, FbxDeformer::eSkin);
+                lClusterCount = lSkin->GetClusterCount();
+                for (j = 0; j < lClusterCount; ++j)
+                {
+                    FbxNode* lClusterNode = lSkin->GetCluster(j)->GetLink();
+                    AddNodeRecursively(lClusteredFbxNodes, lClusterNode);
+                }
+
+            }
+
+            // Add the patch to the pose
+            lClusteredFbxNodes.Add(pMeshNode);
+        }
+    }
+
+    // Now create a bind pose with the link list
+    if (lClusteredFbxNodes.GetCount())
+    {
+        // A pose must be named. Arbitrarily use the name of the patch node.
+        FbxPose* lPose = FbxPose::Create(pScene, pMeshNode->GetName());
+
+        // default pose type is rest pose, so we need to set the type as bind pose
+        lPose->SetIsBindPose(true);
+
+        for (i = 0; i < lClusteredFbxNodes.GetCount(); i++)
+        {
+            FbxNode* lKFbxNode = lClusteredFbxNodes.GetAt(i);
+            FbxMatrix lBindMatrix = lKFbxNode->EvaluateGlobalTransform();
+
+            lPose->Add(lKFbxNode, lBindMatrix);
+        }
+
+        // Add the pose to the scene
+        pScene->AddPose(lPose);
+    }
 }
 
 

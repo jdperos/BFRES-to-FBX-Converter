@@ -10,6 +10,7 @@ public:
 
     struct SkinCluster 
     {
+        std::string         m_szName;
         std::vector<uint32> m_vControlPointIndices;
         std::vector<float>  m_vControlPointWeights;
     };

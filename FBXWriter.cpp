@@ -345,32 +345,26 @@ void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiV
     uint32 uiBlendIndices[4] = { vert.blendIndex.X, vert.blendIndex.Y, vert.blendIndex.Z, vert.blendIndex.W };
     float  fBlendWeights[4] = { vert.blendWeights.X, vert.blendWeights.Y, vert.blendWeights.Z, vert.blendWeights.W };
 
-	if (fBlendWeights[0] < 0) // Rigid skinning, weights are set to -1 in XML parse if no blend weights are set
+	if (boneListInfos[uiBlendIndices[0]].eSkinningType == SkinningType::eRigid)
     {
-        uint32 uiBoneIndex = boneListInfos[uiBlendIndices[0]].uiBoneIndex; // Index of bone
-
-        if (boneListInfos[uiBlendIndices[0]].eSkinningType == SkinningType::eRigid)
-        {
-			SkinCluster& skinCluster = vSkinClusters[uiBoneIndex];
-			skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
-			skinCluster.m_vControlPointWeights.push_back(1);
-        }
-        else
-        {
-            // There is a negative value being set, but it shouldn't be rigid
-            assert(0);
-        }
+		SkinCluster& skinCluster = vSkinClusters[boneListInfos[uiBlendIndices[0]].uiBoneIndex];
+        skinCluster.m_szName = boneListInfos[uiBlendIndices[0]].szName;
+		skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
+		skinCluster.m_vControlPointWeights.push_back(1);
     }
-
-    for (uint32 uiBlendEntry = 0; uiBlendEntry < 4; ++uiBlendEntry) // max limit for uiBlendEntry is 4 because FLOAT FUCKING 4
+    else if (boneListInfos[uiBlendIndices[0]].eSkinningType == SkinningType::eSmooth)
     {
-        if (fBlendWeights[uiBlendEntry] > 0)
-        {
-            uint32 uiBlendIndex = uiBlendIndices[uiBlendEntry]; // index into the SkinBoneIndices array
+		for (uint32 uiBlendEntry = 0; uiBlendEntry < 4; ++uiBlendEntry) // max limit for uiBlendEntry is 4 because FLOAT FUCKING 4
+		{
+			if (fBlendWeights[uiBlendEntry] > 0)
+			{
+				uint32 uiBoneIndex = boneListInfos[uiBlendIndices[uiBlendEntry]].uiBoneIndex; // Bone index of the vertex's "BlendIndex" in this iteration
 
-            SkinCluster& skinCluster = vSkinClusters[uiBlendIndex];
-            skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
-            skinCluster.m_vControlPointWeights.push_back(fBlendWeights[uiBlendEntry]);
-        }
+				SkinCluster& skinCluster = vSkinClusters[uiBoneIndex];
+                skinCluster.m_szName = boneListInfos[uiBlendIndices[0]].szName;
+				skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
+				skinCluster.m_vControlPointWeights.push_back(fBlendWeights[uiBlendEntry]);
+			}
+		}
     }
 }

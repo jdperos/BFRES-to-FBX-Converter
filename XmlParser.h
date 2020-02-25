@@ -246,13 +246,7 @@ public:
     {
         std::vector<float> vals;
         if (!ParseAttributeFloatArray(vals, pElement, attrName))
-		{
-			vec.X = -1;
-			vec.Y = -1;
-			vec.Z = -1;
-			vec.W = -1;
 			return false;
-		}
 
         vec.X = vals[0];
         vec.Y = vals[1];

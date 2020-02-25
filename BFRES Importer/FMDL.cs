@@ -261,6 +261,73 @@ namespace BFRES_Importer
             }
             writer.WriteEndElement();
         }
+
+        private static OpenTK.Matrix4 CalculateBoneCumulativeTransform(ref ResU.Model model, int boneIndex)
+        {
+            // Create the bone's transform
+            OpenTK.Vector3 mPos = new OpenTK.Vector3(
+                model.Skeleton.Bones[boneIndex].Position.X,
+                model.Skeleton.Bones[boneIndex].Position.Y,
+                model.Skeleton.Bones[boneIndex].Position.Z);
+
+            OpenTK.Quaternion mRot;
+            OpenTK.Vector3 v3 = new OpenTK.Vector3(
+                    model.Skeleton.Bones[boneIndex].Rotation.X,
+                    model.Skeleton.Bones[boneIndex].Rotation.Y,
+                    model.Skeleton.Bones[boneIndex].Rotation.Z
+                    );
+            if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.Quaternion)
+                mRot = new OpenTK.Quaternion(v3, model.Skeleton.Bones[boneIndex].Rotation.W);
+            else if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.EulerXYZ)
+                mRot = new OpenTK.Quaternion(v3);
+            else
+                mRot = new OpenTK.Quaternion();
+
+            OpenTK.Vector3 mSca = new OpenTK.Vector3(
+                model.Skeleton.Bones[boneIndex].Scale.X,
+                model.Skeleton.Bones[boneIndex].Scale.Y,
+                model.Skeleton.Bones[boneIndex].Scale.Z);
+
+            while (model.Skeleton.Bones[boneIndex].ParentIndex < model.Skeleton.Bones.Count)
+            {
+                boneIndex = model.Skeleton.Bones[boneIndex].ParentIndex;
+
+                // Create the parent Transform Matrix4
+                OpenTK.Vector3 parentPos = new OpenTK.Vector3(
+                    model.Skeleton.Bones[boneIndex].Position.X,
+                    model.Skeleton.Bones[boneIndex].Position.Y,
+                    model.Skeleton.Bones[boneIndex].Position.Z);
+
+                OpenTK.Quaternion parentRot;
+                OpenTK.Vector3 parentV3 = new OpenTK.Vector3(
+                        model.Skeleton.Bones[boneIndex].Rotation.X,
+                        model.Skeleton.Bones[boneIndex].Rotation.Y,
+                        model.Skeleton.Bones[boneIndex].Rotation.Z
+                        );
+                if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.Quaternion)
+                    parentRot = new OpenTK.Quaternion(v3, model.Skeleton.Bones[boneIndex].Rotation.W);
+                else if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.EulerXYZ)
+                    parentRot = new OpenTK.Quaternion(v3);
+                else
+                    parentRot = new OpenTK.Quaternion();
+
+                OpenTK.Vector3 parentSca = new OpenTK.Vector3(
+                    model.Skeleton.Bones[boneIndex].Scale.X,
+                    model.Skeleton.Bones[boneIndex].Scale.Y,
+                    model.Skeleton.Bones[boneIndex].Scale.Z);
+
+                OpenTK.Matrix4 parentTransform = OpenTK.Matrix4.CreateScale(parentSca) * OpenTK.Matrix4.CreateFromQuaternion(parentRot) * OpenTK.Matrix4.CreateTranslation(parentPos);
+
+                // Add transforms
+                mSca = OpenTK.Vector3.Multiply(mSca, parentSca);
+                mPos = OpenTK.Vector3.Add(mPos, parentPos);
+                mRot = OpenTK.Quaternion.Add(mRot, parentRot);
+            }
+
+            OpenTK.Matrix4 boneTransform = OpenTK.Matrix4.CreateScale(mSca) * OpenTK.Matrix4.CreateFromQuaternion(mRot) * OpenTK.Matrix4.CreateTranslation(mPos);
+            return boneTransform;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -382,36 +449,10 @@ namespace BFRES_Importer
                     //In game it seems to not transform if they are not rigid
                     if (model.Skeleton.Bones[boneIndex].RigidMatrixIndex != -1)
                     {
-                        // Create the Transform Matrix4
-                        OpenTK.Vector3 mPos = new OpenTK.Vector3(
-                            model.Skeleton.Bones[boneIndex].Position.X,
-                            model.Skeleton.Bones[boneIndex].Position.Y,
-                            model.Skeleton.Bones[boneIndex].Position.Z);
+                        OpenTK.Matrix4 absTransform = CalculateBoneCumulativeTransform(ref model, boneIndex);
 
-                        OpenTK.Quaternion mRot;
-                        OpenTK.Vector3 v3 = new OpenTK.Vector3(
-                                model.Skeleton.Bones[boneIndex].Rotation.X,
-                                model.Skeleton.Bones[boneIndex].Rotation.Y,
-                                model.Skeleton.Bones[boneIndex].Rotation.Z
-                                );
-                        if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.Quaternion)
-                            mRot = new OpenTK.Quaternion(v3, model.Skeleton.Bones[boneIndex].Rotation.W);
-                        else if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.EulerXYZ)
-                        {
-                            mRot = new OpenTK.Quaternion(v3);
-                        }
-                        else
-                        {
-                            mRot = new OpenTK.Quaternion();
-                        }
-                        OpenTK.Vector3 mSca = new OpenTK.Vector3(
-                            model.Skeleton.Bones[boneIndex].Scale.X,
-                            model.Skeleton.Bones[boneIndex].Scale.Y,
-                            model.Skeleton.Bones[boneIndex].Scale.Z);
-
-                        OpenTK.Matrix4 sb = OpenTK.Matrix4.CreateScale(mSca) * OpenTK.Matrix4.CreateFromQuaternion(mRot) * OpenTK.Matrix4.CreateTranslation(mPos);
-                        v.pos = OpenTK.Vector3.TransformPosition(v.pos, sb);
-                        v.nrm = OpenTK.Vector3.TransformNormal(v.nrm, sb);
+                        v.pos = OpenTK.Vector3.TransformPosition(v.pos, absTransform);
+                        v.nrm = OpenTK.Vector3.TransformNormal(v.nrm, absTransform);
                     }
                 }
                 if (shp.VertexSkinCount == 0)

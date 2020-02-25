@@ -31,6 +31,8 @@ namespace Math
 
 	struct vector4F
 	{
+		vector4F() { vector4F( 0, 0, 0, 0 ); }
+		vector4F( float x, float y, float z, float w ) : X( x ), Y( y ), Z( z ), W( w ) {};
 		float X, Y, Z, W;
 	};
 
@@ -39,6 +41,12 @@ namespace Math
 	static double ConvertRadiansToDegrees(float rad)
 	{
 		return rad * ( 180.0f / pi() );
+	}
+
+
+	static bool operator==( const vector4F& lhs, const vector4F& rhs )
+	{
+		return ( lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z && lhs.W == rhs.W );
 	}
 }
 

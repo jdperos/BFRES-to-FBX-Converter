@@ -166,7 +166,7 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         const Math::vector3F& normalVec = fshp.vertices[i].normal;
         lLayerElementNormal->GetDirectArray().Add(FbxVector4(normalVec.X, normalVec.Y, normalVec.Z));
 
-        CreateSkinClusterData(fshp.vertices[i], i, BoneIndexToSkinClusterMap, boneInfoList);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
+        CreateSkinClusterData(fshp.vertices[i], i, BoneIndexToSkinClusterMap, boneInfoList, fshp);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
     }
 
     WriteSkin(pScene, lMesh, BoneIndexToSkinClusterMap);
@@ -342,18 +342,14 @@ void FBXWriter::WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode)
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, std::vector<BoneMetadata>& boneInfoList)
+void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, std::vector<BoneMetadata>& boneListInfos, const BFRESStructs::FSHP& fshp)
 {
     uint32 uiBlendIndices[4] = { vert.blendIndex.X, vert.blendIndex.Y, vert.blendIndex.Z, vert.blendIndex.W };
     float  fBlendWeights[4] = { vert.blendWeights.X, vert.blendWeights.Y, vert.blendWeights.Z, vert.blendWeights.W };
 
-    // Some Blend Index vectors have repeated values.
-    // Subsequent instances of the same BlendIndex in the same vertex should be ignored.
-    std::vector<int32> uiAlreadyWrittenBoneListIndices = { -1, -1, -1, -1 };
-
-	if (boneInfoList[uiBlendIndices[0]].eSkinningType == SkinningType::eRigid)
+	if (boneListInfos[uiBlendIndices[0]].eSkinningType == SkinningType::eRigid)
     {
-        std::map<uint32, SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.find(boneInfoList[uiBlendIndices[0]].uiBoneIndex); // Try to find a skin cluster with the given bone index
+        std::map<uint32, SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.find(boneListInfos[uiBlendIndices[0]].uiBoneIndex); // Try to find a skin cluster with the given bone index
 
         if (iter != BoneIndexToSkinClusterMap.end()) // If found a skin cluster with the given bone index
         {
@@ -363,19 +359,19 @@ void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiV
         else // Create new cluster with data
         {
             SkinCluster skinCluster;
-            skinCluster.m_szName = boneInfoList[uiBlendIndices[0]].szName;
+            skinCluster.m_szName = boneListInfos[uiBlendIndices[0]].szName;
             skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
             skinCluster.m_vControlPointWeights.push_back(1);
-            BoneIndexToSkinClusterMap.insert(std::pair<uint32, SkinCluster>(boneInfoList[uiBlendIndices[0]].uiBoneIndex, skinCluster));
+            BoneIndexToSkinClusterMap.insert(std::pair<uint32, SkinCluster>(boneListInfos[uiBlendIndices[0]].uiBoneIndex, skinCluster));
         }
     }
-    else if (boneInfoList[uiBlendIndices[0]].eSkinningType == SkinningType::eSmooth)
+    else if (boneListInfos[uiBlendIndices[0]].eSkinningType == SkinningType::eSmooth)
     {
-        for (uint32 uiBlendEntry = 0; uiBlendEntry < 4; ++uiBlendEntry) // max limit for uiBlendEntry is 4 because FLOAT FUCKING 4)
+        for (uint32 uiBlendEntry = 0; uiBlendEntry < fshp.vertexSkinCount; ++uiBlendEntry) // max limit for uiBlendEntry is 4 because FLOAT FUCKING 4)
         {
-            if (fBlendWeights[uiBlendEntry] > 0 &&  Math::IsValueInVector(uiBlendIndices[uiBlendEntry],uiAlreadyWrittenBoneListIndices) == false ) // Only write blend weights that are non-zero and that have not already had weights written for this bone index
+            if (fBlendWeights[uiBlendEntry] > 0) // Only write blend weights that are non-zero and that have not already had weights written for this bone index
             {
-                std::map<uint32, SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.find(boneInfoList[uiBlendIndices[uiBlendEntry]].uiBoneIndex); // Try to find a skin cluster with the given bone index
+                std::map<uint32, SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.find(boneListInfos[uiBlendIndices[uiBlendEntry]].uiBoneIndex); // Try to find a skin cluster with the given bone index
 
                 if (iter != BoneIndexToSkinClusterMap.end()) // If found a skin cluster with the given bone index
                 {
@@ -385,13 +381,11 @@ void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiV
                 else // Create new cluster with data
                 {
                     SkinCluster skinCluster;
-                    skinCluster.m_szName = boneInfoList[uiBlendIndices[uiBlendEntry]].szName;
+                    skinCluster.m_szName = boneListInfos[uiBlendIndices[uiBlendEntry]].szName;
                     skinCluster.m_vControlPointIndices.push_back(uiVertIndex);
                     skinCluster.m_vControlPointWeights.push_back(fBlendWeights[uiBlendEntry]);
-                    BoneIndexToSkinClusterMap.insert(std::pair<uint32, SkinCluster>(boneInfoList[uiBlendIndices[uiBlendEntry]].uiBoneIndex, skinCluster));
+                    BoneIndexToSkinClusterMap.insert(std::pair<uint32, SkinCluster>(boneListInfos[uiBlendIndices[uiBlendEntry]].uiBoneIndex, skinCluster));
                 }
-
-                uiAlreadyWrittenBoneListIndices[uiBlendEntry] = uiBlendIndices[uiBlendEntry];
             }
         }
     }

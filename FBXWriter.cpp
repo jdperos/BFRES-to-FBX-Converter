@@ -198,6 +198,8 @@ void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::vector<SkinCl
     for (uint32 uiSkinCluster = 0; uiSkinCluster < vSkinClusters.size(); ++uiSkinCluster)
     {
         SkinCluster& skinCluster = vSkinClusters[uiSkinCluster];
+        if( skinCluster.m_vControlPointIndices.size() == 0 )
+            continue;
 
         uint32 uiBoneIndex = (*m_pBfres).fmdl[1].fskl.boneList[uiSkinCluster];
         std::string boneName = fskl.bones[uiBoneIndex].name;

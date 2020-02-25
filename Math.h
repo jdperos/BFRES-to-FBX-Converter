@@ -1,5 +1,6 @@
 #pragma once
 #include "Primitives.h"
+#include <math.h>
 
 namespace Math
 {
@@ -32,5 +33,12 @@ namespace Math
 	{
 		float X, Y, Z, W;
 	};
+
+	static double pi() { return atan(1) * 4; }
+
+	static double ConvertRadiansToDegrees(float rad)
+	{
+		return rad * ( 180.0f / pi() );
+	}
 }
 

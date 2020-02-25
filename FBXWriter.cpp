@@ -64,7 +64,13 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, Fb
     lBoneNode->LclScaling.Set(fBoneScale);
     if (bone.rotationType == BFRESStructs::RotationType::EulerXYZ)
     {
-        FbxDouble3 fBoneRot = FbxDouble3(bone.rotation.X, bone.rotation.Y, bone.rotation.Z);
+        FbxDouble3 fBoneRot = FbxDouble3(
+            Math::ConvertRadiansToDegrees(bone.rotation.X),
+            Math::ConvertRadiansToDegrees(bone.rotation.Y),
+            Math::ConvertRadiansToDegrees(bone.rotation.Z));
+			//bone.rotation.X,
+			//bone.rotation.Y,
+			//bone.rotation.Z);
         lBoneNode->LclRotation.Set(fBoneRot);
         FbxDouble3 fBonePos = FbxDouble3(bone.position.X, bone.position.Y, bone.position.Z);
         lBoneNode->LclTranslation.Set(fBonePos);

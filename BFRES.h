@@ -332,7 +332,7 @@ struct Bone
     BoneFlagsTransformCumulative boneFlagsTransformCumulative;
     bool                         useRigidMatrix;
     bool                         useSmoothMatrix;
-    uint32                       parentIndex;
+    int32                        parentIndex;
     RotationType                 rotationType;
     Math::vector3F               scale;
     Math::vector4F               rotation;

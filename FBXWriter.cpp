@@ -48,7 +48,7 @@ void FBXWriter::WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl,
     for (int32 i = 0; i < uiTotalBones; i++)
     {
         const BFRESStructs::Bone& bone = fskl.bones[i];
-        if (bone.parentIndex >= 0 && bone.parentIndex < uiTotalBones)
+        if (bone.parentIndex >= 0)
             boneNodes[bone.parentIndex]->AddChild(boneNodes[i]);
         else
             pScene->GetRootNode()->AddChild(boneNodes[i]);

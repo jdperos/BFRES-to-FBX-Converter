@@ -122,7 +122,7 @@ namespace XML
         ParseAttributeInt(bone.billboardIndex, pElement, "BillboardIndex");
         ParseAttributeBool(bone.useRigidMatrix, pElement, "UseRigidMatrix");
         ParseAttributeBool(bone.useSmoothMatrix, pElement, "UseSmoothMatrix");
-        ParseAttributeUInt(bone.parentIndex, pElement, "ParentIndex");
+        ParseAttributeInt(bone.parentIndex, pElement, "ParentIndex");
         ParseAttributeRotationType(bone.rotationType, pElement, "RotationType");
         ParseAttributeVector3F(bone.scale, pElement, "Scale");
         ParseAttributeVector4F(bone.rotation, pElement, "Rotation");

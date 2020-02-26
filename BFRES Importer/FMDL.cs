@@ -112,8 +112,9 @@ namespace BFRES_Importer
             bool bUseSmoothMatrix = bn.SmoothMatrixIndex != -1;
             writer.WriteAttributeString("UseSmoothMatrix", bUseSmoothMatrix.ToString());
 
+            short signedParentIndex = (short)bn.ParentIndex;
             if (SetParent)
-                writer.WriteAttributeString("ParentIndex", bn.ParentIndex.ToString());
+                writer.WriteAttributeString("ParentIndex", signedParentIndex.ToString());
             if (bn.FlagsRotation == BoneFlagsRotation.Quaternion)
                 writer.WriteAttributeString("RotationType", "Quaternion");
             else if (bn.FlagsRotation == BoneFlagsRotation.EulerXYZ)

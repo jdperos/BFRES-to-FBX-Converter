@@ -22,7 +22,9 @@ namespace BFRES_Importer
             writer.WriteAttributeString("Name"         , model.Name                          );
 
             // TODO Wrap these functions in if exists conditions, so that the xml only contains relevant data
-            WriteSkeleton(writer, model.Skeleton);
+            JPSkeleton jpSkeleton = new JPSkeleton();
+            jpSkeleton.ReadSkeleton(model.Skeleton);
+            FSKL.WriteSkeleton(writer, model.Skeleton);
 
             writer.WriteStartElement("Materials");
             writer.WriteAttributeString("FMATCount", model.Materials.Count.ToString());
@@ -42,7 +44,7 @@ namespace BFRES_Importer
                 writer.WriteStartElement("FSHP");
                 VertexBuffer vertexBuffer = model.VertexBuffers[shp.VertexBufferIndex];
                 Material material = model.Materials[shp.MaterialIndex];
-                WriteShapesVertices(writer, shp, vertexBuffer, model);
+                WriteShapesVertices(writer, shp, vertexBuffer, model, jpSkeleton);
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -50,79 +52,7 @@ namespace BFRES_Importer
             writer.WriteEndElement();
             writer.Flush();
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="skeleton"></param>
-        public static void WriteSkeleton(XmlWriter writer, Skeleton skeleton)
-        {
-            writer.WriteStartElement("FSKL");
-            if (skeleton.MatrixToBoneList == null)
-                skeleton.MatrixToBoneList = new List<ushort>();
 
-            writer.WriteAttributeString("SkeletonBoneCount", skeleton.MatrixToBoneList.Count.ToString());
-            writer.WriteAttributeString("FlagsRotation", skeleton.FlagsRotation.ToString());
-            writer.WriteAttributeString("FlagsScaling", skeleton.FlagsScaling.ToString());
-            // TODO figure out what the hell this Inverse Model Matrices is
-            writer.WriteAttributeString("InverseModelMatrices", skeleton.InverseModelMatrices.ToString());
-
-            int nodes = 0;
-            string tempBoneList = "";
-            foreach (ushort node in skeleton.MatrixToBoneList)
-            {
-                tempBoneList += (node + ",");
-                writer.Flush();
-                nodes++;
-            }
-            tempBoneList = tempBoneList.Trim(',');
-            writer.WriteAttributeString("BoneList", tempBoneList);
-
-            int boneIndex = 0;
-            foreach (Bone bone in skeleton.Bones.Values)
-            {
-                writer.WriteStartElement("Bone");
-                writer.WriteAttributeString("Index", boneIndex.ToString());
-                WriteBones(writer, bone);
-                writer.WriteEndElement();
-                boneIndex++;
-            }
-            writer.WriteEndElement();
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="bn"></param>
-        /// <param name="SetParent"></param>
-        public static void WriteBones(XmlWriter writer, Bone bn, bool SetParent = true)
-        {
-            writer.WriteAttributeString("Name"                    , bn.Name                                       );
-            writer.WriteAttributeString("IsVisible"               , bn.Flags.HasFlag(BoneFlags.Visible).ToString());
-            writer.WriteAttributeString("RigidMatrixIndex"        , bn.RigidMatrixIndex                .ToString());
-            writer.WriteAttributeString("SmoothMatrixIndex"       , bn.SmoothMatrixIndex               .ToString());
-            writer.WriteAttributeString("BillboardIndex"          , bn.BillboardIndex                  .ToString());
-            writer.WriteAttributeString("FlagsRotation"           , bn.FlagsRotation                   .ToString());
-            writer.WriteAttributeString("FlagsBillboard"          , bn.FlagsBillboard                  .ToString());
-            writer.WriteAttributeString("FlagsTransform"          , bn.FlagsTransform                  .ToString());
-            writer.WriteAttributeString("FlagsTransformCumulative", bn.FlagsTransformCumulative        .ToString());
-
-            bool bUseRigidMatrix = bn.RigidMatrixIndex != -1;
-            writer.WriteAttributeString("UseRigidMatrix", bUseRigidMatrix.ToString());
-            bool bUseSmoothMatrix = bn.SmoothMatrixIndex != -1;
-            writer.WriteAttributeString("UseSmoothMatrix", bUseSmoothMatrix.ToString());
-
-            if (SetParent)
-                writer.WriteAttributeString("ParentIndex", bn.ParentIndex.ToString());
-            if (bn.FlagsRotation == BoneFlagsRotation.Quaternion)
-                writer.WriteAttributeString("RotationType", "Quaternion");
-            else if (bn.FlagsRotation == BoneFlagsRotation.EulerXYZ)
-                writer.WriteAttributeString("RotationType", "EulerXYZ");
-
-            writer.WriteAttributeString("Scale"   , Program.Vector3FToString(bn.Scale)   );
-            writer.WriteAttributeString("Rotation", Program.Vector4FToString(bn.Rotation));
-            writer.WriteAttributeString("Position", Program.Vector3FToString(bn.Position));
-        }
         /// <summary>
         /// 
         /// </summary>
@@ -130,7 +60,7 @@ namespace BFRES_Importer
         /// <param name="shp"></param>
         /// <param name="vertexBuffer"></param>
         /// <param name="model"></param>
-        public static void WriteShapesVertices(XmlWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model)
+        public static void WriteShapesVertices(XmlWriter writer, Shape shp, VertexBuffer vertexBuffer, ResU.Model model, JPSkeleton jpSkeleton)
         {
             writer.WriteAttributeString("Name"                , shp.Name                        );
             writer.WriteAttributeString("Flags"               , shp.Flags            .ToString());
@@ -216,7 +146,7 @@ namespace BFRES_Importer
             writer.WriteEndElement();
 
             WriteMeshes(writer, shp);
-            WriteVertexBuffer(writer, shp, vertexBuffer, model);
+            WriteVertexBuffer(writer, shp, vertexBuffer, model, jpSkeleton);
         }
 
         /// <summary>
@@ -262,71 +192,7 @@ namespace BFRES_Importer
             writer.WriteEndElement();
         }
 
-        private static OpenTK.Matrix4 CalculateBoneCumulativeTransform(ref ResU.Model model, int boneIndex)
-        {
-            // Create the bone's transform
-            OpenTK.Vector3 mPos = new OpenTK.Vector3(
-                model.Skeleton.Bones[boneIndex].Position.X,
-                model.Skeleton.Bones[boneIndex].Position.Y,
-                model.Skeleton.Bones[boneIndex].Position.Z);
 
-            OpenTK.Quaternion mRot;
-            OpenTK.Vector3 v3 = new OpenTK.Vector3(
-                    model.Skeleton.Bones[boneIndex].Rotation.X,
-                    model.Skeleton.Bones[boneIndex].Rotation.Y,
-                    model.Skeleton.Bones[boneIndex].Rotation.Z
-                    );
-            if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.Quaternion)
-                mRot = new OpenTK.Quaternion(v3, model.Skeleton.Bones[boneIndex].Rotation.W);
-            else if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.EulerXYZ)
-                mRot = new OpenTK.Quaternion(v3);
-            else
-                mRot = new OpenTK.Quaternion();
-
-            OpenTK.Vector3 mSca = new OpenTK.Vector3(
-                model.Skeleton.Bones[boneIndex].Scale.X,
-                model.Skeleton.Bones[boneIndex].Scale.Y,
-                model.Skeleton.Bones[boneIndex].Scale.Z);
-
-            while (model.Skeleton.Bones[boneIndex].ParentIndex < model.Skeleton.Bones.Count)
-            {
-                boneIndex = model.Skeleton.Bones[boneIndex].ParentIndex;
-
-                // Create the parent Transform Matrix4
-                OpenTK.Vector3 parentPos = new OpenTK.Vector3(
-                    model.Skeleton.Bones[boneIndex].Position.X,
-                    model.Skeleton.Bones[boneIndex].Position.Y,
-                    model.Skeleton.Bones[boneIndex].Position.Z);
-
-                OpenTK.Quaternion parentRot;
-                OpenTK.Vector3 parentV3 = new OpenTK.Vector3(
-                        model.Skeleton.Bones[boneIndex].Rotation.X,
-                        model.Skeleton.Bones[boneIndex].Rotation.Y,
-                        model.Skeleton.Bones[boneIndex].Rotation.Z
-                        );
-                if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.Quaternion)
-                    parentRot = new OpenTK.Quaternion(v3, model.Skeleton.Bones[boneIndex].Rotation.W);
-                else if (model.Skeleton.Bones[boneIndex].FlagsRotation == BoneFlagsRotation.EulerXYZ)
-                    parentRot = new OpenTK.Quaternion(v3);
-                else
-                    parentRot = new OpenTK.Quaternion();
-
-                OpenTK.Vector3 parentSca = new OpenTK.Vector3(
-                    model.Skeleton.Bones[boneIndex].Scale.X,
-                    model.Skeleton.Bones[boneIndex].Scale.Y,
-                    model.Skeleton.Bones[boneIndex].Scale.Z);
-
-                OpenTK.Matrix4 parentTransform = OpenTK.Matrix4.CreateScale(parentSca) * OpenTK.Matrix4.CreateFromQuaternion(parentRot) * OpenTK.Matrix4.CreateTranslation(parentPos);
-
-                // Add transforms
-                mSca = OpenTK.Vector3.Multiply(mSca, parentSca);
-                mPos = OpenTK.Vector3.Add(mPos, parentPos);
-                mRot = OpenTK.Quaternion.Add(mRot, parentRot);
-            }
-
-            OpenTK.Matrix4 boneTransform = OpenTK.Matrix4.CreateScale(mSca) * OpenTK.Matrix4.CreateFromQuaternion(mRot) * OpenTK.Matrix4.CreateTranslation(mPos);
-            return boneTransform;
-        }
 
         /// <summary>
         /// 
@@ -335,7 +201,7 @@ namespace BFRES_Importer
         /// <param name="shp"></param>
         /// <param name="vtx"></param>
         /// <param name="model"></param>
-        private static void WriteVertexBuffer(XmlWriter writer, Shape shp, VertexBuffer vtx, ResU.Model model)
+        private static void WriteVertexBuffer(XmlWriter writer, Shape shp, VertexBuffer vtx, ResU.Model model, JPSkeleton jPSkeleton)
         {
             //Create a buffer instance which stores all the buffer data
             VertexBufferHelper helper = new VertexBufferHelper(vtx, Syroot.BinaryData.ByteOrder.BigEndian);
@@ -449,7 +315,8 @@ namespace BFRES_Importer
                     //In game it seems to not transform if they are not rigid
                     if (model.Skeleton.Bones[boneIndex].RigidMatrixIndex != -1)
                     {
-                        OpenTK.Matrix4 absTransform = CalculateBoneCumulativeTransform(ref model, boneIndex);
+                        OpenTK.Matrix4 absTransform = jPSkeleton.bones[boneIndex].Transform;
+                        //OpenTK.Matrix4 absTransform = JPSkeleton.CalculateBoneCumulativeTransform(ref model, boneIndex);
 
                         v.pos = OpenTK.Vector3.TransformPosition(v.pos, absTransform);
                         v.nrm = OpenTK.Vector3.TransformNormal(v.nrm, absTransform);
@@ -562,30 +429,6 @@ namespace BFRES_Importer
         {
             VertexBufferHelperAttrib attd = helper[attName];
             return attd.Data;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="z"></param>
-        /// <param name="y"></param>
-        /// <param name="x"></param>
-        /// <param name="w"></param>
-        /// <returns></returns>
-        static OpenTK.Quaternion FromQuaternionAngles(float z, float y, float x, float w)
-        {
-            {
-                OpenTK.Quaternion q = new OpenTK.Quaternion();
-                q.X = x;
-                q.Y = y;
-                q.Z = z;
-                q.W = w;
-
-                if (q.W < 0)
-                    q *= -1;
-
-                //return xRotation * yRotation * zRotation;
-                return q;
-            }
         }
     }
 }

@@ -298,25 +298,24 @@ namespace BFRES_Importer
                     v.col2  = new OpenTK.Vector4(vec4c1[i].X, vec4c1[i].Y, vec4c1[i].Z, vec4c1[i].W);
 
 
-                int[] nodeArray = new int[model.Skeleton.MatrixToBoneList.Count];
-                int nodes = 0;
+                int[] boneList = new int[model.Skeleton.MatrixToBoneList.Count];
+                int uiBone = 0;
                 foreach (ushort node in model.Skeleton.MatrixToBoneList)
                 {
-                    nodeArray[nodes] = node;
-                    nodes++;
+                    boneList[uiBone] = node;
+                    uiBone++;
                 }
                 if (shp.VertexSkinCount == 1)
                 {
                     int boneIndex = shp.BoneIndex;
                     if (v.boneIds.Count > 0)
-                        boneIndex = nodeArray[v.boneIds[0]];
+                        boneIndex = boneList[v.boneIds[0]];
 
                     //Check if the bones are a rigid type
                     //In game it seems to not transform if they are not rigid
                     if (model.Skeleton.Bones[boneIndex].RigidMatrixIndex != -1)
                     {
                         OpenTK.Matrix4 absTransform = jPSkeleton.bones[boneIndex].Transform;
-                        //OpenTK.Matrix4 absTransform = JPSkeleton.CalculateBoneCumulativeTransform(ref model, boneIndex);
 
                         v.pos = OpenTK.Vector3.TransformPosition(v.pos, absTransform);
                         v.nrm = OpenTK.Vector3.TransformNormal(v.nrm, absTransform);

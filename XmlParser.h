@@ -246,7 +246,7 @@ public:
     {
         std::vector<float> vals;
         if (!ParseAttributeFloatArray(vals, pElement, attrName))
-            return false;
+			return false;
 
         vec.X = vals[0];
         vec.Y = vals[1];

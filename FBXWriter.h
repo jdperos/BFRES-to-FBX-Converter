@@ -34,8 +34,8 @@ public:
     void CreateFBX(FbxScene*& pScene, const BFRESStructs::BFRES& bfres);
     void WriteModel(FbxScene*& pScene, const BFRESStructs::FMDL& fmdl);
     void WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl, std::vector<BoneMetadata>& boneListInfos);
-    void WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, std::vector<BoneMetadata> boneListInfos);
-    void WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneMetadata> boneListInfos);
+    void WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, std::vector<BoneMetadata>& boneListInfos);
+    void WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneMetadata>& boneListInfos);
     void WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap);
     void WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode);
 

@@ -114,7 +114,7 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, Fb
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, std::vector<BoneMetadata> boneInfoList)
+void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, std::vector<BoneMetadata>& boneInfoList)
 {
     WriteMesh(pScene, fshp, fshp.lodMeshes[0], boneInfoList);
 }
@@ -122,7 +122,7 @@ void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, st
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneMetadata> boneInfoList)
+void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
 {
 
     // Create a node for our mesh in the scene.
@@ -367,7 +367,7 @@ void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiV
     }
     else if (boneListInfos[uiBlendIndices[0]].eSkinningType == SkinningType::eSmooth)
     {
-        for (uint32 uiBlendEntry = 0; uiBlendEntry < fshp.vertexSkinCount; ++uiBlendEntry) // max limit for uiBlendEntry is 4 because FLOAT FUCKING 4)
+        for (uint32 uiBlendEntry = 0; uiBlendEntry < fshp.vertexSkinCount; ++uiBlendEntry)
         {
             if (fBlendWeights[uiBlendEntry] > 0) // Only write blend weights that are non-zero and that have not already had weights written for this bone index
             {

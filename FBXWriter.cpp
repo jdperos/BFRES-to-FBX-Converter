@@ -143,16 +143,25 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
     lMesh->InitControlPoints(uiNumControlPoints);
     FbxVector4* lControlPoints = lMesh->GetControlPoints();
 
-
     // Create a normal layer.
-    FbxLayerElementNormal* lLayerElementNormal = FbxLayerElementNormal::Create(lMesh, "");
+    FbxLayerElementNormal* lLayerElementNormal = FbxLayerElementNormal::Create(lMesh, "_p0");
+    FbxLayerElementUV* lLayerElementUV0 = FbxLayerElementUV::Create(lMesh, "_uv0");
+    FbxLayerElementTangent* lLayerElementTangent = FbxLayerElementTangent::Create(lMesh, "_t0");
+    FbxLayerElementBinormal* lLayerElementBinormal = FbxLayerElementBinormal::Create(lMesh, "_b0");
 
     // Set its mapping mode to map each normal vector to each control point.
     lLayerElementNormal->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementUV0->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementTangent->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementBinormal->SetMappingMode(FbxLayerElement::eByControlPoint);
+
 
     // Set the reference mode of so that the n'th element of the normal array maps to the n'th
     // element of the control point array.
     lLayerElementNormal->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementUV0->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementTangent->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementBinormal->SetReferenceMode(FbxLayerElement::eDirect);
 
     //std::vector<SkinCluster> vSkinClusters((*m_pBfres).fmdl[1].fskl.boneList.size());
     std::map<uint32, SkinCluster> BoneIndexToSkinClusterMap;
@@ -166,6 +175,15 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         const Math::vector3F& normalVec = fshp.vertices[i].normal;
         lLayerElementNormal->GetDirectArray().Add(FbxVector4(normalVec.X, normalVec.Y, normalVec.Z));
 
+        const Math::vector2F& uv0Vec = fshp.vertices[i].uv0;
+        lLayerElementUV0->GetDirectArray().Add(FbxVector2(uv0Vec.X, uv0Vec.Y));
+
+        const Math::vector4F& tangentVec = fshp.vertices[i].tangent;
+        lLayerElementTangent->GetDirectArray().Add(FbxVector4(tangentVec.X, tangentVec.Y, tangentVec.Z, tangentVec.W));
+
+        const Math::vector4F& binormalVec = fshp.vertices[i].binormal;
+        lLayerElementBinormal->GetDirectArray().Add(FbxVector4(binormalVec.X, binormalVec.Y, binormalVec.Z, binormalVec.W));
+
         CreateSkinClusterData(fshp.vertices[i], i, BoneIndexToSkinClusterMap, boneInfoList, fshp);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
     }
 
@@ -178,8 +196,10 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         lMesh->CreateLayer();
         lLayer = lMesh->GetLayer(0);
     }
-
     lLayer->SetNormals(lLayerElementNormal);
+    lLayer->SetUVs(lLayerElementUV0);
+    lLayer->SetTangents(lLayerElementTangent);
+    lLayer->SetBinormals(lLayerElementBinormal);
 
     // Define which control points belong to a poly
     uint32 uiPolySize(3);
@@ -267,6 +287,8 @@ void AddNodeRecursively(FbxArray<FbxNode*>& pNodeArray, FbxNode* pNode)
     }
 }
 
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 void FBXWriter::WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode)
 {
     // In the bind pose, we must store all the link's global matrix at the time of the bind.

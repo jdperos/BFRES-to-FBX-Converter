@@ -72,8 +72,7 @@ namespace BFRES_Importer
         public uint ArrayCount { get; set; }
         public uint MipCount { get; set; }
         
-        //bool isTex2 = Program.FilePath.Contains(".Tex2.");
-
+        public bool isTex2 = false;
         private bool IsReplaced = false;
         private uint Tex2Swizzle = 0;
 
@@ -226,6 +225,10 @@ namespace BFRES_Importer
             BlueChannel = GX2ChanneToGeneric(texture.CompSelB);
             AlphaChannel = GX2ChanneToGeneric(texture.CompSelA);
 
+            if (texture.MipData.Length != 0)
+            {
+                isTex2 = true;
+            }
 
             if (texture.MipData == null || texture.MipData.Length <= 0)
                 MipCount = 1;

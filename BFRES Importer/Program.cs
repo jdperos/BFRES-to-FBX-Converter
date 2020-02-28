@@ -14,7 +14,7 @@ namespace BFRES_Importer
 
         static void Main(string[] args)
         {
-            FilePath = (AssetDir + "Npc_Gerudo_Queen.Tex1.bfres");
+            FilePath = (AssetDir + "Npc_Gerudo_Queen.bfres");
             ResU.ResFile res = new ResU.ResFile(FilePath);
             WriteResToXML(res);
         }
@@ -50,7 +50,15 @@ namespace BFRES_Importer
                 {
                     JPTexture jpTexture = new JPTexture();
                     jpTexture.Read(res.Textures[ii]);
-                    jpTexture.SaveBitMap(OutputDir + jpTexture.Name + ".tga");
+                    if (jpTexture.isTex2)
+                        for (int i = 1; i < jpTexture.MipCount; i++)
+                        {
+                            if (!Directory.Exists(OutputDir + "Mips/"))
+                                Directory.CreateDirectory(OutputDir + "Mips/");
+                            jpTexture.SaveBitMap(OutputDir + "Mips/" + jpTexture.Name + i + ".tga", false, false, 0, i);
+                        }
+                    else
+                        jpTexture.SaveBitMap(OutputDir + jpTexture.Name + ".tga");
                     FTEX.WriteFTEXData(writer, res.Textures[ii]);
                 }
                 writer.WriteEndElement();

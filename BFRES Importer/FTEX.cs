@@ -51,17 +51,18 @@ namespace BFRES_Importer
         }
     }
 
-    public abstract class JPTexture
+    public class JPTexture
     {
+        public int format;
         /// <summary>
         /// The <see cref="TEX_FORMAT"/> Format of the image. 
         /// </summary>
         public TEX_FORMAT Format { get; set; } = TEX_FORMAT.R8G8B8A8_UNORM;
         public PALETTE_FORMAT PaletteFormat { get; set; } = PALETTE_FORMAT.None;
-        public STChannelType RedChannel = STChannelType.Red;
-        public STChannelType GreenChannel = STChannelType.Green;
-        public STChannelType BlueChannel = STChannelType.Blue;
-        public STChannelType AlphaChannel = STChannelType.Alpha;
+        public STChannelType RedChannel { get; set; } = STChannelType.Red;
+        public STChannelType GreenChannel { get; set; } = STChannelType.Green;
+        public STChannelType BlueChannel { get; set; } = STChannelType.Blue;
+        public STChannelType AlphaChannel { get; set; } = STChannelType.Alpha;
         public PlatformSwizzle PlatformSwizzle { get; set; }
         public RenderableTex RenderableTex { get; set; }
         public string Name { get; set; }
@@ -70,13 +71,144 @@ namespace BFRES_Importer
         public uint Height { get; set; }
         public uint ArrayCount { get; set; }
         public uint MipCount { get; set; }
+        
+        //bool isTex2 = Program.FilePath.Contains(".Tex2.");
+
+        private bool IsReplaced = false;
+        private uint Tex2Swizzle = 0;
+
 
         //A class that configs how the image should output (on display, and on export/replace)
-        public ImageParameters Parameters = new ImageParameters();
+        private ImageParameters Parameters = new ImageParameters();
 
-        public abstract byte[] GetImageData(int ArrayLevel = 0, int MipLevel = 0, int DepthLevel = 0);
+        ResFile ResFileTexture2;
         private byte[] paletteData = new byte[0];
-        public virtual byte[] GetPaletteData() { return paletteData; }
+        private static readonly Dictionary<TEX_FORMAT, FormatInfo> FormatTable =
+                 new Dictionary<TEX_FORMAT, FormatInfo>()
+{
+            { TEX_FORMAT.R32G32B32A32_FLOAT,   new FormatInfo(16, 1,  1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.R32G32B32A32_SINT,    new FormatInfo(16, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32G32B32A32_UINT,    new FormatInfo(16, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32G32B32_FLOAT,      new FormatInfo(8, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16G16B16A16_FLOAT,   new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16G16B16A16_SINT,    new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16G16B16A16_SNORM,   new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32G32_FLOAT,         new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32G32_SINT,          new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32G32_UINT,          new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8B8A8_SINT,        new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8B8A8_SNORM,       new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8B8A8_UINT,        new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8B8A8_UNORM,       new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8B8A8_UNORM_SRGB,  new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32G8X24_FLOAT,       new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8_B8G8_UNORM,      new FormatInfo(4, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.B8G8R8X8_UNORM,       new FormatInfo(4, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.B5G5R5A1_UNORM,       new FormatInfo(2, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R5G5B5A1_UNORM,       new FormatInfo(2, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.B8G8R8A8_UNORM,       new FormatInfo(4, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.B8G8R8A8_UNORM_SRGB,  new FormatInfo(4, 1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R5G5B5_UNORM,         new FormatInfo(2, 1,  1, 1,  TargetBuffer.Color) },
+
+
+            { TEX_FORMAT.R10G10B10A2_UINT,      new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R10G10B10A2_UNORM,     new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32_SINT,              new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32_UINT,              new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R32_FLOAT,             new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.B4G4R4A4_UNORM,        new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16G16_FLOAT,          new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16G16_SINT,           new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16G16_SNORM,          new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16G16_UINT,           new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16G16_UNORM,          new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8_SINT,             new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8_SNORM,            new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8_UINT,             new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8G8_UNORM,            new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16_SINT,              new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16_SNORM,             new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16_UINT,              new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R16_UNORM,             new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8_SINT,               new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8_SNORM,              new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R4G4_UNORM,            new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8_UINT,               new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R8_UNORM,              new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.R11G11B10_FLOAT,       new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.B5G6R5_UNORM,          new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC1_UNORM,             new FormatInfo(8,  4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC1_UNORM_SRGB,        new FormatInfo(8,  4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC2_UNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC2_UNORM_SRGB,        new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC3_UNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC3_UNORM_SRGB,        new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC4_UNORM,             new FormatInfo(8,  4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC4_SNORM,             new FormatInfo(8,  4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC5_UNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC5_SNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC6H_SF16,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC6H_UF16,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC7_UNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.BC7_UNORM_SRGB,        new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+
+            { TEX_FORMAT.ASTC_4x4_UNORM,        new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_4x4_SRGB,         new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_5x4_UNORM,        new FormatInfo(16, 5,  4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_5x4_SRGB,         new FormatInfo(16, 5,  4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_5x5_UNORM,        new FormatInfo(16, 5,  5, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_5x5_SRGB,         new FormatInfo(16, 5,  5, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_6x5_UNORM,        new FormatInfo(16, 6,  5, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_6x5_SRGB,         new FormatInfo(16, 6,  5, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_6x6_UNORM,        new FormatInfo(16, 6,  6, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_6x6_SRGB,         new FormatInfo(16, 6,  6, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_8x5_UNORM,        new FormatInfo(16, 8,  5,  1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_8x5_SRGB,         new FormatInfo(16, 8,  5, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_8x6_UNORM,        new FormatInfo(16, 8,  6, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_8x6_SRGB,         new FormatInfo(16, 8,  6, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_8x8_UNORM,        new FormatInfo(16, 8,  8, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_8x8_SRGB,         new FormatInfo(16, 8,  8, 1,  TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_10x5_UNORM,       new FormatInfo(16, 10, 5, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_10x5_SRGB,        new FormatInfo(16, 10, 5, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_10x6_UNORM,       new FormatInfo(16, 10, 6, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_10x6_SRGB,        new FormatInfo(16, 10, 6, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_10x8_UNORM,       new FormatInfo(16, 10, 8, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_10x8_SRGB,        new FormatInfo(16, 10, 8, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_10x10_UNORM,      new FormatInfo(16, 10, 10, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_10x10_SRGB,       new FormatInfo(16, 10, 10, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_12x10_UNORM,      new FormatInfo(16, 12, 10, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_12x10_SRGB,       new FormatInfo(16, 12, 10, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_12x12_UNORM,      new FormatInfo(16, 12, 12, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ASTC_12x12_SRGB,       new FormatInfo(16, 12, 12, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ETC1_UNORM,            new FormatInfo(4, 1, 1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ETC1_SRGB,             new FormatInfo(4, 1, 1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.ETC1_A4,               new FormatInfo(8, 1, 1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.HIL08,                 new FormatInfo(16, 1, 1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.L4,                    new FormatInfo(4, 1, 1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.LA4,                   new FormatInfo(4, 1, 1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.L8,                    new FormatInfo(8, 1, 1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.LA8,                   new FormatInfo(16, 1, 1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.A4,                    new FormatInfo(4, 1,  1, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.A8_UNORM,              new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
+
+            { TEX_FORMAT.D16_UNORM,            new FormatInfo(2, 1, 1, 1, TargetBuffer.Depth)       },
+            { TEX_FORMAT.D24_UNORM_S8_UINT,    new FormatInfo(4, 1, 1, 1, TargetBuffer.Depth)       },
+            { TEX_FORMAT.D32_FLOAT,            new FormatInfo(4, 1, 1, 1, TargetBuffer.Depth)       },
+            { TEX_FORMAT.D32_FLOAT_S8X24_UINT, new FormatInfo(8, 1, 1, 1, TargetBuffer.DepthStencil)},
+
+            { TEX_FORMAT.I4,                   new FormatInfo(4,  8, 8, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.I8,                   new FormatInfo(8,  8, 4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.IA4,                  new FormatInfo(8,  8, 4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.IA8,                  new FormatInfo(16, 4, 4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.RGB565,               new FormatInfo(16, 4, 4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.RGB5A3,               new FormatInfo(16, 4, 4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.RGBA32,               new FormatInfo(32, 4, 4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.C4,                   new FormatInfo(4,  8, 8, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.C8,                   new FormatInfo(8,  8, 4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.C14X2,                new FormatInfo(16, 4, 4, 1, TargetBuffer.Color) },
+            { TEX_FORMAT.CMPR,                 new FormatInfo(4,  8, 8, 1, TargetBuffer.Color) }
+
+};
         public void Read(Texture tex)
         {
             Name = tex.Name;
@@ -98,6 +230,145 @@ namespace BFRES_Importer
             if (texture.MipData == null || texture.MipData.Length <= 0)
                 MipCount = 1;
         }
+        //For determining mip map file for botw (Tex2)
+        public string GetFilePath()
+        {
+            // TODO fact check this shit below
+            return Program.FilePath;
+            //if (Parent == null)
+            //    return "";
+
+            //return ((BFRES)Parent.Parent).FilePath;
+        }
+
+        public void SaveBitMap(string FileName, bool ExportSurfaceLevel = false,
+            bool ExportMipMapLevel = false, int SurfaceLevel = 0, int MipLevel = 0)
+        {
+            if (ArrayCount > 1 && !ExportSurfaceLevel)
+            {
+                string ext = Path.GetExtension(FileName);
+
+                int index = FileName.LastIndexOf('.');
+                string name = index == -1 ? FileName : FileName.Substring(0, index);
+
+                for (int i = 0; i < ArrayCount; i++)
+                {
+                    Bitmap arrayBitMap = GetBitmap(i, 0);
+                    arrayBitMap.Save($"{name}_Slice_{i}_{ext}");
+                    arrayBitMap.Dispose();
+                }
+                return;
+            }
+            Bitmap bitMap = GetBitmap(SurfaceLevel, MipLevel);
+            if (Runtime.ImageEditor.UseComponetSelector)
+                bitMap = BitmapExtension.SetChannel(bitMap, RedChannel, GreenChannel, BlueChannel, AlphaChannel);
+            if (Runtime.ImageEditor.PreviewGammaFix)
+                bitMap = BitmapExtension.AdjustGamma(bitMap, 1.0f / 2.2f);
+
+            if (Parameters.FlipY)
+                bitMap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+            bitMap.Save(FileName);
+            bitMap.Dispose();
+        }
+
+        public byte[] GetImageData(int ArrayLevel = 0, int MipLevel = 0, int DepthLevel = 0)
+        {
+            format = (int)texture.Format;
+            int swizzle = (int)texture.Swizzle;
+            int pitch = (int)texture.Pitch;
+            uint bpp = GX2.surfaceGetBitsPerPixel((uint)format) >> 3;
+
+            RedChannel = GX2ChanneToGeneric(texture.CompSelR);
+            GreenChannel = GX2ChanneToGeneric(texture.CompSelG);
+            BlueChannel = GX2ChanneToGeneric(texture.CompSelB);
+            AlphaChannel = GX2ChanneToGeneric(texture.CompSelA);
+
+            UpdateMipMaps();
+
+            GX2.GX2Surface surf = new GX2.GX2Surface();
+            surf.bpp = bpp;
+            surf.height = texture.Height;
+            surf.width = texture.Width;
+            surf.aa = (uint)texture.AAMode;
+            surf.alignment = texture.Alignment;
+            surf.depth = texture.Depth;
+            surf.dim = (uint)texture.Dim;
+            surf.format = (uint)texture.Format;
+            surf.use = (uint)texture.Use;
+            surf.pitch = texture.Pitch;
+            surf.data = texture.Data;
+            surf.numMips = MipCount;
+            surf.mipOffset = texture.MipOffsets;
+            surf.mipData = texture.MipData;
+            surf.tileMode = (uint)texture.TileMode;
+            surf.swizzle = texture.Swizzle;
+            surf.numArray = texture.ArrayLength;
+
+            if (Tex2Swizzle != 0)
+                surf.mip_swizzle = Tex2Swizzle;
+
+            if (surf.mipData == null)
+                surf.numMips = 1;
+
+
+           	return GX2.Decode(surf, ArrayLevel, MipLevel);
+        }
+
+        public void UpdateMipMaps()
+        {
+            LoadTex2Bfres();
+            LoadTex2MipMaps();
+
+            if (texture.MipData != null && texture.MipData.Length > 0)
+                MipCount = texture.MipCount;
+        }
+
+        private void LoadTex2Bfres()
+        {
+            if (ResFileTexture2 != null)
+                return;
+
+            //Determine tex2 botw files to get mip maps
+            string Tex1 = GetFilePath();
+
+            if (!IsReplaced && Tex1 != null && Tex1.Contains(".Tex1"))
+            {
+                string Tex2 = Tex1.Replace(".Tex1", ".Tex2");
+                Console.WriteLine(Tex2 + " " + System.IO.File.Exists(Tex2) + " " + texture.Name);
+
+                if (System.IO.File.Exists(Tex2))
+                {
+                    if (Tex2.EndsWith(".sbfres"))
+                    {
+                        ResFileTexture2 = new ResFile(new System.IO.MemoryStream(
+                                        EveryFileExplorer.YAZ0.Decompress(Tex2)));
+                    }
+                    else
+                    {
+                        ResFileTexture2 = new ResFile(Tex2);
+                    }
+                }
+            }
+        }
+
+        private void LoadTex2MipMaps()
+        {
+            if (ResFileTexture2 == null || IsReplaced)
+                return;
+
+            Console.WriteLine((ResFileTexture2.Textures.ContainsKey(texture.Name)));
+
+            if (ResFileTexture2.Textures.ContainsKey(texture.Name))
+            {
+                texture.MipCount = ResFileTexture2.Textures[texture.Name].MipCount;
+                texture.MipData = ResFileTexture2.Textures[texture.Name].MipData;
+                texture.MipOffsets = ResFileTexture2.Textures[texture.Name].MipOffsets;
+                Tex2Swizzle = ResFileTexture2.Textures[texture.Name].Swizzle;
+            }
+        }
+
+        public virtual byte[] GetPaletteData() { return paletteData; }
         public Bitmap GetBitmap(int ArrayLevel = 0, int MipLevel = 0, int DepthLevel = 0)
         {
             uint width = Math.Max(1, Width >> MipLevel);
@@ -383,132 +654,6 @@ namespace BFRES_Importer
             return FormatTable[Format].BlockHeight;
         }
 
-        private static readonly Dictionary<TEX_FORMAT, FormatInfo> FormatTable =
-                 new Dictionary<TEX_FORMAT, FormatInfo>()
-{
-            { TEX_FORMAT.R32G32B32A32_FLOAT,   new FormatInfo(16, 1,  1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.R32G32B32A32_SINT,    new FormatInfo(16, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32G32B32A32_UINT,    new FormatInfo(16, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32G32B32_FLOAT,      new FormatInfo(8, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16G16B16A16_FLOAT,   new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16G16B16A16_SINT,    new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16G16B16A16_SNORM,   new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32G32_FLOAT,         new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32G32_SINT,          new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32G32_UINT,          new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8B8A8_SINT,        new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8B8A8_SNORM,       new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8B8A8_UINT,        new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8B8A8_UNORM,       new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8B8A8_UNORM_SRGB,  new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32G8X24_FLOAT,       new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8_B8G8_UNORM,      new FormatInfo(4, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.B8G8R8X8_UNORM,       new FormatInfo(4, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.B5G5R5A1_UNORM,       new FormatInfo(2, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R5G5B5A1_UNORM,       new FormatInfo(2, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.B8G8R8A8_UNORM,       new FormatInfo(4, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.B8G8R8A8_UNORM_SRGB,  new FormatInfo(4, 1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R5G5B5_UNORM,         new FormatInfo(2, 1,  1, 1,  TargetBuffer.Color) },
-
-
-            { TEX_FORMAT.R10G10B10A2_UINT,      new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R10G10B10A2_UNORM,     new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32_SINT,              new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32_UINT,              new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R32_FLOAT,             new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.B4G4R4A4_UNORM,        new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16G16_FLOAT,          new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16G16_SINT,           new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16G16_SNORM,          new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16G16_UINT,           new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16G16_UNORM,          new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8_SINT,             new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8_SNORM,            new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8_UINT,             new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8G8_UNORM,            new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16_SINT,              new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16_SNORM,             new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16_UINT,              new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R16_UNORM,             new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8_SINT,               new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8_SNORM,              new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R4G4_UNORM,            new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8_UINT,               new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R8_UNORM,              new FormatInfo(1,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.R11G11B10_FLOAT,       new FormatInfo(4,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.B5G6R5_UNORM,          new FormatInfo(2,  1,  1, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC1_UNORM,             new FormatInfo(8,  4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC1_UNORM_SRGB,        new FormatInfo(8,  4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC2_UNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC2_UNORM_SRGB,        new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC3_UNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC3_UNORM_SRGB,        new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC4_UNORM,             new FormatInfo(8,  4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC4_SNORM,             new FormatInfo(8,  4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC5_UNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC5_SNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC6H_SF16,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC6H_UF16,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC7_UNORM,             new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.BC7_UNORM_SRGB,        new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-
-            { TEX_FORMAT.ASTC_4x4_UNORM,        new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_4x4_SRGB,         new FormatInfo(16, 4,  4, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_5x4_UNORM,        new FormatInfo(16, 5,  4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_5x4_SRGB,         new FormatInfo(16, 5,  4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_5x5_UNORM,        new FormatInfo(16, 5,  5, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_5x5_SRGB,         new FormatInfo(16, 5,  5, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_6x5_UNORM,        new FormatInfo(16, 6,  5, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_6x5_SRGB,         new FormatInfo(16, 6,  5, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_6x6_UNORM,        new FormatInfo(16, 6,  6, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_6x6_SRGB,         new FormatInfo(16, 6,  6, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_8x5_UNORM,        new FormatInfo(16, 8,  5,  1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_8x5_SRGB,         new FormatInfo(16, 8,  5, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_8x6_UNORM,        new FormatInfo(16, 8,  6, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_8x6_SRGB,         new FormatInfo(16, 8,  6, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_8x8_UNORM,        new FormatInfo(16, 8,  8, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_8x8_SRGB,         new FormatInfo(16, 8,  8, 1,  TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_10x5_UNORM,       new FormatInfo(16, 10, 5, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_10x5_SRGB,        new FormatInfo(16, 10, 5, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_10x6_UNORM,       new FormatInfo(16, 10, 6, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_10x6_SRGB,        new FormatInfo(16, 10, 6, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_10x8_UNORM,       new FormatInfo(16, 10, 8, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_10x8_SRGB,        new FormatInfo(16, 10, 8, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_10x10_UNORM,      new FormatInfo(16, 10, 10, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_10x10_SRGB,       new FormatInfo(16, 10, 10, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_12x10_UNORM,      new FormatInfo(16, 12, 10, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_12x10_SRGB,       new FormatInfo(16, 12, 10, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_12x12_UNORM,      new FormatInfo(16, 12, 12, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ASTC_12x12_SRGB,       new FormatInfo(16, 12, 12, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ETC1_UNORM,            new FormatInfo(4, 1, 1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ETC1_SRGB,             new FormatInfo(4, 1, 1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.ETC1_A4,               new FormatInfo(8, 1, 1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.HIL08,                 new FormatInfo(16, 1, 1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.L4,                    new FormatInfo(4, 1, 1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.LA4,                   new FormatInfo(4, 1, 1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.L8,                    new FormatInfo(8, 1, 1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.LA8,                   new FormatInfo(16, 1, 1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.A4,                    new FormatInfo(4, 1,  1, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.A8_UNORM,              new FormatInfo(8,  1,  1, 1,  TargetBuffer.Color) },
-
-            { TEX_FORMAT.D16_UNORM,            new FormatInfo(2, 1, 1, 1, TargetBuffer.Depth)       },
-            { TEX_FORMAT.D24_UNORM_S8_UINT,    new FormatInfo(4, 1, 1, 1, TargetBuffer.Depth)       },
-            { TEX_FORMAT.D32_FLOAT,            new FormatInfo(4, 1, 1, 1, TargetBuffer.Depth)       },
-            { TEX_FORMAT.D32_FLOAT_S8X24_UINT, new FormatInfo(8, 1, 1, 1, TargetBuffer.DepthStencil)},
-
-            { TEX_FORMAT.I4,                   new FormatInfo(4,  8, 8, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.I8,                   new FormatInfo(8,  8, 4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.IA4,                  new FormatInfo(8,  8, 4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.IA8,                  new FormatInfo(16, 4, 4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.RGB565,               new FormatInfo(16, 4, 4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.RGB5A3,               new FormatInfo(16, 4, 4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.RGBA32,               new FormatInfo(32, 4, 4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.C4,                   new FormatInfo(4,  8, 8, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.C8,                   new FormatInfo(8,  8, 4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.C14X2,                new FormatInfo(16, 4, 4, 1, TargetBuffer.Color) },
-            { TEX_FORMAT.CMPR,                 new FormatInfo(4,  8, 8, 1, TargetBuffer.Color) }
-
-};
         private enum TargetBuffer
         {
             Color = 1,

@@ -8,6 +8,9 @@
     <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="DirectXTexNet" Version="1.0.0-rc4" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\NintenTools.Bfres\src\Syroot.NintenTools.Bfres\Syroot.NintenTools.Bfres.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -16,6 +19,9 @@
     </Reference>
     <Reference Include="OpenTK">
       <HintPath>Lib\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="SARCExt">
+      <HintPath>Lib\SARCExt.dll</HintPath>
     </Reference>
     <Reference Include="Syroot.BinaryData">
       <HintPath>Lib\Syroot.BinaryData.dll</HintPath>

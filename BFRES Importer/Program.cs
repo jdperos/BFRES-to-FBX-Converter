@@ -10,10 +10,12 @@ namespace BFRES_Importer
     {
         const string AssetDir = "../../../../TestAssets/";
         const string OutputDir = "../../../../MedianDumps/";
+        public static string FilePath;
 
         static void Main(string[] args)
         {
-            ResU.ResFile res = new ResU.ResFile(AssetDir + "Npc_Gerudo_Queen.bfres");
+            FilePath = (AssetDir + "Npc_Gerudo_Queen.Tex1.bfres");
+            ResU.ResFile res = new ResU.ResFile(FilePath);
             WriteResToXML(res);
         }
 
@@ -46,6 +48,9 @@ namespace BFRES_Importer
                 writer.WriteStartElement("FTEXes");
                 for (int ii = 0; ii < res.Textures.Count; ii++)
                 {
+                    JPTexture jpTexture = new JPTexture();
+                    jpTexture.Read(res.Textures[ii]);
+                    jpTexture.SaveBitMap(OutputDir + jpTexture.Name + ".tga");
                     FTEX.WriteFTEXData(writer, res.Textures[ii]);
                 }
                 writer.WriteEndElement();

@@ -7,19 +7,20 @@ using System.IO;
 using System.Xml;
 using System.Linq;
 using ResU = Syroot.NintenTools.Bfres;
+using System.Diagnostics;
 
 namespace BFRES_Importer
 {
     class FMAT
     {
-        public static float[]  ValueFloat;
-        public static bool[]   ValueBool;
-        public static uint[]   ValueUint;
-        public static int[]    ValueInt;
-        public static byte[]   ValueReserved;
-        public static Srt2D    ValueSrt2D;
-        public static Srt3D    ValueSrt3D;
-        public static TexSrt   ValueTexSrt;
+        public static float[] ValueFloat;
+        public static bool[] ValueBool;
+        public static uint[] ValueUint;
+        public static int[] ValueInt;
+        public static byte[] ValueReserved;
+        public static Srt2D ValueSrt2D;
+        public static Srt3D ValueSrt3D;
+        public static TexSrt ValueTexSrt;
         public static TexSrtEx ValueTexSrtEx;
 
         public bool HasDiffuseMap = false;
@@ -189,7 +190,7 @@ namespace BFRES_Importer
                 mat.ShaderAssign.SamplerAssigns = new ResDict<ResString>();
 
             writer.WriteAttributeString("ShaderArchive", mat.ShaderAssign.ShaderArchiveName);
-            writer.WriteAttributeString("ShaderModel"  , mat.ShaderAssign.ShadingModelName );
+            writer.WriteAttributeString("ShaderModel", mat.ShaderAssign.ShadingModelName);
 
             writer.WriteStartElement("ShaderOptions");
             foreach (var op in mat.ShaderAssign.ShaderOptions)
@@ -231,12 +232,12 @@ namespace BFRES_Importer
             {
                 writer.WriteStartElement("ShaderParam");
 
-                writer.WriteAttributeString("Type"         , param.Type         .ToString());
-                writer.WriteAttributeString("Name"         , param.Name                    );
-                writer.WriteAttributeString("HasPadding"   , param.UsePadding   .ToString());
+                writer.WriteAttributeString("Type", param.Type.ToString());
+                writer.WriteAttributeString("Name", param.Name);
+                writer.WriteAttributeString("HasPadding", param.UsePadding.ToString());
                 writer.WriteAttributeString("PaddingLength", param.PaddingLength.ToString());
                 writer.WriteAttributeString("DependedIndex", param.DependedIndex.ToString());
-                writer.WriteAttributeString("DependIndex"  , param.DependIndex  .ToString());
+                writer.WriteAttributeString("DependIndex", param.DependIndex.ToString());
 
                 reader.Seek(param.DataOffset, System.IO.SeekOrigin.Begin);
                 WriteValue(writer, reader, (int)param.DataSize, param.Type);
@@ -412,10 +413,48 @@ namespace BFRES_Importer
             if (mat.TextureRefs == null)
                 mat.TextureRefs = new List<TextureRef>();
 
+            // Write what kinds of textures this material contains
+            for (int i = 0; i < mat.TextureRefs.Count; i++)
+            {
+                string texSamplerName;
+                mat.Samplers.TryGetKey(mat.Samplers[i], out texSamplerName);
+                string useSampler = texSamplerName;
+
+                //Use the fragment sampler in the shader assign section. It's usually more accurate this way
+                if (mat.ShaderAssign.SamplerAssigns.ContainsKey(useSampler))
+                    useSampler = mat.ShaderAssign.SamplerAssigns[useSampler];
+
+                if (useSampler == "s_diffuse")          writer.WriteAttributeString("HasDiffuseMap"             , "True");
+                else if (useSampler == "s_normal")      writer.WriteAttributeString("HasNormalMap"              , "True");
+                else if (useSampler == "s_specmask")    writer.WriteAttributeString("HasSpecularMap"            , "True");
+                else if (useSampler == "_a0")           writer.WriteAttributeString("HasDiffuseMap"             , "True");
+                else if (useSampler == "_a1")           writer.WriteAttributeString("HasDiffuseLayer2Map"       , "True");
+                else if (useSampler == "_a2")           writer.WriteAttributeString("HasDiffuseLayer3Map"       , "True");
+                else if (useSampler == "_n0")           writer.WriteAttributeString("HasNormalMap"              , "True");
+                else if (useSampler == "_s0")           writer.WriteAttributeString("HasSpecularMap"            , "True");
+                else if (useSampler == "_ao0")          writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True");
+                else if (useSampler == "_e0")           writer.WriteAttributeString("HasEmissionMap"            , "True");
+                else if (useSampler == "_b0")           writer.WriteAttributeString("HasShadowMap"              , "True");
+                else if (useSampler == "_b1")           writer.WriteAttributeString("HasLightMap"               , "True");
+                else if (TextureName.Contains("Emm")) { writer.WriteAttributeString("HasEmissionMap"            , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("Spm")) { writer.WriteAttributeString("HasSpecularMap"            , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("b00")) { writer.WriteAttributeString("HasShadowMap"              , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (texSamplerName == "bake0")   { writer.WriteAttributeString("HasShadowMap"              , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("Moc")) { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("AO"))  { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("b01")) { writer.WriteAttributeString("HasLightMap"               , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("MRA")) { writer.WriteAttributeString("HasRoughnessMap"           , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("mtl")) { writer.WriteAttributeString("HasMetalnessMap"           , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("rgh")) { writer.WriteAttributeString("HasRoughnessMap"           , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("sss")) { writer.WriteAttributeString("HasSubSurfaceScatteringMap", "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else if (texSamplerName == "_ao0")    { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Debug.Assert(false, "Texture type not yet supported"); }
+                else Debug.Assert(false, "Texture type not yet supported");
+            }
+
             int textureUnit = 1;
             foreach (var tex in mat.TextureRefs)
             {
-                
+
                 writer.WriteStartElement("Texture");
                 TextureName = tex.Name;
 
@@ -453,89 +492,32 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("LodBias"            , mat.Samplers[id].TexSampler.LodBias            .ToString());
                 writer.WriteAttributeString("DepthCompareEnabled", mat.Samplers[id].TexSampler.DepthCompareEnabled.ToString());
 
-                if (useSampler == "s_diffuse")
-                {
-                    // TODO This "HasDiffuseMap" etc, should be set as an attribute on the material, not the texture
-                    writer.WriteAttributeString("HasDiffuseMap", "True");
-                    AlbedoCount++;
-                    writer.WriteAttributeString("Type", "Diffuse");
-                }
-                else if (useSampler == "s_normal")
-                {
-                    writer.WriteAttributeString("HasNormalMap", "True");
-                    writer.WriteAttributeString("Type", "Normal");
-                }
-                else if (useSampler == "s_specmask")
-                {
-                    writer.WriteAttributeString("HasSpecularMap", "True");
-                    writer.WriteAttributeString("Type", "Specular");
-                }
-                else if (useSampler == "_a0")
-                {
-                    writer.WriteAttributeString("HasDiffuseMap", "True");
-                    AlbedoCount++;
-                    writer.WriteAttributeString("Type", "Diffuse");
-                }
-                else if (useSampler == "_n0")
-                {
-                    writer.WriteAttributeString("HasNormalMap", "True");
-                    writer.WriteAttributeString("Type", "Normal");
-                }
-                else if (TextureName.Contains("Emm"))
-                {
-                    writer.WriteAttributeString("HasEmissionMap", "True");
-                    writer.WriteAttributeString("Type", "Emission");
-                }
-                else if (TextureName.Contains("Spm"))
-                {
-                    writer.WriteAttributeString("HasSpecularMap", "True");
-                    writer.WriteAttributeString("Type", "Specular");
-                }
-                else if (TextureName.Contains("b00"))
-                {
-                    writer.WriteAttributeString("HasShadowMap", "True");
-                    writer.WriteAttributeString("Type", "Shadow");
-                }
-                else if (texSamplerName == "bake0")
-                {
-                    writer.WriteAttributeString("HasShadowMap", "True");
-                    writer.WriteAttributeString("Type", "Shadow");
-                }
-                else if (TextureName.Contains("Moc") || TextureName.Contains("AO"))
-                {
-                    writer.WriteAttributeString("HasAmbientOcclusionMap", "True");
-                    writer.WriteAttributeString("Type", "AO");
-                }
-                else if (TextureName.Contains("b01"))
-                {
-                    writer.WriteAttributeString("HasLightMap", "True");
-                    writer.WriteAttributeString("Type", "Light");
-                }
-                else if (TextureName.Contains("MRA")) //Metalness, Roughness, and Cavity Map in one
-                {
-                    writer.WriteAttributeString("HasRoughnessMap", "True");
-                    writer.WriteAttributeString("Type", "MRA");
-                }
-                else if (TextureName.Contains("mtl"))
-                {
-                    writer.WriteAttributeString("HasMetalnessMap", "True");
-                    writer.WriteAttributeString("Type", "Metalness");
-                }
-                else if (TextureName.Contains("rgh"))
-                {
-                    writer.WriteAttributeString("HasRoughnessMap", "True");
-                    writer.WriteAttributeString("Type", "Roughness");
-                }
-                else if (TextureName.Contains("sss"))
-                {
-                    writer.WriteAttributeString("HasSubSurfaceScatteringMap", "True");
-                    writer.WriteAttributeString("Type", "SubSurfaceScattering");
-                }
-                else if (texSamplerName == "_ao0")
-                {
-                    writer.WriteAttributeString("HasAmbientOcclusionMap", "True");
-                    writer.WriteAttributeString("Type", "AO");
-                }
+                // TODO This "HasDiffuseMap" etc, should be set as an attribute on the material, not the texture
+                if (useSampler == "s_diffuse") { AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"); }
+                else if (useSampler == "s_normal")              writer.WriteAttributeString("Type", "Normal");
+                else if (useSampler == "s_specmask")            writer.WriteAttributeString("Type", "Specular");
+                else if (useSampler == "_a0") {  AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"); }
+                else if (useSampler == "_a1") {  AlbedoCount++; writer.WriteAttributeString("Type", "DiffuseLayer2"); }
+                else if (useSampler == "_a2") {  AlbedoCount++; writer.WriteAttributeString("Type", "DiffuseLayer3"); }
+                else if (useSampler == "_n0")                   writer.WriteAttributeString("Type", "Normal");
+                else if (useSampler == "_s0")                   writer.WriteAttributeString("Type", "Specular");
+                else if (useSampler == "_ao0")                  writer.WriteAttributeString("Type", "AO");
+                else if (useSampler == "_e0")                   writer.WriteAttributeString("Type", "Emission");
+                else if (useSampler == "_b0")                   writer.WriteAttributeString("Type", "Shadow");
+                else if (useSampler == "_b1")                   writer.WriteAttributeString("Type", "Light");
+                else if (TextureName.Contains("Emm"))           writer.WriteAttributeString("Type", "Emission");
+                else if (TextureName.Contains("Spm"))           writer.WriteAttributeString("Type", "Specular");
+                else if (TextureName.Contains("b00"))           writer.WriteAttributeString("Type", "Shadow");
+                else if (texSamplerName == "bake0")             writer.WriteAttributeString("Type", "Shadow");
+                else if (TextureName.Contains("Moc"))           writer.WriteAttributeString("Type", "AO");
+                else if (TextureName.Contains("AO"))            writer.WriteAttributeString("Type", "AO");
+                else if (TextureName.Contains("b01"))           writer.WriteAttributeString("Type", "Light");
+                //Metalness, Roughness, and Cavity Map in one
+                else if (TextureName.Contains("MRA"))           writer.WriteAttributeString("Type", "MRA");
+                else if (TextureName.Contains("mtl"))           writer.WriteAttributeString("Type", "Metalness");
+                else if (TextureName.Contains("rgh"))           writer.WriteAttributeString("Type", "Roughness");
+                else if (TextureName.Contains("sss"))           writer.WriteAttributeString("Type", "SubSurfaceScattering");
+                else if (texSamplerName == "_ao0")              writer.WriteAttributeString("Type", "AO");
 
 
                 //Console.WriteLine($"{useSampler} {texture.Type}");
@@ -623,15 +605,15 @@ namespace BFRES_Importer
             writer.WriteStartElement("RenderPass");
             if (mat != null)
             {
-                bool bIsOpaque          = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Opaque;
-                bool bIsTranslucent     = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Translucent;
+                bool bIsOpaque = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Opaque;
+                bool bIsTranslucent = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Translucent;
                 bool bIsTransparentMask = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.AlphaMask;
-                bool bIsCustom          = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Custom;
+                bool bIsCustom = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Custom;
 
-                writer.WriteAttributeString("IsOpaque"         , bIsOpaque         .ToString());
-                writer.WriteAttributeString("IsTranslucent"    , bIsTranslucent    .ToString());
+                writer.WriteAttributeString("IsOpaque", bIsOpaque.ToString());
+                writer.WriteAttributeString("IsTranslucent", bIsTranslucent.ToString());
                 writer.WriteAttributeString("IsTransparentMask", bIsTransparentMask.ToString());
-                writer.WriteAttributeString("IsCustom"         , bIsCustom         .ToString());
+                writer.WriteAttributeString("IsCustom", bIsCustom.ToString());
             }
             writer.WriteEndElement();
         }

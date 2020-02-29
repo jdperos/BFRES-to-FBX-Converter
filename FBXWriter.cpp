@@ -3,6 +3,7 @@
 #include "Primitives.h"
 #include "assert.h"
 
+#define FLIP_UV_VERTICAL true // This should always be true for BFRES
 
 FBXWriter::FBXWriter()
 {
@@ -120,6 +121,41 @@ void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, st
 }
 
 
+// Create materials for pyramid.
+void CreateMaterials(FbxScene* pScene, FbxMesh* pMesh)
+{
+	int i;
+
+	for (i = 0; i < 5; i++)
+	{
+		FbxString lMaterialName = "material";
+		FbxString lShadingName = "Phong";
+		lMaterialName += i;
+		FbxDouble3 lBlack(0.0, 0.0, 0.0);
+		FbxDouble3 lRed(1.0, 0.0, 0.0);
+		FbxDouble3 lColor;
+		FbxSurfacePhong* lMaterial = FbxSurfacePhong::Create(pScene, lMaterialName.Buffer());
+
+
+		// Generate primary and secondary colors.
+		lMaterial->Emissive.Set(lBlack);
+		lMaterial->Ambient.Set(lRed);
+		lColor = FbxDouble3(i > 2 ? 1.0 : 0.0,
+			i > 0 && i < 4 ? 1.0 : 0.0,
+			i % 2 ? 0.0 : 1.0);
+		lMaterial->Diffuse.Set(lColor);
+		lMaterial->TransparencyFactor.Set(0.0);
+		lMaterial->ShadingModel.Set(lShadingName);
+		lMaterial->Shininess.Set(0.5);
+
+		//get the node of mesh, add material for it.
+		FbxNode* lNode = pMesh->GetNode();
+		if (lNode)
+			lNode->AddMaterial(lMaterial);
+	}
+}
+
+
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
@@ -175,8 +211,13 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         const Math::vector3F& normalVec = fshp.vertices[i].normal;
         lLayerElementNormal->GetDirectArray().Add(FbxVector4(normalVec.X, normalVec.Y, normalVec.Z));
 
+#if FLIP_UV_VERTICAL
         const Math::vector2F& uv0Vec = fshp.vertices[i].uv0;
-        lLayerElementUV0->GetDirectArray().Add(FbxVector2(uv0Vec.X, uv0Vec.Y));
+        lLayerElementUV0->GetDirectArray().Add(FbxVector2(uv0Vec.X, 1 - uv0Vec.Y));
+#else 
+		const Math::vector2F& uv0Vec = fshp.vertices[i].uv0;
+		lLayerElementUV0->GetDirectArray().Add(FbxVector2(uv0Vec.X, uv0Vec.Y));
+#endif
 
         const Math::vector4F& tangentVec = fshp.vertices[i].tangent;
         lLayerElementTangent->GetDirectArray().Add(FbxVector4(tangentVec.X, tangentVec.Y, tangentVec.Z, tangentVec.W));
@@ -203,12 +244,16 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 
     // Define which control points belong to a poly
     uint32 uiPolySize(3);
+    uint32 uiNumFaces(0);
     // TODO make this iterative
     for (uint32 i = 0; i < lodMesh.faceVertices.size(); ++i)
     {
         // first index
         if ((i % uiPolySize) == 0)
+        {
             lMesh->BeginPolygon();
+            uiNumFaces++;
+        }
 
         // TODO make this iterative
         lMesh->AddPolygon(lodMesh.faceVertices[i]);
@@ -217,6 +262,19 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         if ((i + 1) % uiPolySize == 0)
             lMesh->EndPolygon();
     }
+
+	// Set material mapping.
+	FbxGeometryElementMaterial* lMaterialElement = lMesh->CreateElementMaterial();
+	lMaterialElement->SetMappingMode(FbxGeometryElement::eByPolygon);
+	lMaterialElement->SetReferenceMode(FbxGeometryElement::eDirect);
+
+	FbxString lMaterialName = "M_";
+    lMaterialName += fshp.name.c_str();
+    FbxSurfaceMaterial* lMaterial = FbxSurfaceMaterial::Create(pScene, lMaterialName);
+	//get the node of mesh, add material for it.
+	FbxNode* lNode = lMesh->GetNode();
+	if (lNode)
+		lNode->AddMaterial(lMaterial);
 
     // TODO move this function call into write animations
     WriteBindPose(pScene, lMeshNode);

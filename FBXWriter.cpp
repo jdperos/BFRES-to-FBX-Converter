@@ -180,14 +180,18 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
     FbxVector4* lControlPoints = lMesh->GetControlPoints();
 
     // Create a normal layer.
-    FbxLayerElementNormal* lLayerElementNormal = FbxLayerElementNormal::Create(lMesh, "_p0");
+    FbxLayerElementNormal* lLayerElementNormal = FbxLayerElementNormal::Create(lMesh, "_n0");
     FbxLayerElementUV* lLayerElementUV0 = FbxLayerElementUV::Create(lMesh, "_uv0");
+    FbxLayerElementUV* lLayerElementUV1 = FbxLayerElementUV::Create(lMesh, "_uv1");
+    FbxLayerElementUV* lLayerElementUV2 = FbxLayerElementUV::Create(lMesh, "_uv2");
     FbxLayerElementTangent* lLayerElementTangent = FbxLayerElementTangent::Create(lMesh, "_t0");
     FbxLayerElementBinormal* lLayerElementBinormal = FbxLayerElementBinormal::Create(lMesh, "_b0");
 
     // Set its mapping mode to map each normal vector to each control point.
     lLayerElementNormal->SetMappingMode(FbxLayerElement::eByControlPoint);
     lLayerElementUV0->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementUV1->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementUV2->SetMappingMode(FbxLayerElement::eByControlPoint);
     lLayerElementTangent->SetMappingMode(FbxLayerElement::eByControlPoint);
     lLayerElementBinormal->SetMappingMode(FbxLayerElement::eByControlPoint);
 
@@ -196,6 +200,8 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
     // element of the control point array.
     lLayerElementNormal->SetReferenceMode(FbxLayerElement::eDirect);
     lLayerElementUV0->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementUV1->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementUV2->SetReferenceMode(FbxLayerElement::eDirect);
     lLayerElementTangent->SetReferenceMode(FbxLayerElement::eDirect);
     lLayerElementBinormal->SetReferenceMode(FbxLayerElement::eDirect);
 
@@ -204,7 +210,6 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 
     for (uint32 i = 0; i < uiNumControlPoints; i++)
     {
-        // TODO make this iterative
         const Math::vector3F& posVec = fshp.vertices[i].position0;
         lControlPoints[i] = FbxVector4(posVec.X, posVec.Y, posVec.Z);
 
@@ -214,9 +219,17 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 #if FLIP_UV_VERTICAL
         const Math::vector2F& uv0Vec = fshp.vertices[i].uv0;
         lLayerElementUV0->GetDirectArray().Add(FbxVector2(uv0Vec.X, 1 - uv0Vec.Y));
+		const Math::vector2F& uv1Vec = fshp.vertices[i].uv1;
+		lLayerElementUV1->GetDirectArray().Add(FbxVector2(uv1Vec.X, 1 - uv1Vec.Y));
+		const Math::vector2F& uv2Vec = fshp.vertices[i].uv2;
+		lLayerElementUV2->GetDirectArray().Add(FbxVector2(uv2Vec.X, 1 - uv2Vec.Y));
 #else 
 		const Math::vector2F& uv0Vec = fshp.vertices[i].uv0;
 		lLayerElementUV0->GetDirectArray().Add(FbxVector2(uv0Vec.X, uv0Vec.Y));
+        const Math::vector2F& uv1Vec = fshp.vertices[i].uv1;
+		lLayerElementUV1->GetDirectArray().Add(FbxVector2(uv1Vec.X, uv1Vec.Y));
+		const Math::vector2F& uv2Vec = fshp.vertices[i].uv2;
+		lLayerElementUV2->GetDirectArray().Add(FbxVector2(uv2Vec.X, uv2Vec.Y));
 #endif
 
         const Math::vector4F& tangentVec = fshp.vertices[i].tangent;
@@ -232,36 +245,32 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 
     // Create layer 0 for the mesh if it does not already exist.
     // This is where we will define our normals.
-    FbxLayer* lLayer = lMesh->GetLayer(0);
-    if (lLayer == NULL) {
+    FbxLayer* lLayer00 = lMesh->GetLayer(0);
+    if (lLayer00 == NULL) {
         lMesh->CreateLayer();
-        lLayer = lMesh->GetLayer(0);
+        lLayer00 = lMesh->GetLayer(0);
     }
-    lLayer->SetNormals(lLayerElementNormal);
-    lLayer->SetUVs(lLayerElementUV0);
-    lLayer->SetTangents(lLayerElementTangent);
-    lLayer->SetBinormals(lLayerElementBinormal);
+    lLayer00->SetNormals(lLayerElementNormal);
+    lLayer00->SetUVs(lLayerElementUV0);
+    lLayer00->SetTangents(lLayerElementTangent);
+    lLayer00->SetBinormals(lLayerElementBinormal);
 
-    // Define which control points belong to a poly
-    uint32 uiPolySize(3);
-    uint32 uiNumFaces(0);
-    // TODO make this iterative
-    for (uint32 i = 0; i < lodMesh.faceVertices.size(); ++i)
-    {
-        // first index
-        if ((i % uiPolySize) == 0)
-        {
-            lMesh->BeginPolygon();
-            uiNumFaces++;
-        }
+	FbxLayer* lLayer01 = lMesh->GetLayer(1);
+	if (lLayer01 == NULL) {
+		int layerIndex = lMesh->CreateLayer();
+        lLayer01 = lMesh->GetLayer(layerIndex);
+	}
+    lLayer01->SetUVs(lLayerElementUV1);
 
-        // TODO make this iterative
-        lMesh->AddPolygon(lodMesh.faceVertices[i]);
+	FbxLayer* lLayer02 = lMesh->GetLayer(2);
+	if (lLayer02 == NULL) {
+		lMesh->CreateLayer();
+		lLayer02 = lMesh->GetLayer(2);
+	}
+	lLayer02->SetUVs(lLayerElementUV2);
 
-        // last index
-        if ((i + 1) % uiPolySize == 0)
-            lMesh->EndPolygon();
-    }
+    MapFacesToVertices(lodMesh, lMesh);
+
 
 	// Set material mapping.
 	FbxGeometryElementMaterial* lMaterialElement = lMesh->CreateElementMaterial();
@@ -272,12 +281,35 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
     lMaterialName += fshp.name.c_str();
     FbxSurfaceMaterial* lMaterial = FbxSurfaceMaterial::Create(pScene, lMaterialName);
 	//get the node of mesh, add material for it.
-	FbxNode* lNode = lMesh->GetNode();
-	if (lNode)
-		lNode->AddMaterial(lMaterial);
+	lMeshNode->AddMaterial(lMaterial);
 
     // TODO move this function call into write animations
     WriteBindPose(pScene, lMeshNode);
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+inline void FBXWriter::MapFacesToVertices(const BFRESStructs::LODMesh& lodMesh, FbxMesh* lMesh)
+{
+    // Define which control points belong to a poly
+    uint32 uiPolySize(3);
+    // TODO make this iterative
+    for (uint32 i = 0; i < lodMesh.faceVertices.size(); ++i)
+    {
+        // first index
+        if ((i % uiPolySize) == 0)
+        {
+            lMesh->BeginPolygon();
+        }
+
+        // TODO make this iterative
+        lMesh->AddPolygon(lodMesh.faceVertices[i]);
+
+        // last index
+        if ((i + 1) % uiPolySize == 0)
+            lMesh->EndPolygon();
+    }
 }
 
 

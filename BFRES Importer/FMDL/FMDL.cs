@@ -6,6 +6,7 @@ using System.IO;
 using System.Xml;
 using System.Linq;
 using ResU = Syroot.NintenTools.Bfres;
+using System.Diagnostics;
 
 namespace BFRES_Importer
 {
@@ -229,31 +230,33 @@ namespace BFRES_Importer
             {
                 if (att.Name == "_p0")
                     vec4Positions = AttributeData(att, helper, "_p0");
-                if (att.Name == "_n0")
+                else if (att.Name == "_n0")
                     vec4Normals = AttributeData(att, helper, "_n0");
-                if (att.Name == "_u0")
+                else if (att.Name == "_u0")
                     vec4uv0 = AttributeData(att, helper, "_u0");
-                if (att.Name == "_u1")
+                else if (att.Name == "_u1")
                     vec4uv1 = AttributeData(att, helper, "_u1");
-                if (att.Name == "_u2")
+                else if (att.Name == "_u2")
                     vec4uv2 = AttributeData(att, helper, "_u2");
-                if (att.Name == "_c0")
+                else if (att.Name == "_c0")
                     vec4c0 = AttributeData(att, helper, "_c0");
-                if (att.Name == "_c1")
+                else if (att.Name == "_c1")
                     vec4c1 = AttributeData(att, helper, "_c1");
-                if (att.Name == "_t0")
+                else if (att.Name == "_t0")
                     vec4t0 = AttributeData(att, helper, "_t0");
-                if (att.Name == "_b0")
+                else if (att.Name == "_b0")
                     vec4b0 = AttributeData(att, helper, "_b0");
-                if (att.Name == "_w0")
+                else if (att.Name == "_w0")
                     vec4w0 = AttributeData(att, helper, "_w0");
-                if (att.Name == "_i0")
+                else if (att.Name == "_i0")
                     vec4i0 = AttributeData(att, helper, "_i0");
 
-                if (att.Name == "_p1")
+                else if (att.Name == "_p1")
                     vec4Positions1 = AttributeData(att, helper, "_p1");
-                if (att.Name == "_p2")
+                else if (att.Name == "_p2")
                     vec4Positions2 = AttributeData(att, helper, "_p2");
+                else
+                    Debug.Assert(false, "Vertex Attribute type not handled.");
             }
             List<Vertex> vertices = new List<Vertex>();
             for (int i = 0; i < vec4Positions.Length; i++)

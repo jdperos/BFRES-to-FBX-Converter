@@ -94,6 +94,7 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, Fb
         lBone->SetSkeletonType(FbxSkeleton::eLimbNode);
     }
 
+    lBone->Size.Set( 0.03 );
     // Set the node attribute of the bone node.
     lBoneNode->SetNodeAttribute(lBone);
 
@@ -251,23 +252,25 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         lLayer00 = lMesh->GetLayer(0);
     }
     lLayer00->SetNormals(lLayerElementNormal);
-    lLayer00->SetUVs(lLayerElementUV0);
+    lLayer00->SetUVs(lLayerElementUV0, FbxLayerElement::eTextureDiffuse);
+    lLayer00->SetUVs(lLayerElementUV1, FbxLayerElement::eTextureNormalMap);
+    lLayer00->SetUVs(lLayerElementUV2, FbxLayerElement::eTextureTransparency); // We dont know what this is used for
     lLayer00->SetTangents(lLayerElementTangent);
     lLayer00->SetBinormals(lLayerElementBinormal);
 
-	FbxLayer* lLayer01 = lMesh->GetLayer(1);
-	if (lLayer01 == NULL) {
-		int layerIndex = lMesh->CreateLayer();
-        lLayer01 = lMesh->GetLayer(layerIndex);
-	}
-    lLayer01->SetUVs(lLayerElementUV1);
+	//FbxLayer* lLayer01 = lMesh->GetLayer(1);
+	//if (lLayer01 == NULL) {
+	//	int layerIndex = lMesh->CreateLayer();
+ //       lLayer01 = lMesh->GetLayer(layerIndex);
+	//}
+ //   lLayer01->SetUVs(lLayerElementUV1);
 
-	FbxLayer* lLayer02 = lMesh->GetLayer(2);
-	if (lLayer02 == NULL) {
-		lMesh->CreateLayer();
-		lLayer02 = lMesh->GetLayer(2);
-	}
-	lLayer02->SetUVs(lLayerElementUV2);
+	//FbxLayer* lLayer02 = lMesh->GetLayer(2);
+	//if (lLayer02 == NULL) {
+	//	lMesh->CreateLayer();
+	//	lLayer02 = lMesh->GetLayer(2);
+	//}
+	//lLayer02->SetUVs(lLayerElementUV2);
 
     MapFacesToVertices(lodMesh, lMesh);
 
@@ -290,7 +293,7 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-inline void FBXWriter::MapFacesToVertices(const BFRESStructs::LODMesh& lodMesh, FbxMesh* lMesh)
+void FBXWriter::MapFacesToVertices(const BFRESStructs::LODMesh& lodMesh, FbxMesh* lMesh)
 {
     // Define which control points belong to a poly
     uint32 uiPolySize(3);

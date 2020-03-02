@@ -122,41 +122,6 @@ void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, st
 }
 
 
-// Create materials for pyramid.
-void CreateMaterials(FbxScene* pScene, FbxMesh* pMesh)
-{
-	int i;
-
-	for (i = 0; i < 5; i++)
-	{
-		FbxString lMaterialName = "material";
-		FbxString lShadingName = "Phong";
-		lMaterialName += i;
-		FbxDouble3 lBlack(0.0, 0.0, 0.0);
-		FbxDouble3 lRed(1.0, 0.0, 0.0);
-		FbxDouble3 lColor;
-		FbxSurfacePhong* lMaterial = FbxSurfacePhong::Create(pScene, lMaterialName.Buffer());
-
-
-		// Generate primary and secondary colors.
-		lMaterial->Emissive.Set(lBlack);
-		lMaterial->Ambient.Set(lRed);
-		lColor = FbxDouble3(i > 2 ? 1.0 : 0.0,
-			i > 0 && i < 4 ? 1.0 : 0.0,
-			i % 2 ? 0.0 : 1.0);
-		lMaterial->Diffuse.Set(lColor);
-		lMaterial->TransparencyFactor.Set(0.0);
-		lMaterial->ShadingModel.Set(lShadingName);
-		lMaterial->Shininess.Set(0.5);
-
-		//get the node of mesh, add material for it.
-		FbxNode* lNode = pMesh->GetNode();
-		if (lNode)
-			lNode->AddMaterial(lMaterial);
-	}
-}
-
-
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
@@ -180,34 +145,29 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
     lMesh->InitControlPoints(uiNumControlPoints);
     FbxVector4* lControlPoints = lMesh->GetControlPoints();
 
-    // Create a normal layer.
-    FbxLayerElementNormal* lLayerElementNormal = FbxLayerElementNormal::Create(lMesh, "_n0");
-    FbxLayerElementUV* lLayerElementUV0 = FbxLayerElementUV::Create(lMesh, "_uv0");
-    FbxLayerElementUV* lLayerElementUV1 = FbxLayerElementUV::Create(lMesh, "_uv1");
-    FbxLayerElementUV* lLayerElementUV2 = FbxLayerElementUV::Create(lMesh, "_uv2");
-    FbxLayerElementTangent* lLayerElementTangent = FbxLayerElementTangent::Create(lMesh, "_t0");
-    FbxLayerElementBinormal* lLayerElementBinormal = FbxLayerElementBinormal::Create(lMesh, "_b0");
+    //Create layer elements and set mapping modes and reference modes
+    FbxLayerElementNormal*   lLayerElementNormal   = FbxLayerElementNormal  ::Create(lMesh, "_n0" );
+    FbxLayerElementUV*       lLayerElementUV0      = FbxLayerElementUV      ::Create(lMesh, "_uv0");
+    FbxLayerElementUV*       lLayerElementUV1      = FbxLayerElementUV      ::Create(lMesh, "_uv1");
+    FbxLayerElementUV*       lLayerElementUV2      = FbxLayerElementUV      ::Create(lMesh, "_uv2");
+    FbxLayerElementTangent*  lLayerElementTangent  = FbxLayerElementTangent ::Create(lMesh, "_t0" );
+    FbxLayerElementBinormal* lLayerElementBinormal = FbxLayerElementBinormal::Create(lMesh, "_b0" );
 
-    // Set its mapping mode to map each normal vector to each control point.
-    lLayerElementNormal->SetMappingMode(FbxLayerElement::eByControlPoint);
-    lLayerElementUV0->SetMappingMode(FbxLayerElement::eByControlPoint);
-    lLayerElementUV1->SetMappingMode(FbxLayerElement::eByControlPoint);
-    lLayerElementUV2->SetMappingMode(FbxLayerElement::eByControlPoint);
-    lLayerElementTangent->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementNormal  ->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementUV0     ->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementUV1     ->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementUV2     ->SetMappingMode(FbxLayerElement::eByControlPoint);
+    lLayerElementTangent ->SetMappingMode(FbxLayerElement::eByControlPoint);
     lLayerElementBinormal->SetMappingMode(FbxLayerElement::eByControlPoint);
 
-
-    // Set the reference mode of so that the n'th element of the normal array maps to the n'th
-    // element of the control point array.
-    lLayerElementNormal->SetReferenceMode(FbxLayerElement::eDirect);
-    lLayerElementUV0->SetReferenceMode(FbxLayerElement::eDirect);
-    lLayerElementUV1->SetReferenceMode(FbxLayerElement::eDirect);
-    lLayerElementUV2->SetReferenceMode(FbxLayerElement::eDirect);
-    lLayerElementTangent->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementNormal  ->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementUV0     ->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementUV1     ->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementUV2     ->SetReferenceMode(FbxLayerElement::eDirect);
+    lLayerElementTangent ->SetReferenceMode(FbxLayerElement::eDirect);
     lLayerElementBinormal->SetReferenceMode(FbxLayerElement::eDirect);
 
-    //std::vector<SkinCluster> vSkinClusters((*m_pBfres).fmdl[1].fskl.boneList.size());
-    std::map<uint32, SkinCluster> BoneIndexToSkinClusterMap;
+    std::map<uint32, SkinCluster> SkinClusterMap;
 
     for (uint32 i = 0; i < uiNumControlPoints; i++)
     {
@@ -239,10 +199,10 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
         const Math::vector4F& binormalVec = fshp.vertices[i].binormal;
         lLayerElementBinormal->GetDirectArray().Add(FbxVector4(binormalVec.X, binormalVec.Y, binormalVec.Z, binormalVec.W));
 
-        CreateSkinClusterData(fshp.vertices[i], i, BoneIndexToSkinClusterMap, boneInfoList, fshp);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
+        CreateSkinClusterData(fshp.vertices[i], i, SkinClusterMap, boneInfoList, fshp);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
     }
 
-    WriteSkin(pScene, lMesh, BoneIndexToSkinClusterMap);
+    WriteSkin(pScene, lMesh, SkinClusterMap);
 
     // Create layer 0 for the mesh if it does not already exist.
     // This is where we will define our normals.
@@ -258,22 +218,7 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
     lLayer00->SetTangents(lLayerElementTangent);
     lLayer00->SetBinormals(lLayerElementBinormal);
 
-	//FbxLayer* lLayer01 = lMesh->GetLayer(1);
-	//if (lLayer01 == NULL) {
-	//	int layerIndex = lMesh->CreateLayer();
- //       lLayer01 = lMesh->GetLayer(layerIndex);
-	//}
- //   lLayer01->SetUVs(lLayerElementUV1);
-
-	//FbxLayer* lLayer02 = lMesh->GetLayer(2);
-	//if (lLayer02 == NULL) {
-	//	lMesh->CreateLayer();
-	//	lLayer02 = lMesh->GetLayer(2);
-	//}
-	//lLayer02->SetUVs(lLayerElementUV2);
-
     MapFacesToVertices(lodMesh, lMesh);
-
 
 	// Set material mapping.
 	FbxGeometryElementMaterial* lMaterialElement = lMesh->CreateElementMaterial();
@@ -282,9 +227,26 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 
 	FbxString lMaterialName = "M_";
     lMaterialName += fshp.name.c_str();
-    FbxSurfaceMaterial* lMaterial = FbxSurfaceMaterial::Create(pScene, lMaterialName);
-	//get the node of mesh, add material for it.
+    FbxSurfacePhong* lMaterial = FbxSurfacePhong::Create(pScene, lMaterialName);
 	lMeshNode->AddMaterial(lMaterial);
+    
+    lMeshNode->SetShadingMode(FbxNode::eTextureShading);
+    
+	FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, "Diffuse Texture");
+	// Set texture properties.
+	lTexture->SetFileName("MedianDumps/Npc_Gerudo_Queen_Body_Alb.tga"); // Resource file is in current directory.
+	lTexture->SetTextureUse(FbxTexture::eStandard);
+	lTexture->SetMappingType(FbxTexture::eUV);
+	lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
+	lTexture->SetSwapUV(false);
+	lTexture->SetTranslation(0.0, 0.0);
+	lTexture->SetScale(1.0, 1.0);
+	lTexture->SetRotation(0.0, 0.0);
+	lTexture->UVSet.Set(FbxString(lLayerElementUV0->GetName())); // Connect texture to the proper UV
+
+	// don't forget to connect the texture to the corresponding property of the material
+	if (lMaterial)
+		lMaterial->Diffuse.ConnectSrcObject(lTexture);
 
     // TODO move this function call into write animations
     WriteBindPose(pScene, lMeshNode);

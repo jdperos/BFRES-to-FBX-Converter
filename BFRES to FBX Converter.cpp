@@ -92,7 +92,6 @@ int main()
     FBXWriter* fbx = new FBXWriter();
     fbx->CreateFBX(pScene, bfres);
 
-
     if( !CreateDirectoryA( OUTPUT_FILE_DIR, NULL ) && ERROR_ALREADY_EXISTS != GetLastError() )
         assert( 0 && "Failed to create directory." );
 

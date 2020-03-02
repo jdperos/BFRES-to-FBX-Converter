@@ -439,6 +439,7 @@ struct FSHP
 {
     string                  name;
     ShapeFlags              flags;
+    uint32                  modelIndex;
     uint32                  materialIndex;
     uint32                  boneIndex;
     uint32                  vertexBufferIndex;
@@ -495,6 +496,7 @@ struct FSKL
 struct FMDL
 {
     string       name;
+    uint32       index;
     int          fvtxCount;
     int          fshpCount;
     int          fmatCount;
@@ -511,5 +513,53 @@ struct BFRES
 {
 	vector<FMDL> fmdl;
 };
+
+class BFRESManager
+{
+private:
+    BFRES* m_pBFRES;
+
+public:
+
+    BFRESManager()
+    {
+        m_pBFRES = new BFRES();
+    }
+    ~BFRESManager()
+    {
+        delete m_pBFRES;
+    }
+
+    BFRES* GetBFRES()
+    {
+        return m_pBFRES;
+    }
+
+    FSKL* GetSkeletonByModelIndex(uint32 modelIndex)
+    {
+        // TODO write asset check to ensure modelIndex is valid
+        return &m_pBFRES->fmdl[modelIndex].fskl;
+    }
+
+    FMAT* GetMaterialByIndex(uint32 modelIndex, uint32 materialIndex)
+    {
+        return &m_pBFRES->fmdl[modelIndex].fmats[materialIndex];
+    }
+
+    TextureRef* GetTextureFromMaterialByType(FMAT* fmat, GX2TextureMapType type)
+    {
+        for (uint32 i = 0; i < fmat->textureRefs.textureCount; i++)
+        {
+            if (fmat->textureRefs.textures[i].type == type)
+            {
+                return &fmat->textureRefs.textures[i];
+            }
+            
+        }
+        
+    }
+};
+
+extern BFRESManager g_BFRESManager;
 
 }

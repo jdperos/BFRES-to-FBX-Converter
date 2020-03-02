@@ -16,13 +16,16 @@ namespace XML
         std::string token = "";
 
         // Parse FMDLs
+        uint32 fmdlIndex = 0;
         Element* pNode = pRoot->first_node("FMDL");
         while (pNode)
         {
             FMDL fmdl;
+            fmdl.index = fmdlIndex;
             ParseFMDL(fmdl, pNode);
             bfres.fmdl.push_back(fmdl);
             pNode = pNode->next_sibling("FMDL");
+            fmdlIndex++;
         }
 
         //pNode = pNode->first_node("Shapes")->first_node();
@@ -84,7 +87,7 @@ namespace XML
         {
             // TODO
             Element* pNode = pElement->first_node("Shapes");
-            ParseShapes(fmdl.fshps, pNode);
+            ParseShapes(fmdl.index, fmdl.fshps, pNode);
         }
     }
 
@@ -208,13 +211,14 @@ namespace XML
 
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::ParseShapes(std::vector<FSHP>& fshps, Element* pElement)
+    void XmlParser::ParseShapes(uint32 modelIndex, std::vector<FSHP>& fshps, Element* pElement)
     {
         // Parse FSHPs
         Element* pNode = pElement->first_node("FSHP");
         while (pNode)
         {
             FSHP fshp;
+            fshp.modelIndex = modelIndex;
             ParseFSHP(fshp, pNode);
             fshps.push_back(fshp);
             pNode = pNode->next_sibling("FSHP");

@@ -83,14 +83,14 @@ int main()
     std::string medianFilePath = MEDIAN_FILE_DIR;
     medianFilePath.append( "Dump.xml" );
 
-    BFRESStructs::BFRES bfres;
-    XML::XmlParser::Parse(medianFilePath.c_str(), bfres);
+    BFRESStructs::BFRES* bfres = g_BFRESManager.GetBFRES();
+    XML::XmlParser::Parse(medianFilePath.c_str(), *bfres);
 
     FbxManager* lSdkManager = FbxManager::Create();
     FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
 
     FBXWriter* fbx = new FBXWriter();
-    fbx->CreateFBX(pScene, bfres);
+    fbx->CreateFBX(pScene, *bfres);
 
     if( !CreateDirectoryA( OUTPUT_FILE_DIR, NULL ) && ERROR_ALREADY_EXISTS != GetLastError() )
         assert( 0 && "Failed to create directory." );

@@ -3,6 +3,8 @@
 #include "BFRES.h"
 #include <map>
 
+using namespace BFRESStructs;
+
 class FBXWriter
 {
 public:
@@ -29,20 +31,18 @@ public:
 		SkinningType eSkinningType;
 	};
 
-    const BFRESStructs::BFRES* m_pBfres;
+    void CreateFBX(FbxScene*& pScene, const BFRES& bfres);
+    void WriteModel(FbxScene*& pScene, const FMDL& fmdl);
+    void WriteSkeleton(FbxScene*& pScene, const FSKL& fskl, std::vector<BoneMetadata>& boneListInfos);
+    void WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<BoneMetadata>& boneListInfos);
+    void WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneListInfos);
 
-    void CreateFBX(FbxScene*& pScene, const BFRESStructs::BFRES& bfres);
-    void WriteModel(FbxScene*& pScene, const BFRESStructs::FMDL& fmdl);
-    void WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl, std::vector<BoneMetadata>& boneListInfos);
-    void WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, std::vector<BoneMetadata>& boneListInfos);
-    void WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneMetadata>& boneListInfos);
-
-    void MapFacesToVertices( const BFRESStructs::LODMesh& lodMesh, FbxMesh* lMesh );
-    void MapPolygonsToVertices(const BFRESStructs::LODMesh& lodMesh, FbxMesh* lMesh);
+    void MapFacesToVertices( const LODMesh& lodMesh, FbxMesh* lMesh );
+    void MapPolygonsToVertices(const LODMesh& lodMesh, FbxMesh* lMesh);
 
     void WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap);
     void WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode);
 
-    void CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, std::vector<BoneMetadata>& boneListInfos, const BFRESStructs::FSHP& fshp);
-    void CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, FbxNode*& lBoneNode, std::vector<BoneMetadata>& boneListInfos);
+    void CreateSkinClusterData(const FVTX& vert, uint32 uiVertIndex, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, std::vector<BoneMetadata>& boneListInfos, const FSHP& fshp);
+    void CreateBone(FbxScene*& pScene, const Bone& bone, FbxNode*& lBoneNode, std::vector<BoneMetadata>& boneListInfos);
 };

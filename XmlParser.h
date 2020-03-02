@@ -37,7 +37,7 @@ public:
     static void ParseTextureRefs(TextureRefs& textureRefs, Element* pElement);
     static void ParseMaterials(std::vector <FMAT>& fmats, Element* pElement);
     static void ParseFMAT(FMAT& fmat, Element* pElement);
-    static void ParseShapes(std::vector<FSHP>& fshps, Element* pElement);
+    static void ParseShapes(uint32 modelIndex, std::vector<FSHP>& fshps, Element* pElement);
     static void ParseFSHP(FSHP& fshp, Element* pElement);
     static void ParseLODMesh(LODMesh& lodMesh, Element* pElement);
     static void ParseFVTX(FVTX& fvtx, Element* pElement);

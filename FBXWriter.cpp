@@ -13,16 +13,15 @@ FBXWriter::~FBXWriter()
 {
 }
 
-void FBXWriter::CreateFBX(FbxScene*& pScene, const BFRESStructs::BFRES& bfres)
+void FBXWriter::CreateFBX(FbxScene*& pScene, const BFRES& bfres)
 {
-    m_pBfres = &bfres;
     WriteModel(pScene, bfres.fmdl[1]);
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteModel(FbxScene*& pScene, const BFRESStructs::FMDL& fmdl)
+void FBXWriter::WriteModel(FbxScene*& pScene, const FMDL& fmdl)
 {
 	// Create an array to store the smooth and rigid bone indices
 	std::vector<BoneMetadata> boneInfoList(fmdl.fskl.boneList.size());
@@ -38,7 +37,7 @@ void FBXWriter::WriteModel(FbxScene*& pScene, const BFRESStructs::FMDL& fmdl)
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl, std::vector<BoneMetadata>& boneInfoList)
+void FBXWriter::WriteSkeleton(FbxScene*& pScene, const FSKL& fskl, std::vector<BoneMetadata>& boneInfoList)
 {
     const uint32 uiTotalBones = fskl.bones.size();
     std::vector<FbxNode*> boneNodes(uiTotalBones);
@@ -48,7 +47,7 @@ void FBXWriter::WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl,
 
     for (int32 i = 0; i < uiTotalBones; i++)
     {
-        const BFRESStructs::Bone& bone = fskl.bones[i];
+        const Bone& bone = fskl.bones[i];
         if (bone.parentIndex >= 0)
             boneNodes[bone.parentIndex]->AddChild(boneNodes[i]);
         else
@@ -59,7 +58,7 @@ void FBXWriter::WriteSkeleton(FbxScene*& pScene, const BFRESStructs::FSKL& fskl,
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, FbxNode*& lBoneNode, std::vector<BoneMetadata>& boneInfoList)
+void FBXWriter::CreateBone(FbxScene*& pScene, const Bone& bone, FbxNode*& lBoneNode, std::vector<BoneMetadata>& boneInfoList)
 {
     // Create a node for our mesh in the scene.
     lBoneNode = FbxNode::Create(pScene, bone.name.c_str());
@@ -67,7 +66,7 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, Fb
     // Set transform data
     FbxDouble3 fBoneScale = FbxDouble3(bone.scale.X, bone.scale.Y, bone.scale.Z);
     lBoneNode->LclScaling.Set(fBoneScale);
-    if (bone.rotationType == BFRESStructs::RotationType::EulerXYZ)
+    if (bone.rotationType == RotationType::EulerXYZ)
     {
         FbxDouble3 fBoneRot = FbxDouble3(
             Math::ConvertRadiansToDegrees(bone.rotation.X),
@@ -116,7 +115,7 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const BFRESStructs::Bone& bone, Fb
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, std::vector<BoneMetadata>& boneInfoList)
+void FBXWriter::WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<BoneMetadata>& boneInfoList)
 {
     WriteMesh(pScene, fshp, fshp.lodMeshes[0], boneInfoList);
 }
@@ -124,7 +123,7 @@ void FBXWriter::WriteShape(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, st
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, const BFRESStructs::LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
+void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
 {
 
     // Create a node for our mesh in the scene.
@@ -231,10 +230,14 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 	lMeshNode->AddMaterial(lMaterial);
     
     lMeshNode->SetShadingMode(FbxNode::eTextureShading);
+
+    // Get Material used for this mesh
+    FMAT* fmat = g_BFRESManager.GetMaterialByIndex(fshp.modelIndex, fshp.materialIndex);
     
 	FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, "Diffuse Texture");
 	// Set texture properties.
-	lTexture->SetFileName("MedianDumps/Npc_Gerudo_Queen_Body_Alb.tga"); 
+    std::string filePath = "MedianDumps/" + g_BFRESManager.GetTextureFromMaterialByType(fmat, GX2TextureMapType::Albedo)->name + ".tga";
+    lTexture->SetFileName(filePath.c_str());
 	lTexture->SetTextureUse(FbxTexture::eStandard);
 	lTexture->SetMappingType(FbxTexture::eUV);
 	lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
@@ -255,7 +258,7 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::MapFacesToVertices(const BFRESStructs::LODMesh& lodMesh, FbxMesh* lMesh)
+void FBXWriter::MapFacesToVertices(const LODMesh& lodMesh, FbxMesh* lMesh)
 {
     // Define which control points belong to a poly
     uint32 uiPolySize(3);
@@ -284,7 +287,7 @@ void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32, S
 {
     FbxSkin* pSkin = FbxSkin::Create(pScene, "");
     FbxAMatrix& lXMatrix = pMesh->GetNode()->EvaluateGlobalTransform();
-    const BFRESStructs::FSKL& fskl = (*m_pBfres).fmdl[1].fskl;
+    const FSKL& fskl = *g_BFRESManager.GetSkeletonByModelIndex(1);
 
     std::map<uint32, SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.begin();
     std::map<uint32, SkinCluster>::iterator end = BoneIndexToSkinClusterMap.end();
@@ -419,7 +422,7 @@ void FBXWriter::WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode)
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::CreateSkinClusterData(const BFRESStructs::FVTX& vert, uint32 uiVertIndex, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, std::vector<BoneMetadata>& boneListInfos, const BFRESStructs::FSHP& fshp)
+void FBXWriter::CreateSkinClusterData(const FVTX& vert, uint32 uiVertIndex, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, std::vector<BoneMetadata>& boneListInfos, const FSHP& fshp)
 {
     uint32 uiBlendIndices[4] = { vert.blendIndex.X, vert.blendIndex.Y, vert.blendIndex.Z, vert.blendIndex.W };
     float  fBlendWeights[4] = { vert.blendWeights.X, vert.blendWeights.Y, vert.blendWeights.Z, vert.blendWeights.W };

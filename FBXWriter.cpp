@@ -234,7 +234,7 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const BFRESStructs::FSHP& fshp, con
     
 	FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, "Diffuse Texture");
 	// Set texture properties.
-	lTexture->SetFileName("MedianDumps/Npc_Gerudo_Queen_Body_Alb.tga"); // Resource file is in current directory.
+	lTexture->SetFileName("MedianDumps/Npc_Gerudo_Queen_Body_Alb.tga"); 
 	lTexture->SetTextureUse(FbxTexture::eStandard);
 	lTexture->SetMappingType(FbxTexture::eUV);
 	lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);

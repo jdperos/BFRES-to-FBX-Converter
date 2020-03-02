@@ -6,7 +6,7 @@ namespace XML
 
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::Parse(const char* filePath, BFRESStructs::BFRES& bfres)
+    void XmlParser::Parse(const char* filePath, BFRES& bfres)
     {
         File file(filePath);
         Document doc;
@@ -19,7 +19,7 @@ namespace XML
         Element* pNode = pRoot->first_node("FMDL");
         while (pNode)
         {
-            BFRESStructs::FMDL fmdl;
+            FMDL fmdl;
             ParseFMDL(fmdl, pNode);
             bfres.fmdl.push_back(fmdl);
             pNode = pNode->next_sibling("FMDL");
@@ -62,7 +62,7 @@ namespace XML
 
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::ParseFMDL(BFRESStructs::FMDL& fmdl, Element* pElement)
+    void XmlParser::ParseFMDL(FMDL& fmdl, Element* pElement)
     {
         std::string token = "";
         if (ParseAttributeString(token, pElement, "Name"))        fmdl.name = token;
@@ -76,8 +76,8 @@ namespace XML
         // Parse Material
         {
             // TODO
-            Element* pNode = pElement->first_node("Material");
-            //ParseFSKL(fmdl.fskl, pNode);
+            Element* pNode = pElement->first_node("Materials");
+            ParseMaterials(fmdl.fmats, pNode);
         }
 
         // Parse Shapes
@@ -91,7 +91,7 @@ namespace XML
 
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::ParseFSKL(BFRESStructs::FSKL& fskl, Element* pElement)
+    void XmlParser::ParseFSKL(FSKL& fskl, Element* pElement)
     {
         std::string token = "";
 
@@ -102,7 +102,7 @@ namespace XML
         Element* pNode = pElement->first_node("Bone");
         while (pNode)
         {
-            BFRESStructs::Bone bone;
+            Bone bone;
             ParseBone(bone, pNode);
             fskl.bones.push_back(bone);
             pNode = pNode->next_sibling("Bone");
@@ -112,33 +112,109 @@ namespace XML
 
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::ParseBone(BFRESStructs::Bone& bone, Element* pElement)
+    void XmlParser::ParseBone(Bone& bone, Element* pElement)
     {
-        ParseAttributeString(bone.name, pElement, "Name");
-        ParseAttributeUInt(bone.index, pElement, "Index");
-        ParseAttributeBool(bone.isVisible, pElement, "IsVisible");
-        ParseAttributeInt(bone.rigidMatrixIndex, pElement, "RigidMatrixIndex");
-        ParseAttributeInt(bone.smoothMatrixIndex, pElement, "SmoothMatrixIndex");
-        ParseAttributeInt(bone.billboardIndex, pElement, "BillboardIndex");
-        ParseAttributeBool(bone.useRigidMatrix, pElement, "UseRigidMatrix");
-        ParseAttributeBool(bone.useSmoothMatrix, pElement, "UseSmoothMatrix");
-        ParseAttributeInt(bone.parentIndex, pElement, "ParentIndex");
+        ParseAttributeString(bone.name              , pElement, "Name");
+        ParseAttributeUInt(bone.index               , pElement, "Index");
+        ParseAttributeBool(bone.isVisible           , pElement, "IsVisible");
+        ParseAttributeInt(bone.rigidMatrixIndex     , pElement, "RigidMatrixIndex");
+        ParseAttributeInt(bone.smoothMatrixIndex    , pElement, "SmoothMatrixIndex");
+        ParseAttributeInt(bone.billboardIndex       , pElement, "BillboardIndex");
+        ParseAttributeBool(bone.useRigidMatrix      , pElement, "UseRigidMatrix");
+        ParseAttributeBool(bone.useSmoothMatrix     , pElement, "UseSmoothMatrix");
+        ParseAttributeInt(bone.parentIndex          , pElement, "ParentIndex");
         ParseAttributeRotationType(bone.rotationType, pElement, "RotationType");
-        ParseAttributeVector3F(bone.scale, pElement, "Scale");
-        ParseAttributeVector4F(bone.rotation, pElement, "Rotation");
-        ParseAttributeVector3F(bone.position, pElement, "Position");
+        ParseAttributeVector3F(bone.scale           , pElement, "Scale");
+        ParseAttributeVector4F(bone.rotation        , pElement, "Rotation");
+        ParseAttributeVector3F(bone.position        , pElement, "Position");
     }
 
 
+	// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+    void XmlParser::ParseTextureRefs(TextureRefs& textureRefs, Element* pElement)
+    {
+        pElement = pElement->first_node("TextureRefs");
+
+        ParseAttributeBool(textureRefs.hasDiffuseMap  , pElement, "HasDiffuseMap");
+        ParseAttributeBool(textureRefs.hasNormalMap   , pElement, "HasNormalMap");
+        ParseAttributeBool(textureRefs.hasSpeculareMap, pElement, "HasSpecularMap");
+        ParseAttributeBool(textureRefs.hasDiffuse2Map , pElement, "HasDiffuseLayer2Map");
+        ParseAttributeBool(textureRefs.hasDiffuse3Map , pElement, "HasDiffuseLayer3Map");
+        ParseAttributeBool(textureRefs.hasAOMap       , pElement, "HasAmbientOcclusionMap");
+        ParseAttributeBool(textureRefs.hasEmissionMap , pElement, "HasEmissionMap");
+        ParseAttributeBool(textureRefs.hasShadowMap   , pElement, "HasShadowMap");
+        ParseAttributeBool(textureRefs.hasLightMap    , pElement, "HasLightMap");
+        ParseAttributeBool(textureRefs.hasRoughnessMap, pElement, "HasRoughnessMap");
+        ParseAttributeBool(textureRefs.hasMetalnessMap, pElement, "HasMetalnessMap");
+        ParseAttributeBool(textureRefs.hasSSSMap      , pElement, "HasSubSurfaceScatteringMap");
+        ParseAttributeUInt(textureRefs.textureCount   , pElement, "TextureCount");
+
+        pElement = pElement->first_node("Texture");
+		while (pElement)
+		{
+			TextureRef texture;
+
+			ParseAttributeString             (texture.name               , pElement, "TextureName");
+			ParseAttributeGX2TexClamp        (texture.clampX             , pElement, "ClampX");
+			ParseAttributeGX2TexClamp        (texture.clampY             , pElement, "ClampY");
+			ParseAttributeGX2TexClamp        (texture.clampZ             , pElement, "ClampZ");
+			ParseAttributeString             (texture.samplerName        , pElement, "TexSamplerName");
+			ParseAttributeString             (texture.useSampler         , pElement, "UseSampler");
+			ParseAttributeGX2TexXYFilterType (texture.minFilter          , pElement, "MinFilter");
+			ParseAttributeGX2TexXYFilterType (texture.magFilter          , pElement, "MagFilter");
+			ParseAttributeGX2TexZFilterType  (texture.zFilter            , pElement, "ZFilter");
+			ParseAttributeGX2TexMipFilterType(texture.mipFilter          , pElement, "MipFilter");
+			ParseAttributeGX2TexBorderType   (texture.borderType         , pElement, "BorderType");
+			ParseAttributeGX2CompareFunction (texture.depthCompareFunc   , pElement, "DepthCompareFunc");
+			ParseAttributeFloat              (texture.minLod             , pElement, "MinLod");
+			ParseAttributeFloat              (texture.maxLod             , pElement, "MaxLod");
+			ParseAttributeFloat              (texture.lodBias            , pElement, "LodBias");
+			ParseAttributeBool               (texture.depthCompareEnabled, pElement, "DepthCompareEnabled");
+			ParseAttributeGX2TextureMapType  (texture.type               , pElement, "Type");
+			ParseAttributeUInt               (texture.textureUnit        , pElement, "textureUnit");
+
+			textureRefs.textures.push_back(texture);
+			pElement = pElement->next_sibling("Texture");
+		}
+    }
+
+
+	// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+	void XmlParser::ParseMaterials(std::vector<FMAT>& fmats, Element* pElement)
+	{
+		// Parse FMATs
+		Element* pNode = pElement->first_node("FMAT");
+		while (pNode)
+		{
+            FMAT fmat;
+            ParseFMAT(fmat, pNode);
+			fmats.push_back(fmat);
+			pNode = pNode->next_sibling("FMAT");
+		}
+	}
+
+
+	// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+	void XmlParser::ParseFMAT(FMAT& fmat, Element* pElement)
+	{
+		ParseAttributeString(fmat.name, pElement, "Name");
+		ParseAttributeBool(fmat.isVisible, pElement, "IsVisible");
+		// TODO write parsing functions for other FMAT members (shaderparams, etc)
+		ParseTextureRefs(fmat.textureRefs, pElement);
+	}
+
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::ParseShapes(std::vector<BFRESStructs::FSHP>& fshps, Element* pElement)
+    void XmlParser::ParseShapes(std::vector<FSHP>& fshps, Element* pElement)
     {
         // Parse FSHPs
         Element* pNode = pElement->first_node("FSHP");
         while (pNode)
         {
-            BFRESStructs::FSHP fshp;
+            FSHP fshp;
             ParseFSHP(fshp, pNode);
             fshps.push_back(fshp);
             pNode = pNode->next_sibling("FSHP");
@@ -148,7 +224,7 @@ namespace XML
 
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::ParseFSHP(BFRESStructs::FSHP& fshp, Element* pElement)
+    void XmlParser::ParseFSHP(FSHP& fshp, Element* pElement)
     {
         ParseAttributeString(fshp.name, pElement, "Name");
         // TODO ParseAttributeShapeFlags
@@ -164,7 +240,7 @@ namespace XML
         Element* pNode = pElement->first_node("Meshes")->first_node("LODMesh");
         while (pNode)
         {
-            BFRESStructs::LODMesh lodMesh;
+            LODMesh lodMesh;
             ParseLODMesh(lodMesh, pNode);
             fshp.lodMeshes.push_back(lodMesh);
             pNode = pNode->next_sibling("LODMesh");
@@ -174,7 +250,7 @@ namespace XML
         pNode = pElement->first_node("Vertices")->first_node("Vertex");
         while (pNode)
         {
-            BFRESStructs::FVTX fvtx;
+            FVTX fvtx;
             ParseFVTX(fvtx, pNode);
             fshp.vertices.push_back(fvtx);
             pNode = pNode->next_sibling("Vertex");
@@ -185,11 +261,11 @@ namespace XML
 
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::ParseLODMesh(BFRESStructs::LODMesh& lodMesh, Element* pElement)
+    void XmlParser::ParseLODMesh(LODMesh& lodMesh, Element* pElement)
     {
         // Parse primitive and index type for real instead of hardcoding these values
-        lodMesh.primitiveType = BFRESStructs::GX2PrimitiveType::Triangles;
-        lodMesh.indexFormat = BFRESStructs::GX2IndexFormat::UInt16;
+        lodMesh.primitiveType = GX2PrimitiveType::Triangles;
+        lodMesh.indexFormat = GX2IndexFormat::UInt16;
         ParseAttributeUInt(lodMesh.indexCount      , pElement, "IndexCount"  );
         ParseAttributeUInt(lodMesh.firstVertex     , pElement, "FirstVertex" );
         ParseAttributeIntArray(lodMesh.faceVertices, pElement, "FaceVertices");
@@ -199,7 +275,7 @@ namespace XML
 
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
-    void XmlParser::ParseFVTX(BFRESStructs::FVTX& fvtx, Element* pElement)
+    void XmlParser::ParseFVTX(FVTX& fvtx, Element* pElement)
     {
         ParseAttributeUInt(fvtx.index           , pElement, "Index"       );
         ParseAttributeVector3F(fvtx.position0   , pElement, "Position0"   );

@@ -20,32 +20,34 @@ namespace BFRES_Importer
         {
             writer.WriteStartElement("FTEX");
 
-            // TODO test that this works with texture bfres files
-            writer.WriteAttributeString("Name"       , texture.Name                  );
-            writer.WriteAttributeString("CompSelR"   , texture.CompSelR   .ToString());
-            writer.WriteAttributeString("CompSelG"   , texture.CompSelG   .ToString());
-            writer.WriteAttributeString("CompSelB"   , texture.CompSelB   .ToString());
-            writer.WriteAttributeString("CompSelA"   , texture.CompSelA   .ToString());
-            writer.WriteAttributeString("Path"       , texture.Path                  );
-            writer.WriteAttributeString("Width"      , texture.Width      .ToString());
-            writer.WriteAttributeString("Height"     , texture.Height     .ToString());
-            writer.WriteAttributeString("Depth"      , texture.Depth      .ToString());
-            writer.WriteAttributeString("Swizzle"    , texture.Swizzle    .ToString());
-            writer.WriteAttributeString("Alignment"  , texture.Alignment  .ToString());
-            writer.WriteAttributeString("ArrayLength", texture.ArrayLength.ToString());
-            writer.WriteAttributeString("Pitch"      , texture.Pitch      .ToString());
-            writer.WriteAttributeString("TileMode"   , texture.TileMode   .ToString());
-            writer.WriteAttributeString("AAMode"     , texture.AAMode     .ToString());
-            writer.WriteAttributeString("Dim"        , texture.Dim        .ToString());
-            writer.WriteAttributeString("Format"     , texture.Format     .ToString());
+            writer.WriteAttributeString("Name"       , texture.Name                     );
+            writer.WriteAttributeString("Dim"        , texture.Dim           .ToString());
+            writer.WriteAttributeString("Width"      , texture.Width         .ToString());
+            writer.WriteAttributeString("Height"     , texture.Height        .ToString());
+            writer.WriteAttributeString("Depth"      , texture.Depth         .ToString());
+            writer.WriteAttributeString("MipCount"   , texture.MipCount      .ToString());
+            writer.WriteAttributeString("Format"     , texture.Format        .ToString());
+            writer.WriteAttributeString("AAMode"     , texture.AAMode        .ToString());
+            writer.WriteAttributeString("Usage"      , texture.Use           .ToString());
+            writer.WriteAttributeString("TileMode"   , texture.TileMode      .ToString());
+            writer.WriteAttributeString("Swizzle"    , texture.Swizzle       .ToString());
+            writer.WriteAttributeString("Alignment"  , texture.Alignment     .ToString());
+            writer.WriteAttributeString("Pitch"      , texture.Pitch         .ToString());
+            writer.WriteAttributeString("FirstSlice" , texture.ViewSliceFirst.ToString());
+            writer.WriteAttributeString("SliceCount" , texture.ViewSliceCount.ToString());
+            writer.WriteAttributeString("CompSelR"   , texture.CompSelR      .ToString());
+            writer.WriteAttributeString("CompSelG"   , texture.CompSelG      .ToString());
+            writer.WriteAttributeString("CompSelB"   , texture.CompSelB      .ToString());
+            writer.WriteAttributeString("CompSelA"   , texture.CompSelA      .ToString());
+            writer.WriteAttributeString("Regs"       , texture.Regs          .ToString());
+            writer.WriteAttributeString("ArrayLength", texture.ArrayLength   .ToString());
+            writer.WriteAttributeString("Path"       , texture.Path                     );
 
             // These should be written as binary files, not ASCII
             writer.WriteAttributeString("Data"       , texture.Data.ToString()       );
             writer.WriteAttributeString("MipData"    , texture.MipData.ToString()    );
-            writer.WriteAttributeString("Regs"       , texture.Regs.ToString()       );
 
             writer.WriteAttributeString("UserData"   , texture.UserData.ToString()   );
-
 
             writer.WriteEndElement();
         }

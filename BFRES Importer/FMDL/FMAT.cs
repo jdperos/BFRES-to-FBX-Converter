@@ -413,6 +413,8 @@ namespace BFRES_Importer
             if (mat.TextureRefs == null)
                 mat.TextureRefs = new List<TextureRef>();
 
+            writer.WriteAttributeString("TextureCount", mat.TextureRefs.Count.ToString());
+
             // Write what kinds of textures this material contains
             for (int i = 0; i < mat.TextureRefs.Count; i++)
             {
@@ -493,31 +495,36 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("DepthCompareEnabled", mat.Samplers[id].TexSampler.DepthCompareEnabled.ToString());
 
                 // TODO This "HasDiffuseMap" etc, should be set as an attribute on the material, not the texture
-                if (useSampler == "s_diffuse") { AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"); }
-                else if (useSampler == "s_normal")              writer.WriteAttributeString("Type", "Normal");
-                else if (useSampler == "s_specmask")            writer.WriteAttributeString("Type", "Specular");
-                else if (useSampler == "_a0") {  AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"); }
-                else if (useSampler == "_a1") {  AlbedoCount++; writer.WriteAttributeString("Type", "DiffuseLayer2"); }
-                else if (useSampler == "_a2") {  AlbedoCount++; writer.WriteAttributeString("Type", "DiffuseLayer3"); }
-                else if (useSampler == "_n0")                   writer.WriteAttributeString("Type", "Normal");
-                else if (useSampler == "_s0")                   writer.WriteAttributeString("Type", "Specular");
-                else if (useSampler == "_ao0")                  writer.WriteAttributeString("Type", "AO");
-                else if (useSampler == "_e0")                   writer.WriteAttributeString("Type", "Emission");
-                else if (useSampler == "_b0")                   writer.WriteAttributeString("Type", "Shadow");
-                else if (useSampler == "_b1")                   writer.WriteAttributeString("Type", "Light");
-                else if (TextureName.Contains("Emm"))           writer.WriteAttributeString("Type", "Emission");
-                else if (TextureName.Contains("Spm"))           writer.WriteAttributeString("Type", "Specular");
-                else if (TextureName.Contains("b00"))           writer.WriteAttributeString("Type", "Shadow");
-                else if (texSamplerName == "bake0")             writer.WriteAttributeString("Type", "Shadow");
-                else if (TextureName.Contains("Moc"))           writer.WriteAttributeString("Type", "AO");
-                else if (TextureName.Contains("AO"))            writer.WriteAttributeString("Type", "AO");
-                else if (TextureName.Contains("b01"))           writer.WriteAttributeString("Type", "Light");
+                if (useSampler == "s_diffuse") { AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"             ); }
+                else if (useSampler == "s_normal")              writer.WriteAttributeString("Type", "Normal"              );
+                else if (useSampler == "s_specmask")            writer.WriteAttributeString("Type", "Specular"            );
+                else if (useSampler == "_a0") {  AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"             ); }
+                else if (useSampler == "_a1") {  AlbedoCount++; writer.WriteAttributeString("Type", "DiffuseLayer2"       ); }
+                else if (useSampler == "_a2") {  AlbedoCount++; writer.WriteAttributeString("Type", "DiffuseLayer3"       ); }
+                else if (useSampler == "_n0")                   writer.WriteAttributeString("Type", "Normal"              );
+                else if (useSampler == "_s0")                   writer.WriteAttributeString("Type", "Specular"            );
+                else if (useSampler == "_ao0")                  writer.WriteAttributeString("Type", "AO"                  );
+                else if (useSampler == "_e0")                   writer.WriteAttributeString("Type", "Emission"            );
+                else if (useSampler == "_b0")                   writer.WriteAttributeString("Type", "Shadow"              );
+                else if (useSampler == "_b1")                   writer.WriteAttributeString("Type", "Light"               );
+                else if (TextureName.Contains("Emm"))           writer.WriteAttributeString("Type", "Emission"            );
+                else if (TextureName.Contains("Spm"))           writer.WriteAttributeString("Type", "Specular"            );
+                else if (TextureName.Contains("b00"))           writer.WriteAttributeString("Type", "Shadow"              );
+                else if (texSamplerName == "bake0")             writer.WriteAttributeString("Type", "Shadow"              );
+                else if (TextureName.Contains("Moc"))           writer.WriteAttributeString("Type", "AO"                  );
+                else if (TextureName.Contains("AO"))            writer.WriteAttributeString("Type", "AO"                  );
+                else if (TextureName.Contains("b01"))           writer.WriteAttributeString("Type", "Light"               );
                 //Metalness, Roughness, and Cavity Map in one
-                else if (TextureName.Contains("MRA"))           writer.WriteAttributeString("Type", "MRA");
-                else if (TextureName.Contains("mtl"))           writer.WriteAttributeString("Type", "Metalness");
-                else if (TextureName.Contains("rgh"))           writer.WriteAttributeString("Type", "Roughness");
+                else if (TextureName.Contains("MRA"))           writer.WriteAttributeString("Type", "MRA"                 );
+                else if (TextureName.Contains("mtl"))           writer.WriteAttributeString("Type", "Metalness"           );
+                else if (TextureName.Contains("rgh"))           writer.WriteAttributeString("Type", "Roughness"           );
                 else if (TextureName.Contains("sss"))           writer.WriteAttributeString("Type", "SubSurfaceScattering");
-                else if (texSamplerName == "_ao0")              writer.WriteAttributeString("Type", "AO");
+                else if (texSamplerName == "_ao0")              writer.WriteAttributeString("Type", "AO"                  );
+                else if (texSamplerName == "_sd0")
+                {
+                    Debug.WriteLine("_sd0 not yet verified to be of a type yet."); // TODO find out what _sd0 is
+                    writer.WriteAttributeString("Type", "Shadow");
+                }
 
 
                 //Console.WriteLine($"{useSampler} {texture.Type}");

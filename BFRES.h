@@ -226,16 +226,155 @@ struct RenderInfo
     // TODO
 };
 
+/// <summary>
+/// Represents how to treat texture coordinates outside of the normalized coordinate texture range.
+/// </summary>
+enum class GX2TexClamp
+{
+    Wrap,
+    Mirror,
+    Clamp,
+    MirrorOnce,
+    ClampHalfBorder,
+    MirrorOnceHalfBorder,
+    ClampBorder,
+    MirrorOnceBorder
+};
+
+/// <summary>
+/// Represents desired texture filter options within a plane.
+/// </summary>
+enum class GX2TexXYFilterType
+{
+    Point,
+    Bilinear
+};
+
+/// <summary>
+/// Represents desired texture filter options between Z planes.
+/// </summary>
+enum class GX2TexZFilterType
+{
+    UseXY,
+    Point,
+    Linear
+};
+
+/// <summary>
+/// Represents desired texture filter options between mip levels.
+/// </summary>
+enum class GX2TexMipFilterType
+{
+    NoMip,
+    Point,
+    Linear
+};
+
+/// <summary>
+/// Represents maximum desired anisotropic filter ratios. Higher ratios give better image quality, but slower
+/// performance.
+/// </summary>
+enum class GX2TexAnisoRatio
+{
+    OneToOne,
+    TwoToOne,
+    FourToOne,
+    EightToOne,
+    SixteenToOne
+};
+
+/// <summary>
+/// Represents type of border color to use.
+/// </summary>
+enum class GX2TexBorderType
+{
+    ClearBlack,
+    SolidBlack,
+    SolidWhite,
+    UseRegister
+};
+
+/// <summary>
+/// Represents compare functions used for depth and stencil tests.
+/// </summary>
+enum class GX2CompareFunction
+{
+    Never,
+    Less,
+    Equal,
+    LessOrEqual,
+    Greater,
+    NotEqual,
+    GreaterOrEqual,
+    Always
+};
+
+enum class GX2TextureMapType
+{
+    Albedo,
+    Normal,
+    Specular,
+    AmbientOcclusion,
+    Emission,
+    Shadow,
+    Light,
+    MRA,
+    Metalness,
+    Roughness,
+    SubSurfaceScattering
+};
+
+struct TextureRef 
+{
+    std::string         name;
+    GX2TexClamp         clampX;
+    GX2TexClamp         clampY;
+    GX2TexClamp         clampZ;
+    std::string         samplerName;
+    std::string         useSampler;
+    GX2TexXYFilterType  minFilter;
+    GX2TexXYFilterType  magFilter;
+    GX2TexZFilterType   zFilter;
+    GX2TexMipFilterType mipFilter;
+    GX2TexAnisoRatio    maxAnisotropicRatio;
+    GX2TexBorderType    borderType;
+    GX2CompareFunction  depthCompareFunc;
+    float               minLod;
+    float               maxLod;
+    float               lodBias;
+    bool                depthCompareEnabled;
+    GX2TextureMapType   type;
+    uint32              textureUnit;
+};
+
+struct TextureRefs
+{
+    bool hasDiffuseMap   = false;
+    bool hasNormalMap    = false;
+    bool hasSpeculareMap = false;
+    bool hasDiffuse2Map  = false;
+    bool hasDiffuse3Map  = false;
+    bool hasAOMap        = false;
+    bool hasEmissionMap  = false;
+    bool hasShadowMap    = false;
+    bool hasLightMap     = false;
+    bool hasRoughnessMap = false;
+    bool hasMetalnessMap = false;
+    bool hasSSSMap       = false;
+    uint32 textureCount;
+    vector<TextureRef> textures;
+};
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 struct FMAT
 {
-    string       name;
-    bool         isVisible;
-    RenderInfo   renderInfo;
-    ShaderAssign shaderAssign;
-    ShaderParams shaderParams;
+    string               name;
+    bool                 isVisible;
+    vector<RenderInfo>   renderInfo;
+    ShaderAssign         shaderAssign;
+    vector<ShaderParams> shaderParams;
+    TextureRefs          textureRefs;
     // TODO
 };
 

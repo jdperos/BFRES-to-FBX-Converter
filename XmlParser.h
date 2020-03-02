@@ -10,6 +10,8 @@
 #include "BFRES.h"
 #include "Primitives.h"
 
+using namespace BFRESStructs;
+
 namespace XML
 {
 
@@ -24,17 +26,21 @@ typedef rapidxml::xml_attribute<>   Attribute;
 class XmlParser
 {
 public:
-    static void Parse(const char* filePath, BFRESStructs::BFRES &bfres);
+    static void Parse(const char* filePath, BFRES &bfres);
 
     static void ParseDocument(File &file, Document &doc);
 
-    static void ParseFMDL(BFRESStructs::FMDL& fmdl, Element* pElement);
-    static void ParseFSKL(BFRESStructs::FSKL& fskl, Element* pElement);
-    static void ParseBone(BFRESStructs::Bone& bone, Element* pElement);
-    static void ParseShapes(std::vector<BFRESStructs::FSHP>& fshps, Element* pElement);
-    static void ParseFSHP(BFRESStructs::FSHP& fshp, Element* pElement);
-    static void ParseLODMesh(BFRESStructs::LODMesh& lodMesh, Element* pElement);
-    static void ParseFVTX(BFRESStructs::FVTX& fvtx, Element* pElement);
+    static void ParseFMDL(FMDL& fmdl, Element* pElement);
+    static void ParseFSKL(FSKL& fskl, Element* pElement);
+    static void ParseBone(Bone& bone, Element* pElement);
+
+    static void ParseTextureRefs(TextureRefs& textureRefs, Element* pElement);
+    static void ParseMaterials(std::vector <FMAT>& fmats, Element* pElement);
+    static void ParseFMAT(FMAT& fmat, Element* pElement);
+    static void ParseShapes(std::vector<FSHP>& fshps, Element* pElement);
+    static void ParseFSHP(FSHP& fshp, Element* pElement);
+    static void ParseLODMesh(LODMesh& lodMesh, Element* pElement);
+    static void ParseFVTX(FVTX& fvtx, Element* pElement);
 
     // General type parsers
     template<uint32 uiLen>
@@ -300,16 +306,16 @@ public:
 
     // Enum parser templates
     template<uint32 uiLen>
-    static bool ParseAttributeRotationType(BFRESStructs::RotationType& eType, Element* pElement, const char(&attrName)[uiLen])
+    static bool ParseAttributeRotationType(RotationType& eType, Element* pElement, const char(&attrName)[uiLen])
     {
         std::string token = "";
         if (!ParseAttributeString(token, pElement, attrName))
             return false;
 
         if (token == "Quaternion")
-            eType = BFRESStructs::RotationType::Quaternion;
+            eType = RotationType::Quaternion;
         else if (token == "EulerXYZ")
-            eType = BFRESStructs::RotationType::EulerXYZ;
+            eType = RotationType::EulerXYZ;
         else
         {
             assert(0 && "Invalid argument");
@@ -319,31 +325,31 @@ public:
     }
 
     template<uint32 uiLen>
-    static bool ParseAttributeGX2PrimitiveType(BFRESStructs::GX2PrimitiveType& eType, Element* pElement, const char(&attrName)[uiLen])
+    static bool ParseAttributeGX2PrimitiveType(GX2PrimitiveType& eType, Element* pElement, const char(&attrName)[uiLen])
     {
         std::string token = "";
         if (!ParseAttributeString(token, pElement, attrName))
             return false;
 
-        if      (token == "Points"                 )    eType = BFRESStructs::GX2PrimitiveType::Points;
-        else if (token == "Lines"                  )    eType = BFRESStructs::GX2PrimitiveType::Lines;
-        else if (token == "LineStrip"              )    eType = BFRESStructs::GX2PrimitiveType::LineStrip;
-        else if (token == "Triangles"              )    eType = BFRESStructs::GX2PrimitiveType::Triangles;
-        else if (token == "TriangleFan"            )    eType = BFRESStructs::GX2PrimitiveType::TriangleFan;
-        else if (token == "TriangleStrip"          )    eType = BFRESStructs::GX2PrimitiveType::TriangleStrip;
-        else if (token == "LinesAdjacency"         )    eType = BFRESStructs::GX2PrimitiveType::LinesAdjacency;
-        else if (token == "LineStripAdjacency"     )    eType = BFRESStructs::GX2PrimitiveType::LineStripAdjacency;
-        else if (token == "TriangleStripAdjacency" )    eType = BFRESStructs::GX2PrimitiveType::TriangleStripAdjacency;
-        else if (token == "Rects"                  )    eType = BFRESStructs::GX2PrimitiveType::Rects;
-        else if (token == "LineLoop"               )    eType = BFRESStructs::GX2PrimitiveType::LineLoop;
-        else if (token == "Quads"                  )    eType = BFRESStructs::GX2PrimitiveType::Quads;
-        else if (token == "QuadStrip"              )    eType = BFRESStructs::GX2PrimitiveType::QuadStrip;
-        else if (token == "TessellateLines"        )    eType = BFRESStructs::GX2PrimitiveType::TessellateLines;
-        else if (token == "TessellateLineStrip"    )    eType = BFRESStructs::GX2PrimitiveType::TessellateLineStrip;
-        else if (token == "TessellateTriangles"    )    eType = BFRESStructs::GX2PrimitiveType::TessellateTriangles;
-        else if (token == "TessellateTriangleStrip")    eType = BFRESStructs::GX2PrimitiveType::TessellateTriangleStrip;
-        else if (token == "TessellateQuads"        )    eType = BFRESStructs::GX2PrimitiveType::TessellateQuads;
-        else if (token == "TessellateQuadStrip"    )    eType = BFRESStructs::GX2PrimitiveType::TessellateQuadStrip;
+        if      (token == "Points"                 )    eType = GX2PrimitiveType::Points;
+        else if (token == "Lines"                  )    eType = GX2PrimitiveType::Lines;
+        else if (token == "LineStrip"              )    eType = GX2PrimitiveType::LineStrip;
+        else if (token == "Triangles"              )    eType = GX2PrimitiveType::Triangles;
+        else if (token == "TriangleFan"            )    eType = GX2PrimitiveType::TriangleFan;
+        else if (token == "TriangleStrip"          )    eType = GX2PrimitiveType::TriangleStrip;
+        else if (token == "LinesAdjacency"         )    eType = GX2PrimitiveType::LinesAdjacency;
+        else if (token == "LineStripAdjacency"     )    eType = GX2PrimitiveType::LineStripAdjacency;
+        else if (token == "TriangleStripAdjacency" )    eType = GX2PrimitiveType::TriangleStripAdjacency;
+        else if (token == "Rects"                  )    eType = GX2PrimitiveType::Rects;
+        else if (token == "LineLoop"               )    eType = GX2PrimitiveType::LineLoop;
+        else if (token == "Quads"                  )    eType = GX2PrimitiveType::Quads;
+        else if (token == "QuadStrip"              )    eType = GX2PrimitiveType::QuadStrip;
+        else if (token == "TessellateLines"        )    eType = GX2PrimitiveType::TessellateLines;
+        else if (token == "TessellateLineStrip"    )    eType = GX2PrimitiveType::TessellateLineStrip;
+        else if (token == "TessellateTriangles"    )    eType = GX2PrimitiveType::TessellateTriangles;
+        else if (token == "TessellateTriangleStrip")    eType = GX2PrimitiveType::TessellateTriangleStrip;
+        else if (token == "TessellateQuads"        )    eType = GX2PrimitiveType::TessellateQuads;
+        else if (token == "TessellateQuadStrip"    )    eType = GX2PrimitiveType::TessellateQuadStrip;
         else
         {
             assert(0 && "Invalid argument");
@@ -351,6 +357,173 @@ public:
         }
         return true;
     }
+
+	template<uint32 uiLen>
+    static bool ParseAttributeGX2TexClamp(GX2TexClamp& eType, Element* pElement, const char(&attrName)[uiLen])
+    {
+        std::string token = "";
+        if (!ParseAttributeString(token, pElement, attrName))
+            return false;
+
+        if      (token == "Wrap")                 eType = GX2TexClamp::Wrap;
+        else if (token == "Mirror")               eType = GX2TexClamp::Mirror;
+        else if (token == "Clamp")                eType = GX2TexClamp::Clamp;
+        else if (token == "MirrorOnce")           eType = GX2TexClamp::MirrorOnce;
+        else if (token == "ClampHalfBorder")      eType = GX2TexClamp::ClampHalfBorder;
+        else if (token == "MirrorOnceHalfBorder") eType = GX2TexClamp::MirrorOnceHalfBorder;
+        else if (token == "ClampBorder")          eType = GX2TexClamp::ClampBorder;
+        else if (token == "MirrorOnceBorder")     eType = GX2TexClamp::MirrorOnceBorder;
+        else
+        {
+            assert(0 && "Invalid argument");
+            return false;
+        }
+        return true;
+    }
+
+	template<uint32 uiLen>
+	static bool ParseAttributeGX2TexXYFilterType(GX2TexXYFilterType& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "Nearest") eType = GX2TexXYFilterType::Point;
+		else if (token == "Linear")  eType = GX2TexXYFilterType::Bilinear;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+	template<uint32 uiLen>
+	static bool ParseAttributeGX2TexZFilterType(GX2TexZFilterType& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "UseXY")  eType = GX2TexZFilterType::UseXY;
+		else if (token == "Point")  eType = GX2TexZFilterType::Point;
+        else if (token == "Linear") eType = GX2TexZFilterType::Linear;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+	template<uint32 uiLen>
+	static bool ParseAttributeGX2TexMipFilterType(GX2TexMipFilterType& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "NoMip")  eType = GX2TexMipFilterType::NoMip;
+		else if (token == "Point")  eType = GX2TexMipFilterType::Point;
+		else if (token == "Linear") eType = GX2TexMipFilterType::Linear;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+	template<uint32 uiLen>
+	static bool ParseAttributeGX2TexAnisoRatio(GX2TexAnisoRatio& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "OneToOne")     eType = GX2TexAnisoRatio::OneToOne;
+		else if (token == "TwoToOne")     eType = GX2TexAnisoRatio::TwoToOne;
+		else if (token == "FourToOne")    eType = GX2TexAnisoRatio::FourToOne;
+        else if (token == "EightToOne")   eType = GX2TexAnisoRatio::EightToOne;
+        else if (token == "SixteenToOne") eType = GX2TexAnisoRatio::SixteenToOne;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+	template<uint32 uiLen>
+	static bool ParseAttributeGX2TexBorderType(GX2TexBorderType& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "ClearBlack")  eType = GX2TexBorderType::ClearBlack;
+		else if (token == "SolidBlack")  eType = GX2TexBorderType::SolidBlack;
+		else if (token == "SolidWhite")  eType = GX2TexBorderType::SolidWhite;
+		else if (token == "UseRegister") eType = GX2TexBorderType::UseRegister;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+
+	template<uint32 uiLen>
+	static bool ParseAttributeGX2CompareFunction(GX2CompareFunction& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "Never")           eType = GX2CompareFunction::Never;
+		else if (token == "Less")            eType = GX2CompareFunction::Less;
+		else if (token == "Equal")           eType = GX2CompareFunction::Equal;
+		else if (token == "LessOrEqual")     eType = GX2CompareFunction::LessOrEqual;
+		else if (token == "Greater")         eType = GX2CompareFunction::Greater;
+		else if (token == "NotEqual")        eType = GX2CompareFunction::NotEqual;
+		else if (token == "GreaterOrEqual")  eType = GX2CompareFunction::GreaterOrEqual;
+		else if (token == "Always")          eType = GX2CompareFunction::Always;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+	template<uint32 uiLen>
+	static bool ParseAttributeGX2TextureMapType(GX2TextureMapType& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "Albedo")               eType = GX2TextureMapType::Albedo;
+        else if (token == "Diffuse")              eType = GX2TextureMapType::Albedo;
+		else if (token == "Normal")               eType = GX2TextureMapType::Normal;
+		else if (token == "Specular")             eType = GX2TextureMapType::Specular;
+		else if (token == "AmbientOcclusion")     eType = GX2TextureMapType::AmbientOcclusion;
+        else if (token == "AO")                   eType = GX2TextureMapType::AmbientOcclusion;
+		else if (token == "Emission")             eType = GX2TextureMapType::Emission;
+		else if (token == "Shadow")               eType = GX2TextureMapType::Shadow;
+		else if (token == "Light")                eType = GX2TextureMapType::Light;
+		else if (token == "MRA")                  eType = GX2TextureMapType::MRA;
+		else if (token == "Metalness")            eType = GX2TextureMapType::Metalness;
+		else if (token == "Roughness")            eType = GX2TextureMapType::Roughness;
+		else if (token == "SubSurfaceScattering") eType = GX2TextureMapType::SubSurfaceScattering;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
 
 };
 

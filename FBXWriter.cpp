@@ -244,74 +244,83 @@ void FBXWriter::SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSu
     // Get Material used for this mesh
     FMAT* fmat = g_BFRESManager.GetMaterialByIndex(fshp.modelIndex, fshp.materialIndex);
 
-    uint32 texturesToWrite = fmat->textureRefs.textureCount;
+    for (uint32 i = 0; i < fmat->textureRefs.textureCount; i++)
+    {
+        TextureRef& tex = fmat->textureRefs.textures[i];
+        GX2TextureMapType type = tex.type;
+        FbxTexture::ETextureUse textureUse;
+        FbxString uvLayerName;
 
-    bool hasUnwrittenDiffuseMap   = fmat->textureRefs.hasDiffuseMap;
-	bool hasUnwrittenNormalMap    = fmat->textureRefs.hasNormalMap;
-	bool hasUnwrittenSpecularMap  = fmat->textureRefs.hasSpeculareMap;
-	bool hasUnwrittenDiffuse2Map  = fmat->textureRefs.hasDiffuse2Map;
-	bool hasUnwrittenDiffuse3Map  = fmat->textureRefs.hasDiffuse3Map;
-	bool hasUnwrittenAOMap        = fmat->textureRefs.hasAOMap;
-	bool hasUnwrittenEmissionMap  = fmat->textureRefs.hasEmissionMap;
-	bool hasUnwrittenShadowMap    = fmat->textureRefs.hasShadowMap;
-	bool hasUnwrittenLightMap     = fmat->textureRefs.hasLightMap;
-	bool hasUnwrittenRoughnessMap = fmat->textureRefs.hasRoughnessMap;
-	bool hasUnwrittenMetalnessMap = fmat->textureRefs.hasMetalnessMap;
-	bool hasUnwrittenSSSMap       = fmat->textureRefs.hasSSSMap;
+        std::string& textureName = g_BFRESManager.GetTextureFromMaterialByType(fmat, type)->name;
+		FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, textureName.c_str());
 
-	while (texturesToWrite > 0)
-	{
-        if (hasUnwrittenDiffuseMap)
+        switch (type)
         {
-            // Set params here
-            hasUnwrittenDiffuseMap = false; // Kill flag
+        case GX2TextureMapType::Albedo:
+            textureUse = FbxTexture::ETextureUse::eStandard;
+            uvLayerName = lLayerElementUV0->GetName();
+            lMaterial->Diffuse.ConnectSrcObject(lTexture);
+            break;
+        case GX2TextureMapType::Normal:
+            textureUse = FbxTexture::ETextureUse::eBumpNormalMap;
+            uvLayerName = lLayerElementUV1->GetName();
+            lMaterial->NormalMap.ConnectSrcObject(lTexture);
+            break;
+        case GX2TextureMapType::Specular:
+            textureUse = FbxTexture::ETextureUse::eStandard;
+            uvLayerName = lLayerElementUV1->GetName();
+            lMaterial->Specular.ConnectSrcObject(lTexture);
+            break;
+        case GX2TextureMapType::AmbientOcclusion:
+            textureUse = FbxTexture::ETextureUse::eStandard;
+            uvLayerName = lLayerElementUV1->GetName();
+            lMaterial->Ambient.ConnectSrcObject(lTexture);
+            break;
+        case GX2TextureMapType::Emission:
+            textureUse = FbxTexture::ETextureUse::eStandard;
+            uvLayerName = lLayerElementUV1->GetName();
+            lMaterial->Emissive.ConnectSrcObject(lTexture);
+            break;
+        case GX2TextureMapType::Shadow:
+            textureUse = FbxTexture::ETextureUse::eShadowMap;
+            uvLayerName = lLayerElementUV1->GetName();
+            lMaterial->Diffuse.ConnectSrcObject(lTexture);
+            break;
+        case GX2TextureMapType::Light:
+            textureUse = FbxTexture::ETextureUse::eLightMap;
+            uvLayerName = lLayerElementUV1->GetName();
+            break;
+        case GX2TextureMapType::MRA:
+            textureUse = FbxTexture::ETextureUse::eStandard;
+            uvLayerName = lLayerElementUV1->GetName();
+            break;
+        case GX2TextureMapType::Metalness:
+            textureUse = FbxTexture::ETextureUse::eStandard;
+            uvLayerName = lLayerElementUV1->GetName();
+            break;
+        case GX2TextureMapType::Roughness:
+            textureUse = FbxTexture::ETextureUse::eStandard;
+            uvLayerName = lLayerElementUV1->GetName();
+            break;
+        case GX2TextureMapType::SubSurfaceScattering:
+            textureUse = FbxTexture::ETextureUse::eStandard;
+            uvLayerName = lLayerElementUV1->GetName();
+            break;
+        default:
+            break;
         }
 
-        // Pass params to logic here
-
-        texturesToWrite--; // End line
-	}
-
-    if (fmat->textureRefs.hasDiffuseMap)
-    {
-        std::cout << "Material " + fmat->name + " set to use Diffuse Map";
-        FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, "Diffuse Texture");
-        // Set texture properties.
-        std::string filePath = MEDIAN_FILE_DIR + g_BFRESManager.GetTextureFromMaterialByType(fmat, GX2TextureMapType::Albedo)->name + ".tga";
-        lTexture->SetFileName(filePath.c_str());
-        lTexture->SetTextureUse(FbxTexture::eStandard);
-        lTexture->SetMappingType(FbxTexture::eUV);
-        lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
-        lTexture->SetSwapUV(false);
-        lTexture->SetTranslation(0.0, 0.0);
-        lTexture->SetScale(1.0, 1.0);
-        lTexture->SetRotation(0.0, 0.0);
-        lTexture->UVSet.Set(FbxString(lLayerElementUV0->GetName())); // Connect texture to the proper UV
-
-                                                                     // don't forget to connect the texture to the corresponding property of the material
-        if (lMaterial)
-            lMaterial->Diffuse.ConnectSrcObject(lTexture);
-    }
-
-    if (fmat->textureRefs.hasNormalMap)
-    {
-        std::cout << "Material " + fmat->name + " set to use Normal Map";
-        FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, "Normal Map");
-        // Set texture properties.
-        std::string filePath = MEDIAN_FILE_DIR + g_BFRESManager.GetTextureFromMaterialByType(fmat, GX2TextureMapType::Normal)->name + ".tga";
-        lTexture->SetFileName(filePath.c_str());
-        lTexture->SetTextureUse(FbxTexture::eBumpNormalMap);
-        lTexture->SetMappingType(FbxTexture::eUV);
-        lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
-        lTexture->SetSwapUV(false);
-        lTexture->SetTranslation(0.0, 0.0);
-        lTexture->SetScale(1.0, 1.0);
-        lTexture->SetRotation(0.0, 0.0);
-        lTexture->UVSet.Set(FbxString(lLayerElementUV1->GetName())); // Connect texture to the proper UV
-
-                                                                     // don't forget to connect the texture to the corresponding property of the material
-        if (lMaterial)
-            lMaterial->NormalMap.ConnectSrcObject(lTexture);
+        std::string filePath = MEDIAN_FILE_DIR + textureName + ".tga";
+		lTexture->SetFileName(filePath.c_str());
+		lTexture->SetTextureUse(textureUse);
+		lTexture->SetMappingType(FbxTexture::eUV);
+		lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
+		lTexture->SetSwapUV(false);
+		lTexture->SetTranslation(0.0, 0.0);
+		lTexture->SetScale(1.0, 1.0);
+		lTexture->SetRotation(0.0, 0.0);
+		lTexture->UVSet.Set(uvLayerName); // Connect texture to the proper UV
+			
     }
 }
 

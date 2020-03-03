@@ -162,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BFRES.h" />
+    <ClInclude Include="ConsoleColor.h" />
     <ClInclude Include="FBXWriter.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Math.h" />

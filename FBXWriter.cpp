@@ -1,7 +1,9 @@
 #include "FBXWriter.h"
 #include <iostream>
+#include "ConsoleColor.h"
 #include "Primitives.h"
 #include "assert.h"
+#include "Globals.h"
 
 #define FLIP_UV_VERTICAL true // This should always be true for BFRES
 
@@ -231,28 +233,86 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lo
     
     lMeshNode->SetShadingMode(FbxNode::eTextureShading);
 
-    // Get Material used for this mesh
-    FMAT* fmat = g_BFRESManager.GetMaterialByIndex(fshp.modelIndex, fshp.materialIndex);
-    
-	FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, "Diffuse Texture");
-	// Set texture properties.
-    std::string filePath = "MedianDumps/" + g_BFRESManager.GetTextureFromMaterialByType(fmat, GX2TextureMapType::Albedo)->name + ".tga";
-    lTexture->SetFileName(filePath.c_str());
-	lTexture->SetTextureUse(FbxTexture::eStandard);
-	lTexture->SetMappingType(FbxTexture::eUV);
-	lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
-	lTexture->SetSwapUV(false);
-	lTexture->SetTranslation(0.0, 0.0);
-	lTexture->SetScale(1.0, 1.0);
-	lTexture->SetRotation(0.0, 0.0);
-	lTexture->UVSet.Set(FbxString(lLayerElementUV0->GetName())); // Connect texture to the proper UV
-
-	// don't forget to connect the texture to the corresponding property of the material
-	if (lMaterial)
-		lMaterial->Diffuse.ConnectSrcObject(lTexture);
+    SetTexturesToMaterial(pScene, fshp, lMaterial, lLayerElementUV0, lLayerElementUV1, lLayerElementUV2);
 
     // TODO move this function call into write animations
     WriteBindPose(pScene, lMeshNode);
+}
+
+void FBXWriter::SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSurfacePhong* lMaterial, FbxLayerElementUV* lLayerElementUV0, FbxLayerElementUV* lLayerElementUV1, FbxLayerElementUV* lLayerElementUV2)
+{
+    // Get Material used for this mesh
+    FMAT* fmat = g_BFRESManager.GetMaterialByIndex(fshp.modelIndex, fshp.materialIndex);
+
+    uint32 texturesToWrite = fmat->textureRefs.textureCount;
+
+    bool hasUnwrittenDiffuseMap   = fmat->textureRefs.hasDiffuseMap;
+	bool hasUnwrittenNormalMap    = fmat->textureRefs.hasNormalMap;
+	bool hasUnwrittenSpecularMap  = fmat->textureRefs.hasSpeculareMap;
+	bool hasUnwrittenDiffuse2Map  = fmat->textureRefs.hasDiffuse2Map;
+	bool hasUnwrittenDiffuse3Map  = fmat->textureRefs.hasDiffuse3Map;
+	bool hasUnwrittenAOMap        = fmat->textureRefs.hasAOMap;
+	bool hasUnwrittenEmissionMap  = fmat->textureRefs.hasEmissionMap;
+	bool hasUnwrittenShadowMap    = fmat->textureRefs.hasShadowMap;
+	bool hasUnwrittenLightMap     = fmat->textureRefs.hasLightMap;
+	bool hasUnwrittenRoughnessMap = fmat->textureRefs.hasRoughnessMap;
+	bool hasUnwrittenMetalnessMap = fmat->textureRefs.hasMetalnessMap;
+	bool hasUnwrittenSSSMap       = fmat->textureRefs.hasSSSMap;
+
+	while (texturesToWrite > 0)
+	{
+        if (hasUnwrittenDiffuseMap)
+        {
+            // Set params here
+            hasUnwrittenDiffuseMap = false; // Kill flag
+        }
+
+        // Pass params to logic here
+
+        texturesToWrite--; // End line
+	}
+
+    if (fmat->textureRefs.hasDiffuseMap)
+    {
+        std::cout << "Material " + fmat->name + " set to use Diffuse Map";
+        FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, "Diffuse Texture");
+        // Set texture properties.
+        std::string filePath = MEDIAN_FILE_DIR + g_BFRESManager.GetTextureFromMaterialByType(fmat, GX2TextureMapType::Albedo)->name + ".tga";
+        lTexture->SetFileName(filePath.c_str());
+        lTexture->SetTextureUse(FbxTexture::eStandard);
+        lTexture->SetMappingType(FbxTexture::eUV);
+        lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
+        lTexture->SetSwapUV(false);
+        lTexture->SetTranslation(0.0, 0.0);
+        lTexture->SetScale(1.0, 1.0);
+        lTexture->SetRotation(0.0, 0.0);
+        lTexture->UVSet.Set(FbxString(lLayerElementUV0->GetName())); // Connect texture to the proper UV
+
+                                                                     // don't forget to connect the texture to the corresponding property of the material
+        if (lMaterial)
+            lMaterial->Diffuse.ConnectSrcObject(lTexture);
+    }
+
+    if (fmat->textureRefs.hasNormalMap)
+    {
+        std::cout << "Material " + fmat->name + " set to use Normal Map";
+        FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, "Normal Map");
+        // Set texture properties.
+        std::string filePath = MEDIAN_FILE_DIR + g_BFRESManager.GetTextureFromMaterialByType(fmat, GX2TextureMapType::Normal)->name + ".tga";
+        lTexture->SetFileName(filePath.c_str());
+        lTexture->SetTextureUse(FbxTexture::eBumpNormalMap);
+        lTexture->SetMappingType(FbxTexture::eUV);
+        lTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
+        lTexture->SetSwapUV(false);
+        lTexture->SetTranslation(0.0, 0.0);
+        lTexture->SetScale(1.0, 1.0);
+        lTexture->SetRotation(0.0, 0.0);
+        lTexture->UVSet.Set(FbxString(lLayerElementUV1->GetName())); // Connect texture to the proper UV
+
+                                                                     // don't forget to connect the texture to the corresponding property of the material
+        if (lMaterial)
+            lMaterial->NormalMap.ConnectSrcObject(lTexture);
+    }
 }
 
 

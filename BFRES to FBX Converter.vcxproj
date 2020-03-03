@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="BFRES.h" />
     <ClInclude Include="FBXWriter.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MyFBXCube.h" />
     <ClInclude Include="Primitives.h" />

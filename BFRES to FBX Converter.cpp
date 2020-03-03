@@ -5,15 +5,12 @@
 #include "XmlParser.h"
 #include "BFRES.h"
 #include <windows.h>
+#include "Globals.h"
 
 #ifdef IOS_REF
     #undef  IOS_REF
     #define IOS_REF (*(pManager->GetIOSettings()))
 #endif
-
-#define MEDIAN_FILE_DIR "MedianDumps/"
-#define OUTPUT_FILE_DIR "FBXExports/"
-#define PRINT_DEBUG_INFO false;
 
 // Export document, the format is ascii by default
 bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFilename, int pFileFormat = -1, bool pEmbedMedia = false)

@@ -321,7 +321,8 @@ enum class GX2TextureMapType
     MRA,
     Metalness,
     Roughness,
-    SubSurfaceScattering
+    SubSurfaceScattering,
+    eMAX
 };
 
 struct TextureRef 

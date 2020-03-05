@@ -293,8 +293,10 @@ namespace XML
         ParseAttributeVector4F(fvtx.color1      , pElement, "Color1"      );
         ParseAttributeVector4F(fvtx.tangent     , pElement, "Tangent"     );
         ParseAttributeVector4F(fvtx.binormal    , pElement, "Binormal"    );
-        ParseAttributeVector4F(fvtx.blendWeights, pElement, "BlendWeights");
-        ParseAttributeVector4(fvtx.blendIndex   , pElement, "BlendIndex"  );
+        if (!ParseAttributeVector4F(fvtx.blendWeights, pElement, "BlendWeights"))
+            fvtx.blendWeights = { 1,0,0,0 };
+        if (!ParseAttributeVector4(fvtx.blendIndex, pElement, "BlendIndex"))
+            fvtx.blendIndex = { 0,0,0,0 };
     }
 
 }

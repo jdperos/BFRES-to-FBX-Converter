@@ -17,7 +17,10 @@ FBXWriter::~FBXWriter()
 
 void FBXWriter::CreateFBX(FbxScene*& pScene, const BFRES& bfres)
 {
-    WriteModel(pScene, bfres.fmdl[1]);
+    for (uint32 i = 0; i < bfres.fmdl.size(); i++)
+    {
+        WriteModel(pScene, bfres.fmdl[i]);
+    }
 }
 
 
@@ -86,7 +89,7 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const Bone& bone, FbxNode*& lBoneN
 
     // Create a bone.
     FbxSkeleton* lBone = FbxSkeleton::Create(pScene, bone.name.c_str());
-    if (bone.name.c_str() == "Root")
+    if (bone.parentIndex == -1)
     {
         lBone->SetSkeletonType(FbxSkeleton::eRoot);
     }
@@ -127,12 +130,13 @@ void FBXWriter::WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<Bone
 // -----------------------------------------------------------------------
 void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
 {
+    bool hasSkeleton = boneInfoList.size() > 0;
 
     // Create a node for our mesh in the scene.
     FbxNode* lMeshNode = FbxNode::Create(pScene, fshp.name.c_str());
 
     // Create a mesh.
-    FbxMesh* lMesh = FbxMesh::Create(pScene, "");
+    FbxMesh* lMesh = FbxMesh::Create(pScene, fshp.name.c_str());
 
     // Set the node attribute of the mesh node.
     lMeshNode->SetNodeAttribute(lMesh);
@@ -199,11 +203,13 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lo
 
         const Math::vector4F& binormalVec = fshp.vertices[i].binormal;
         lLayerElementBinormal->GetDirectArray().Add(FbxVector4(binormalVec.X, binormalVec.Y, binormalVec.Z, binormalVec.W));
-
-        CreateSkinClusterData(fshp.vertices[i], i, SkinClusterMap, boneInfoList, fshp);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
+        
+        if (hasSkeleton)
+            CreateSkinClusterData(fshp.vertices[i], i, SkinClusterMap, boneInfoList, fshp);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
     }
 
-    WriteSkin(pScene, lMesh, SkinClusterMap);
+    if (hasSkeleton)
+        WriteSkin(pScene, lMesh, SkinClusterMap);
 
     // Create layer 0 for the mesh if it does not already exist.
     // This is where we will define our normals.
@@ -361,9 +367,9 @@ void FBXWriter::MapFacesToVertices(const LODMesh& lodMesh, FbxMesh* lMesh)
 // -----------------------------------------------------------------------
 void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap)
 {
-    FbxSkin* pSkin = FbxSkin::Create(pScene, "");
+    FbxSkin* pSkin = FbxSkin::Create(pScene, pMesh->GetNode()->GetName());
     FbxAMatrix& lXMatrix = pMesh->GetNode()->EvaluateGlobalTransform();
-    const FSKL& fskl = *g_BFRESManager.GetSkeletonByModelIndex(1);
+    const FSKL& fskl = *g_BFRESManager.GetSkeletonByModelIndex(1); // TODO do not hardcode this value! HACK HACK HACK HACK
 
     std::map<uint32, SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.begin();
     std::map<uint32, SkinCluster>::iterator end = BoneIndexToSkinClusterMap.end();

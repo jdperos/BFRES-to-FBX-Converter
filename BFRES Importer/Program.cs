@@ -14,7 +14,7 @@ namespace BFRES_Importer
 
         static void Main(string[] args)
         {
-            FilePath = (AssetDir + "Npc_Gerudo_Queen.bfres");
+            FilePath = (AssetDir + "Npc_Gerudo_Queen_Animation.bfres");
             ResU.ResFile res = new ResU.ResFile(FilePath);
             WriteResToXML(res);
         }
@@ -64,6 +64,12 @@ namespace BFRES_Importer
                 writer.WriteEndElement();
             }
 
+            if (res.SkeletalAnims.Count > 0)
+            {
+                writer.WriteStartElement("FSKA");
+                FSKA.WriteSkeletalAnimations(writer, res);
+                writer.WriteEndElement();
+            }
 
             writer.WriteEndElement();
             writer.WriteEndDocument();

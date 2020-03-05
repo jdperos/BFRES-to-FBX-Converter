@@ -5,7 +5,7 @@
 #include "assert.h"
 #include "Globals.h"
 
-#define FLIP_UV_VERTICAL true // This should always be true for BFRES
+
 
 FBXWriter::FBXWriter()
 {
@@ -233,12 +233,19 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lo
     
     lMeshNode->SetShadingMode(FbxNode::eTextureShading);
 
+#if WRITE_TEXTURES // Currently it appears that FBX doesn't support AO maps
     SetTexturesToMaterial(pScene, fshp, lMaterial, lLayerElementUV0, lLayerElementUV1, lLayerElementUV2);
+#endif // WRITE_TEXTURES
 
     // TODO move this function call into write animations
     WriteBindPose(pScene, lMeshNode);
 }
 
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// Currently as far as it will get. Certain things, like AO maps, are not
+// supported by FBX's Phong material as far as I can tell.
 void FBXWriter::SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSurfacePhong* lMaterial, FbxLayerElementUV* lLayerElementUV0, FbxLayerElementUV* lLayerElementUV1, FbxLayerElementUV* lLayerElementUV2)
 {
     // Get Material used for this mesh

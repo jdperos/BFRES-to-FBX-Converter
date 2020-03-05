@@ -19,14 +19,14 @@ void FBXWriter::CreateFBX(FbxScene*& pScene, const BFRES& bfres)
 {
     for (uint32 i = 0; i < bfres.fmdl.size(); i++)
     {
-        WriteModel(pScene, bfres.fmdl[i]);
+        WriteModel(pScene, bfres.fmdl[i], i);
     }
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteModel(FbxScene*& pScene, const FMDL& fmdl)
+void FBXWriter::WriteModel(FbxScene*& pScene, const FMDL& fmdl, uint32 fmdlIndex)
 {
 	// Create an array to store the smooth and rigid bone indices
 	std::vector<BoneMetadata> boneInfoList(fmdl.fskl.boneList.size());
@@ -35,7 +35,7 @@ void FBXWriter::WriteModel(FbxScene*& pScene, const FMDL& fmdl)
 
     for (uint32 i = 0; i < fmdl.fshps.size(); i++)
     {
-        WriteShape(pScene, fmdl.fshps[i], boneInfoList);
+        WriteShape(pScene, fmdl.fshps[i], boneInfoList, fmdlIndex);
     }
 }
 
@@ -120,17 +120,17 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const Bone& bone, FbxNode*& lBoneN
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<BoneMetadata>& boneInfoList)
+void FBXWriter::WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<BoneMetadata>& boneListInfos, uint32 fmdlIndex)
 {
-    WriteMesh(pScene, fshp, fshp.lodMeshes[0], boneInfoList);
+    WriteMesh(pScene, fshp, fshp.lodMeshes[0], boneListInfos, fmdlIndex);
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
+void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneListInfos, uint32 fmdlIndex)
 {
-    bool hasSkeleton = boneInfoList.size() > 0;
+    bool hasSkeleton = boneListInfos.size() > 0;
 
     // Create a node for our mesh in the scene.
     FbxNode* lMeshNode = FbxNode::Create(pScene, fshp.name.c_str());
@@ -205,11 +205,11 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lo
         lLayerElementBinormal->GetDirectArray().Add(FbxVector4(binormalVec.X, binormalVec.Y, binormalVec.Z, binormalVec.W));
         
         if (hasSkeleton)
-            CreateSkinClusterData(fshp.vertices[i], i, SkinClusterMap, boneInfoList, fshp);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
+            CreateSkinClusterData(fshp.vertices[i], i, SkinClusterMap, boneListInfos, fshp);  // Convert the vertex-to-bone mapping to bone-to-vertex so it conforms with fbx cluster data
     }
 
     if (hasSkeleton)
-        WriteSkin(pScene, lMesh, SkinClusterMap);
+        WriteSkin(pScene, lMesh, SkinClusterMap, fmdlIndex);
 
     // Create layer 0 for the mesh if it does not already exist.
     // This is where we will define our normals.
@@ -365,11 +365,11 @@ void FBXWriter::MapFacesToVertices(const LODMesh& lodMesh, FbxMesh* lMesh)
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap)
+void FBXWriter::WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, uint32 fmdlIndex)
 {
     FbxSkin* pSkin = FbxSkin::Create(pScene, pMesh->GetNode()->GetName());
     FbxAMatrix& lXMatrix = pMesh->GetNode()->EvaluateGlobalTransform();
-    const FSKL& fskl = *g_BFRESManager.GetSkeletonByModelIndex(1); // TODO do not hardcode this value! HACK HACK HACK HACK
+    const FSKL& fskl = *g_BFRESManager.GetSkeletonByModelIndex(fmdlIndex);
 
     std::map<uint32, SkinCluster>::iterator iter = BoneIndexToSkinClusterMap.begin();
     std::map<uint32, SkinCluster>::iterator end = BoneIndexToSkinClusterMap.end();

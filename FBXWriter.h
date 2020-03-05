@@ -32,16 +32,16 @@ public:
 	};
 
     void CreateFBX(FbxScene*& pScene, const BFRES& bfres);
-    void WriteModel(FbxScene*& pScene, const FMDL& fmdl);
+    void WriteModel(FbxScene*& pScene, const FMDL& fmdl, uint32 fmdlIndex);
     void WriteSkeleton(FbxScene*& pScene, const FSKL& fskl, std::vector<BoneMetadata>& boneListInfos);
-    void WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<BoneMetadata>& boneListInfos);
-    void WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneListInfos);
+    void WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<BoneMetadata>& boneListInfos, uint32 fmdlIndex);
+    void WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneListInfos, uint32 fmdlIndex);
     void SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSurfacePhong* lMaterial, FbxLayerElementUV* lLayerElementUV0, FbxLayerElementUV* lLayerElementUV1, FbxLayerElementUV* lLayerElementUV2);
 
     void MapFacesToVertices( const LODMesh& lodMesh, FbxMesh* lMesh );
     void MapPolygonsToVertices(const LODMesh& lodMesh, FbxMesh* lMesh);
 
-    void WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap);
+    void WriteSkin(FbxScene*& pScene, FbxMesh*& pMesh, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, uint32 fmdlIndex);
     void WriteBindPose(FbxScene*& pScene, FbxNode*& pMeshNode);
 
     void CreateSkinClusterData(const FVTX& vert, uint32 uiVertIndex, std::map<uint32, SkinCluster>& BoneIndexToSkinClusterMap, std::vector<BoneMetadata>& boneListInfos, const FSHP& fshp);

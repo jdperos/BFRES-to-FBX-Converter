@@ -122,28 +122,38 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const Bone& bone, FbxNode*& lBoneN
 // -----------------------------------------------------------------------
 void FBXWriter::WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<BoneMetadata>& boneInfoList)
 {
-    WriteMesh(pScene, fshp, fshp.lodMeshes[0], boneInfoList);
+    std::string meshName = fshp.name + "_LODGroup";
+    FbxNode* lLodGroup = FbxNode::Create( pScene, meshName.c_str() );
+    FbxLODGroup* lLodGroupAttr = FbxLODGroup::Create( pScene, meshName.c_str() );
+    // Array lChildNodes contains geometries of all LOD levels
+    for( int j = 0; j < fshp.lodMeshes.size(); j++ )
+    {
+        WriteMesh(pScene, lLodGroup, fshp, fshp.lodMeshes[j], boneInfoList);
+    }
+    pScene->GetRootNode()->AddChild( lLodGroup );
 }
 
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void FBXWriter::WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
+void FBXWriter::WriteMesh(FbxScene*& pScene, FbxNode*& pLodGroup, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneInfoList)
 {
     bool hasSkeleton = boneInfoList.size() > 0;
 
+    std::string meshName = fshp.name;
+    meshName += "_LOD" + std::to_string( pLodGroup->GetChildCount() );
+    
     // Create a node for our mesh in the scene.
-    FbxNode* lMeshNode = FbxNode::Create(pScene, fshp.name.c_str());
+    FbxNode* lMeshNode = FbxNode::Create(pScene, meshName.c_str());
 
     // Create a mesh.
-    FbxMesh* lMesh = FbxMesh::Create(pScene, fshp.name.c_str());
+    FbxMesh* lMesh = FbxMesh::Create(pScene, meshName.c_str());
 
     // Set the node attribute of the mesh node.
     lMeshNode->SetNodeAttribute(lMesh);
 
     // Add the mesh node to the root node in the scene.
-    FbxNode* lRootNode = pScene->GetRootNode();
-    lRootNode->AddChild(lMeshNode);
+    pLodGroup->AddChild(lMeshNode);
 
     // Initialize the control point array of the mesh.
     uint32 uiNumControlPoints(fshp.vertices.size());

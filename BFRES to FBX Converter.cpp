@@ -86,6 +86,18 @@ int main()
     FbxManager* lSdkManager = FbxManager::Create();
     FbxScene* pScene = FbxScene::Create(lSdkManager, "Scene lame");
 
+    // Convert the scene to meters using the defined options.
+    const FbxSystemUnit::ConversionOptions lConversionOptions = {
+      false, /* mConvertRrsNodes */
+      true, /* mConvertLimits */
+      true, /* mConvertClusters */
+      true, /* mConvertLightIntensity */
+      true, /* mConvertPhotometricLProperties */
+      true  /* mConvertCameraClipPlanes */
+    };
+
+    FbxSystemUnit::m.ConvertScene( pScene, lConversionOptions );
+
     FBXWriter* fbx = new FBXWriter();
     fbx->CreateFBX(pScene, *bfres);
 
@@ -129,6 +141,9 @@ int main()
 		std::cout << "\n";
 	}
 #endif // PRINT_DEBUG_INFO
+
+    // Convert the scene to centimeters using the defined options.
+    FbxSystemUnit::cm.ConvertScene( pScene, lConversionOptions );
 
     SaveDocument(lSdkManager, pScene, fbxExportPath.c_str());
 

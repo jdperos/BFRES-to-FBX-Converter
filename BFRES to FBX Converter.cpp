@@ -175,7 +175,7 @@ int main()
     // Create an importer.
     FbxImporter* lImporter = FbxImporter::Create( lSdkManager, "" );
     // Initialize the importer by providing a filename and the IOSettings to use
-    lImporter->Initialize( "TestAssets/QueenModelASCII.fbx", -1, ios );
+    lImporter->Initialize( "TestAssets/TwoAnimations.fbx", -1, ios );
     // Import the scene.
     lImporter->Import( pScene );
     // Destroy the importer.
@@ -236,6 +236,13 @@ int main()
             }
         }
         std::cout << "\n";
+
+        
     }
+    FbxAnimStack* animStack = pScene->GetCurrentAnimationStack();
+    FbxString* stringArray = new FbxString();
+    pScene->FillAnimStackNameArray(stringArray);
+    std::cout << "Anim stack name: " << animStack->GetName() << "\n";
+    std::cout << "Anim stack member count: " << animStack->GetMemberCount() << "\n";
     return 0;
 }

@@ -365,14 +365,14 @@ public:
         if (!ParseAttributeString(token, pElement, attrName))
             return false;
 
-        if      (token == "Wrap")                 eType = GX2TexClamp::Wrap;
-        else if (token == "Mirror")               eType = GX2TexClamp::Mirror;
-        else if (token == "Clamp")                eType = GX2TexClamp::Clamp;
-        else if (token == "MirrorOnce")           eType = GX2TexClamp::MirrorOnce;
-        else if (token == "ClampHalfBorder")      eType = GX2TexClamp::ClampHalfBorder;
-        else if (token == "MirrorOnceHalfBorder") eType = GX2TexClamp::MirrorOnceHalfBorder;
-        else if (token == "ClampBorder")          eType = GX2TexClamp::ClampBorder;
-        else if (token == "MirrorOnceBorder")     eType = GX2TexClamp::MirrorOnceBorder;
+		if      (token == "Wrap"                )    eType = GX2TexClamp::Wrap;
+		else if (token == "Mirror"              )    eType = GX2TexClamp::Mirror;
+		else if (token == "Clamp"               )    eType = GX2TexClamp::Clamp;
+		else if (token == "MirrorOnce"          )    eType = GX2TexClamp::MirrorOnce;
+		else if (token == "ClampHalfBorder"     )    eType = GX2TexClamp::ClampHalfBorder;
+		else if (token == "MirrorOnceHalfBorder")    eType = GX2TexClamp::MirrorOnceHalfBorder;
+		else if (token == "ClampBorder"         )    eType = GX2TexClamp::ClampBorder;
+		else if (token == "MirrorOnceBorder"    )    eType = GX2TexClamp::MirrorOnceBorder;
         else
         {
             assert(0 && "Invalid argument");
@@ -389,7 +389,7 @@ public:
 			return false;
 
 		if      (token == "Nearest") eType = GX2TexXYFilterType::Point;
-		else if (token == "Linear")  eType = GX2TexXYFilterType::Bilinear;
+		else if (token == "Linear" ) eType = GX2TexXYFilterType::Bilinear;
 		else
 		{
 			assert(0 && "Invalid argument");
@@ -399,22 +399,22 @@ public:
 	}
 
 	template<uint32 uiLen>
-	static bool ParseAttributeGX2TexZFilterType(GX2TexZFilterType& eType, Element* pElement, const char(&attrName)[uiLen])
-	{
-		std::string token = "";
-		if (!ParseAttributeString(token, pElement, attrName))
-			return false;
+    static bool ParseAttributeGX2TexZFilterType(GX2TexZFilterType& eType, Element* pElement, const char(&attrName)[uiLen])
+    {
+        std::string token = "";
+        if (!ParseAttributeString(token, pElement, attrName))
+            return false;
 
-		if      (token == "UseXY")  eType = GX2TexZFilterType::UseXY;
-		else if (token == "Point")  eType = GX2TexZFilterType::Point;
+        if      (token == "UseXY" ) eType = GX2TexZFilterType::UseXY;
+        else if (token == "Point" ) eType = GX2TexZFilterType::Point;
         else if (token == "Linear") eType = GX2TexZFilterType::Linear;
-		else
-		{
-			assert(0 && "Invalid argument");
-			return false;
-		}
-		return true;
-	}
+        else
+        {
+            assert(0 && "Invalid argument");
+            return false;
+        }
+        return true;
+    }
 
 	template<uint32 uiLen>
 	static bool ParseAttributeGX2TexMipFilterType(GX2TexMipFilterType& eType, Element* pElement, const char(&attrName)[uiLen])
@@ -423,8 +423,8 @@ public:
 		if (!ParseAttributeString(token, pElement, attrName))
 			return false;
 
-		if      (token == "NoMip")  eType = GX2TexMipFilterType::NoMip;
-		else if (token == "Point")  eType = GX2TexMipFilterType::Point;
+		if      (token == "NoMip" ) eType = GX2TexMipFilterType::NoMip;
+		else if (token == "Point" ) eType = GX2TexMipFilterType::Point;
 		else if (token == "Linear") eType = GX2TexMipFilterType::Linear;
 		else
 		{
@@ -441,10 +441,10 @@ public:
 		if (!ParseAttributeString(token, pElement, attrName))
 			return false;
 
-		if      (token == "OneToOne")     eType = GX2TexAnisoRatio::OneToOne;
-		else if (token == "TwoToOne")     eType = GX2TexAnisoRatio::TwoToOne;
-		else if (token == "FourToOne")    eType = GX2TexAnisoRatio::FourToOne;
-        else if (token == "EightToOne")   eType = GX2TexAnisoRatio::EightToOne;
+		if      (token == "OneToOne"    ) eType = GX2TexAnisoRatio::OneToOne;
+		else if (token == "TwoToOne"    ) eType = GX2TexAnisoRatio::TwoToOne;
+		else if (token == "FourToOne"   ) eType = GX2TexAnisoRatio::FourToOne;
+        else if (token == "EightToOne"  ) eType = GX2TexAnisoRatio::EightToOne;
         else if (token == "SixteenToOne") eType = GX2TexAnisoRatio::SixteenToOne;
 		else
 		{
@@ -461,9 +461,9 @@ public:
 		if (!ParseAttributeString(token, pElement, attrName))
 			return false;
 
-		if      (token == "ClearBlack")  eType = GX2TexBorderType::ClearBlack;
-		else if (token == "SolidBlack")  eType = GX2TexBorderType::SolidBlack;
-		else if (token == "SolidWhite")  eType = GX2TexBorderType::SolidWhite;
+		if      (token == "ClearBlack" ) eType = GX2TexBorderType::ClearBlack;
+		else if (token == "SolidBlack" ) eType = GX2TexBorderType::SolidBlack;
+		else if (token == "SolidWhite" ) eType = GX2TexBorderType::SolidWhite;
 		else if (token == "UseRegister") eType = GX2TexBorderType::UseRegister;
 		else
 		{
@@ -481,14 +481,14 @@ public:
 		if (!ParseAttributeString(token, pElement, attrName))
 			return false;
 
-		if      (token == "Never")           eType = GX2CompareFunction::Never;
-		else if (token == "Less")            eType = GX2CompareFunction::Less;
-		else if (token == "Equal")           eType = GX2CompareFunction::Equal;
-		else if (token == "LessOrEqual")     eType = GX2CompareFunction::LessOrEqual;
-		else if (token == "Greater")         eType = GX2CompareFunction::Greater;
-		else if (token == "NotEqual")        eType = GX2CompareFunction::NotEqual;
+		if      (token == "Never"         )  eType = GX2CompareFunction::Never;
+		else if (token == "Less"          )  eType = GX2CompareFunction::Less;
+		else if (token == "Equal"         )  eType = GX2CompareFunction::Equal;
+		else if (token == "LessOrEqual"   )  eType = GX2CompareFunction::LessOrEqual;
+		else if (token == "Greater"       )  eType = GX2CompareFunction::Greater;
+		else if (token == "NotEqual"      )  eType = GX2CompareFunction::NotEqual;
 		else if (token == "GreaterOrEqual")  eType = GX2CompareFunction::GreaterOrEqual;
-		else if (token == "Always")          eType = GX2CompareFunction::Always;
+		else if (token == "Always"        )  eType = GX2CompareFunction::Always;
 		else
 		{
 			assert(0 && "Invalid argument");
@@ -498,32 +498,32 @@ public:
 	}
 
 	template<uint32 uiLen>
-	static bool ParseAttributeGX2TextureMapType(GX2TextureMapType& eType, Element* pElement, const char(&attrName)[uiLen])
-	{
-		std::string token = "";
-		if (!ParseAttributeString(token, pElement, attrName))
-			return false;
+    static bool ParseAttributeGX2TextureMapType(GX2TextureMapType& eType, Element* pElement, const char(&attrName)[uiLen])
+    {
+        std::string token = "";
+        if (!ParseAttributeString(token, pElement, attrName))
+            return false;
 
-		if      (token == "Albedo")               eType = GX2TextureMapType::Albedo;
-        else if (token == "Diffuse")              eType = GX2TextureMapType::Albedo;
-		else if (token == "Normal")               eType = GX2TextureMapType::Normal;
-		else if (token == "Specular")             eType = GX2TextureMapType::Specular;
-		else if (token == "AmbientOcclusion")     eType = GX2TextureMapType::AmbientOcclusion;
-        else if (token == "AO")                   eType = GX2TextureMapType::AmbientOcclusion;
-		else if (token == "Emission")             eType = GX2TextureMapType::Emission;
-		else if (token == "Shadow")               eType = GX2TextureMapType::Shadow;
-		else if (token == "Light")                eType = GX2TextureMapType::Light;
-		else if (token == "MRA")                  eType = GX2TextureMapType::MRA;
-		else if (token == "Metalness")            eType = GX2TextureMapType::Metalness;
-		else if (token == "Roughness")            eType = GX2TextureMapType::Roughness;
-		else if (token == "SubSurfaceScattering") eType = GX2TextureMapType::SubSurfaceScattering;
-		else
-		{
-			assert(0 && "Invalid argument");
-			return false;
-		}
-		return true;
-	}
+        if      (token == "Albedo"              ) eType = GX2TextureMapType::Albedo;
+        else if (token == "Diffuse"             ) eType = GX2TextureMapType::Albedo;
+        else if (token == "Normal"              ) eType = GX2TextureMapType::Normal;
+        else if (token == "Specular"            ) eType = GX2TextureMapType::Specular;
+        else if (token == "AmbientOcclusion"    ) eType = GX2TextureMapType::AmbientOcclusion;
+        else if (token == "AO"                  ) eType = GX2TextureMapType::AmbientOcclusion;
+        else if (token == "Emission"            ) eType = GX2TextureMapType::Emission;
+        else if (token == "Shadow"              ) eType = GX2TextureMapType::Shadow;
+        else if (token == "Light"               ) eType = GX2TextureMapType::Light;
+        else if (token == "MRA"                 ) eType = GX2TextureMapType::MRA;
+        else if (token == "Metalness"           ) eType = GX2TextureMapType::Metalness;
+        else if (token == "Roughness"           ) eType = GX2TextureMapType::Roughness;
+        else if (token == "SubSurfaceScattering") eType = GX2TextureMapType::SubSurfaceScattering;
+        else
+        {
+            assert(0 && "Invalid argument");
+            return false;
+        }
+        return true;
+    }
 
 };
 

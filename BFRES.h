@@ -9,200 +9,6 @@ namespace BFRESStructs
 
 using namespace std;
 
-enum class RotationType
-{
-    Quaternion = 0,
-    EulerXYZ = 4096
-
-};
-
-enum class BoneFlagsRotation
-{
-    /// <summary>
-    /// A quaternion represents the rotation.
-    /// </summary>
-    Quaternion,
-
-    /// <summary>
-    /// A <see cref="Vector3F"/> represents the Euler rotation in XYZ order.
-    /// </summary>
-    EulerXYZ
-};
-
-enum class BoneFlagsBillboard
-{
-    /// <summary>
-    /// No transformation is applied.
-    /// </summary>
-    None,
-
-    /// <summary>
-    /// Transforms of the child are applied.
-    /// </summary>
-    Child,
-
-    /// <summary>
-    /// Transforms the Z axis parallel to the camera.
-    /// </summary>
-    WorldViewVector,
-
-    /// <summary>
-    /// Transforms the Z axis parallel to the direction of the camera.
-    /// </summary>
-    WorldViewPoint,
-
-    /// <summary>
-    /// Transforms the Y axis parallel to the camera up vector, and the Z parallel to the camera up-vector.
-    /// </summary>
-    ScreenViewVector,
-
-    /// <summary>
-    /// Transforms the Y axis parallel to the camera up vector, and the Z axis parallel to the direction of the
-    /// camera.
-    /// </summary>
-    ScreenViewPoint,
-
-    /// <summary>
-    /// Transforms the Z axis parallel to the camera by rotating only the Y axis.
-    /// </summary>
-    YAxisViewVector,
-
-    /// <summary>
-    /// Transforms the Z axis parallel to the direction of the camera by rotating only the Y axis.
-    /// </summary>
-    YAxisViewPoint
-};
-
-enum class BoneFlagsTransform
-{
-    None,
-    ScaleUniform,
-    ScaleVolumeOne,
-    RotateZero,
-    TranslateZero,
-    ScaleOne,
-    RotateTranslateZero,
-    Identity
-};
-
-enum class BoneFlagsTransformCumulative
-{
-	None,
-	ScaleUniform,
-	ScaleVolumeOne,
-	RotateZero,
-	TranslateZero,
-	ScaleOne,
-	RotateTranslateZero,
-	Identity
-};
-
-enum class GX2PrimitiveType
-{
-    //
-    // Summary:
-    //     Requires at least 1 element and 1 more to draw another primitive.
-    Points = 1,
-    //
-    // Summary:
-    //     Requires at least 2 elements and 2 more to draw another primitive.
-    Lines = 2,
-    //
-    // Summary:
-    //     Requires at least 2 elements and 1 more to draw another primitive.
-    LineStrip = 3,
-    //
-    // Summary:
-    //     Requires at least 3 elements and 3 more to draw another primitive.
-    Triangles = 4,
-    //
-    // Summary:
-    //     Requires at least 3 elements and 1 more to draw another primitive.
-    TriangleFan = 5,
-    //
-    // Summary:
-    //     Requires at least 3 elements and 1 more to draw another primitive.
-    TriangleStrip = 6,
-    //
-    // Summary:
-    //     Requires at least 4 elements and 4 more to draw another primitive.
-    LinesAdjacency = 10,
-    //
-    // Summary:
-    //     Requires at least 4 elements and 1 more to draw another primitive.
-    LineStripAdjacency = 11,
-    //
-    // Summary:
-    //     Requires at least 6 elements and 6 more to draw another primitive.
-    TrianglesAdjacency = 12,
-    //
-    // Summary:
-    //     Requires at least 6 elements and 2 more to draw another primitive.
-    TriangleStripAdjacency = 13,
-    //
-    // Summary:
-    //     Requires at least 3 elements and 3 more to draw another primitive.
-    Rects = 17,
-    //
-    // Summary:
-    //     Requires at least 2 elements and 1 more to draw another primitive.
-    LineLoop = 18,
-    //
-    // Summary:
-    //     Requires at least 4 elements and 4 more to draw another primitive.
-    Quads = 19,
-    //
-    // Summary:
-    //     Requires at least 4 elements and 2 more to draw another primitive.
-    QuadStrip = 20,
-    //
-    // Summary:
-    //     Requires at least 2 elements and 2 more to draw another primitive.
-    TessellateLines = 130,
-    //
-    // Summary:
-    //     Requires at least 2 elements and 1 more to draw another primitive.
-    TessellateLineStrip = 131,
-    //
-    // Summary:
-    //     Requires at least 3 elements and 3 more to draw another primitive.
-    TessellateTriangles = 132,
-    //
-    // Summary:
-    //     Requires at least 3 elements and 1 more to draw another primitive.
-    TessellateTriangleStrip = 134,
-    //
-    // Summary:
-    //     Requires at least 4 elements and 4 more to draw another primitive.
-    TessellateQuads = 147,
-    //
-    // Summary:
-    //     Requires at least 4 elements and 2 more to draw another primitive.
-    TessellateQuadStrip = 148
-};
-
-enum class GX2IndexFormat
-{
-    UInt16LittleEndian = 0,
-    UInt32LittleEndian = 1,
-    UInt16 = 4,
-    UInt32 = 9
-};
-
-enum class ShapeFlags
-{
-    /// <summary>
-    /// The <see cref="Shape"/> instance references a <see cref="VertexBuffer"/>.
-    /// </summary>
-    HasVertexBuffer = 1 << 1,
-
-    /// <summary>
-    /// The boundings in all submeshes are consistent.
-    /// </summary>
-    SubMeshBoundaryConsistent = 1 << 2
-};
-
-
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 struct ShaderAssign
@@ -226,20 +32,7 @@ struct RenderInfo
     // TODO
 };
 
-/// <summary>
-/// Represents how to treat texture coordinates outside of the normalized coordinate texture range.
-/// </summary>
-enum class GX2TexClamp
-{
-    Wrap,
-    Mirror,
-    Clamp,
-    MirrorOnce,
-    ClampHalfBorder,
-    MirrorOnceHalfBorder,
-    ClampBorder,
-    MirrorOnceBorder
-};
+
 
 /// <summary>
 /// Represents desired texture filter options within a plane.
@@ -325,8 +118,26 @@ enum class GX2TextureMapType
     eMAX
 };
 
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 struct TextureRef 
 {
+	/// <summary>
+    /// Represents how to treat texture coordinates outside of the normalized coordinate texture range.
+    /// </summary>
+	enum class GX2TexClamp
+	{
+		Wrap,
+		Mirror,
+		Clamp,
+		MirrorOnce,
+		ClampHalfBorder,
+		MirrorOnceHalfBorder,
+		ClampBorder,
+		MirrorOnceBorder
+	};
+
     std::string         name;
     GX2TexClamp         clampX;
     GX2TexClamp         clampY;
@@ -348,6 +159,9 @@ struct TextureRef
     uint32              textureUnit;
 };
 
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 struct TextureRefs
 {
     bool hasDiffuseMap   = false;
@@ -425,6 +239,96 @@ struct FVTX
 // -----------------------------------------------------------------------
 struct LODMesh
 {
+	enum class GX2PrimitiveType
+	{
+		//
+		// Summary:
+		//     Requires at least 1 element and 1 more to draw another primitive.
+		Points = 1,
+		//
+		// Summary:
+		//     Requires at least 2 elements and 2 more to draw another primitive.
+		Lines = 2,
+		//
+		// Summary:
+		//     Requires at least 2 elements and 1 more to draw another primitive.
+		LineStrip = 3,
+		//
+		// Summary:
+		//     Requires at least 3 elements and 3 more to draw another primitive.
+		Triangles = 4,
+		//
+		// Summary:
+		//     Requires at least 3 elements and 1 more to draw another primitive.
+		TriangleFan = 5,
+		//
+		// Summary:
+		//     Requires at least 3 elements and 1 more to draw another primitive.
+		TriangleStrip = 6,
+		//
+		// Summary:
+		//     Requires at least 4 elements and 4 more to draw another primitive.
+		LinesAdjacency = 10,
+		//
+		// Summary:
+		//     Requires at least 4 elements and 1 more to draw another primitive.
+		LineStripAdjacency = 11,
+		//
+		// Summary:
+		//     Requires at least 6 elements and 6 more to draw another primitive.
+		TrianglesAdjacency = 12,
+		//
+		// Summary:
+		//     Requires at least 6 elements and 2 more to draw another primitive.
+		TriangleStripAdjacency = 13,
+		//
+		// Summary:
+		//     Requires at least 3 elements and 3 more to draw another primitive.
+		Rects = 17,
+		//
+		// Summary:
+		//     Requires at least 2 elements and 1 more to draw another primitive.
+		LineLoop = 18,
+		//
+		// Summary:
+		//     Requires at least 4 elements and 4 more to draw another primitive.
+		Quads = 19,
+		//
+		// Summary:
+		//     Requires at least 4 elements and 2 more to draw another primitive.
+		QuadStrip = 20,
+		//
+		// Summary:
+		//     Requires at least 2 elements and 2 more to draw another primitive.
+		TessellateLines = 130,
+		//
+		// Summary:
+		//     Requires at least 2 elements and 1 more to draw another primitive.
+		TessellateLineStrip = 131,
+		//
+		// Summary:
+		//     Requires at least 3 elements and 3 more to draw another primitive.
+		TessellateTriangles = 132,
+		//
+		// Summary:
+		//     Requires at least 3 elements and 1 more to draw another primitive.
+		TessellateTriangleStrip = 134,
+		//
+		// Summary:
+		//     Requires at least 4 elements and 4 more to draw another primitive.
+		TessellateQuads = 147,
+		//
+		// Summary:
+		//     Requires at least 4 elements and 2 more to draw another primitive.
+		TessellateQuadStrip = 148
+	};
+	enum class GX2IndexFormat
+	{
+		UInt16LittleEndian = 0,
+		UInt32LittleEndian = 1,
+		UInt16 = 4,
+		UInt32 = 9
+	};
     GX2PrimitiveType primitiveType;
     GX2IndexFormat   indexFormat;
     uint32           indexCount;
@@ -438,6 +342,18 @@ struct LODMesh
 // -----------------------------------------------------------------------
 struct FSHP
 {
+	enum class ShapeFlags
+	{
+		/// <summary>
+		/// The <see cref="Shape"/> instance references a <see cref="VertexBuffer"/>.
+		/// </summary>
+		HasVertexBuffer = 1 << 1,
+
+		/// <summary>
+		/// The boundings in all submeshes are consistent.
+		/// </summary>
+		SubMeshBoundaryConsistent = 1 << 2
+	};
     string                  name;
     ShapeFlags              flags;
     uint32                  modelIndex;
@@ -461,6 +377,88 @@ struct FSHP
 // -----------------------------------------------------------------------
 struct Bone
 {
+	enum class RotationType
+	{
+		Quaternion = 0,
+		EulerXYZ = 4096
+	};
+	enum class BoneFlagsBillboard
+	{
+		/// <summary>
+		/// No transformation is applied.
+		/// </summary>
+		None,
+
+		/// <summary>
+		/// Transforms of the child are applied.
+		/// </summary>
+		Child,
+
+		/// <summary>
+		/// Transforms the Z axis parallel to the camera.
+		/// </summary>
+		WorldViewVector,
+
+		/// <summary>
+		/// Transforms the Z axis parallel to the direction of the camera.
+		/// </summary>
+		WorldViewPoint,
+
+		/// <summary>
+		/// Transforms the Y axis parallel to the camera up vector, and the Z parallel to the camera up-vector.
+		/// </summary>
+		ScreenViewVector,
+
+		/// <summary>
+		/// Transforms the Y axis parallel to the camera up vector, and the Z axis parallel to the direction of the
+		/// camera.
+		/// </summary>
+		ScreenViewPoint,
+
+		/// <summary>
+		/// Transforms the Z axis parallel to the camera by rotating only the Y axis.
+		/// </summary>
+		YAxisViewVector,
+
+		/// <summary>
+		/// Transforms the Z axis parallel to the direction of the camera by rotating only the Y axis.
+		/// </summary>
+		YAxisViewPoint
+	};
+	enum class BoneFlagsRotation
+	{
+		/// <summary>
+		/// A quaternion represents the rotation.
+		/// </summary>
+		Quaternion,
+
+		/// <summary>
+		/// A <see cref="Vector3F"/> represents the Euler rotation in XYZ order.
+		/// </summary>
+		EulerXYZ
+	};
+	enum class BoneFlagsTransform
+	{
+		None,
+		ScaleUniform,
+		ScaleVolumeOne,
+		RotateZero,
+		TranslateZero,
+		ScaleOne,
+		RotateTranslateZero,
+		Identity
+	};
+	enum class BoneFlagsTransformCumulative
+	{
+		None,
+		ScaleUniform,
+		ScaleVolumeOne,
+		RotateZero,
+		TranslateZero,
+		ScaleOne,
+		RotateTranslateZero,
+		Identity
+	};
     uint32                       index;
     string                       name;
     bool                         isVisible;
@@ -510,9 +508,165 @@ struct FMDL
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+struct KeyFrame
+{
+    uint32 m_uiFrame;
+    float  m_fValue;
+    bool   m_bIsDegrees = false;
+    bool   m_bIsWeighted = false;
+    float  m_fSlope1;
+    float  m_fSlope2;
+};
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+struct AnimTrack 
+{
+    enum class CurveInterpolationType
+    {
+        LINEAR   = 0,
+        CONSTANT = 1,
+        HERMITE  = 2,
+        STEP     = 3,
+        STEPBOOL = 4
+    };
+    string                 m_szName;
+    CurveInterpolationType m_eInterpolationType;
+    bool                   m_bConstant;
+    uint32                 m_cFrames;
+    uint32                 m_uiStartFrame;
+    uint32                 m_uiEndFrame;
+    float                  m_fDelta;
+    uint32                 m_cKeys;
+    vector<KeyFrame>       m_vKeyFrames;
+};
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+struct BoneAnim 
+{
+    enum class AnimRotationType
+	{
+		EULER = 0,
+		QUATERNION
+	};
+
+    string           m_szName;
+    int32            m_iHash;
+    AnimRotationType m_eRotType;
+    bool             m_bUseSegmentScaleCompensate;
+    AnimTrack        m_XSCA;
+    AnimTrack        m_YSCA;
+    AnimTrack        m_ZSCA;
+    AnimTrack        m_XROT;
+    AnimTrack        m_YROT;
+    AnimTrack        m_ZROT;
+    AnimTrack        m_WROT;
+    AnimTrack        m_XPOS;
+    AnimTrack        m_YPOS;
+    AnimTrack        m_ZPOS;
+};
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+struct UserData 
+{
+	/// <summary>
+	/// Represents the possible data types of values stored in <see cref="UserData"/> instances.
+	/// </summary>
+	enum class UserDataType
+	{
+		/// <summary>
+		/// The values is an <see cref="Int32"/> array.
+		/// </summary>
+		Int32,
+
+		/// <summary>
+		/// The values is a <see cref="Single"/> array.
+		/// </summary>
+		Single,
+
+		/// <summary>
+		/// The values is a <see cref="String"/> array encoded in ASCII.
+		/// </summary>
+		String,
+
+		/// <summary>
+		/// The values is a <see cref="String"/> array encoded in UTF-16.
+		/// </summary>
+		WString,
+
+		/// <summary>
+		/// The values is a <see cref="Byte"/> array.
+		/// </summary>
+		Byte
+	};
+
+    string       m_szName;
+    UserDataType m_eType;
+    double       m_fValue;
+};
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+struct Anim 
+{
+	/// <summary>
+    /// Represents the data format in which scaling values are stored.
+    /// </summary>
+	enum class SkeletalAnimFlagsScale
+	{
+		/// <summary>
+		/// No scaling.
+		/// </summary>
+		None,
+
+		/// <summary>
+		/// Default scaling.
+		/// </summary>
+		Standard = 1 << 8,
+
+		/// <summary>
+		/// Autodesk Maya scaling.
+		/// </summary>
+		Maya = 2 << 8,
+
+		/// <summary>
+		/// Autodesk Softimage scaling.
+		/// </summary>
+		Softimage = 3 << 8
+	};
+    std::string            m_szName;
+    bool                   m_bIsBaked;
+    bool                   m_bIsLooping;
+    SkeletalAnimFlagsScale m_eScalingType;
+    uint32                 m_cFrames;
+    uint32                 m_cBoneAnims;
+    // BakedSize not stored
+    uint32                 m_cUserData;
+    // BindIndices not stored
+    vector<BoneAnim>       m_vBoneAnims;
+    vector<UserData>       m_vUserData;
+};
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+struct FSKA
+{
+    vector<Anim> anims;
+};
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 struct BFRES
 {
 	vector<FMDL> fmdl;
+    vector<FSKA> fska;
 };
 
 class BFRESManager

@@ -161,6 +161,26 @@ void PrintMesh(FbxNode* currNode)
 
 // ---------------------------------------------
 // ---------------------------------------------
+void PrintAnimLayerMembersAndChannels(FbxAnimLayer* lAnimLayer)
+{
+    std::cout << "Anim layer Member count: " << lAnimLayer->GetMemberCount() << "\n";
+    for (uint32 i = 0; i < lAnimLayer->GetMemberCount(); ++i)
+    {
+        FbxAnimCurveNode* pCurveNode = (FbxAnimCurveNode*)lAnimLayer->GetMember(i);
+        std::cout << "Curve Node " << i << " name: " << pCurveNode->GetName() << "\n";
+        std::cout << "Curve Node " << i << " Channels: " << pCurveNode->GetChannelsCount() << "\n";
+        for (uint32 j = 0; j < pCurveNode->GetChannelsCount(); j++)
+        {
+            std::cout << "Channel " << j << " name: " << pCurveNode->GetChannelName(j) << "\n";
+        }
+        std::cout << "\n";
+    }
+}
+
+
+
+// ---------------------------------------------
+// ---------------------------------------------
 int main()
 {
     // create a SdkManager
@@ -191,7 +211,6 @@ int main()
         if( pScene->GetNode( i )->GetNodeAttribute() )
         {
             std::string attributeType;
-            std::cout << "Attribute type: " << attributeType << "\n";
             switch( pScene->GetNode( i )->GetNodeAttribute()->GetAttributeType() )
             {
             case 3:
@@ -204,7 +223,7 @@ int main()
             default:
                 break;
             }
-
+            std::cout << "Attribute type: " << attributeType << "\n";
         }
 
         if( pScene->GetNode( i )->GetParent() )
@@ -219,7 +238,6 @@ int main()
                 if (childNode->GetNodeAttribute())
                 {
                     std::string attributeType;
-                    std::cout << "Attribute type: " << attributeType << "\n";
                     switch (childNode->GetNodeAttribute()->GetAttributeType())
                     {
                     case 3:
@@ -232,6 +250,7 @@ int main()
                     default:
                         break;
                     }
+                    std::cout << "Attribute type: " << attributeType << "\n";
                 }
             }
         }
@@ -239,10 +258,58 @@ int main()
 
         
     }
+    
     FbxAnimStack* animStack = pScene->GetCurrentAnimationStack();
-    FbxString* stringArray = new FbxString();
+    FbxArray< FbxString* > stringArray;
     pScene->FillAnimStackNameArray(stringArray);
+
+    // An anim stack seems to correlate with an animation
     std::cout << "Anim stack name: " << animStack->GetName() << "\n";
+    // It seems to have 1 member, an Anim Layer
     std::cout << "Anim stack member count: " << animStack->GetMemberCount() << "\n";
+    // The anim layer is named the same thing as the anim stack - one per animation
+    FbxAnimLayer* lAnimLayer = (FbxAnimLayer*) animStack->GetMember(0);
+    std::cout << "Member name: " << lAnimLayer->GetName() << "\n";
+
+    // The anim layer has 405 members, each a curve node named 'T', 'R', or 'S'.
+    // 405 divided by 3 is 135, which is the amount of bones in the skeleton.
+    
+    // PrintAnimLayerMembersAndChannels(lAnimLayer);
+
+    std::cout << "Anim layer Member count: " << lAnimLayer->GetMemberCount() << "\n";
+    uint32 cBones = (lAnimLayer->GetMemberCount() / 3);
+    for (uint32 i = 0; i < cBones; i++)
+    {
+        std::cout << "Bone index: " << i << "\n";
+        FbxAnimCurveNode* pCurveNode = (FbxAnimCurveNode*)lAnimLayer->GetMember(i * 3);
+        std::cout << "Curve Node " << (i * 3) << " name: " << pCurveNode->GetName() << "\n";
+        for (uint32 j = 0; j < pCurveNode->GetChannelsCount(); j++)
+        {
+            std::cout << "Channel " << j << " name: " << pCurveNode->GetChannelName(j) << "\n";
+        }
+
+        pCurveNode = (FbxAnimCurveNode*)lAnimLayer->GetMember((i * 3) + 1);
+        std::cout << "Curve Node " << ((i * 3) + 1) << " name: " << pCurveNode->GetName() << "\n";
+        for (uint32 j = 0; j < pCurveNode->GetChannelsCount(); j++)
+        {
+            FbxAnimCurve* lCurve = pCurveNode->GetCurve(j);
+            std::cout << "Channel " << j << " name: " << lCurve->GetName() << "\n";
+            std::cout << "Channel " << j << " Key count: " << lCurve->KeyGetCount() << "\n";
+            //std::cout << "Channel " << j << " name: " << pCurveNode->GetChannelName(j) << "\n";
+        }
+
+        pCurveNode = (FbxAnimCurveNode*)lAnimLayer->GetMember((i * 3) + 2);
+        std::cout << "Curve Node " << ((i * 3) + 2) << " name: " << pCurveNode->GetName() << "\n";
+        for (uint32 j = 0; j < pCurveNode->GetChannelsCount(); j++)
+        {
+            //FbxAnimCurve* lCurve = pCurveNode->GetCurve(j);
+            //std::cout << "Channel " << j << " name: " << lCurve->GetName() << "\n";
+            //std::cout << "Channel " << j << " Key count: " << lCurve->KeyGetCount() << "\n";
+            std::cout << "Channel " << j << " name: " << pCurveNode->GetChannelName(j) << "\n";
+        }
+        std::cout << "\n";
+    }
+    
+    
     return 0;
 }

@@ -31,8 +31,25 @@ public:
 		SkinningType eSkinningType;
 	};
 
+    enum class AnimTrackType
+    {
+        eTranslation,
+        eRotation,
+        eScale,
+        NUM_ANIM_TRACK_TYPES
+    };
+
     void CreateFBX(FbxScene*& pScene, const BFRES& bfres);
-    void WriteModel(FbxScene*& pScene, const FMDL& fmdl, uint32 fmdlIndex);
+
+    // Animation shit
+    void WriteAnimations( FbxScene*& pScene, const Anim& anim );
+    void CreateTranslationAnimCurveNode( FbxAnimLayer*& pAnimLayer, FbxNode*& pBone, const BoneAnim& boneAnim );
+    void CreateScaleAnimCurveNode( FbxAnimLayer*& pAnimLayer, FbxNode*& pBone, const BoneAnim& boneAnim );
+    void CreateRotationAnimCurveNode( FbxAnimLayer*& pAnimLayer, FbxNode*& pBone, const BoneAnim& boneAnim );
+    void AddKeyFramesToAnimCurve( FbxAnimCurve*& pAnimCurve, const AnimTrack& animTrack, AnimTrackType animTrackType );
+
+    // Model shit
+    void WriteModel( FbxScene*& pScene, const FMDL& fmdl, uint32 fmdlIndex );
     void WriteSkeleton(FbxScene*& pScene, const FSKL& fskl, std::vector<BoneMetadata>& boneListInfos);
     void WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<BoneMetadata>& boneListInfos, uint32 fmdlIndex);
     void WriteMesh(FbxScene*& pScene, const FSHP& fshp, const LODMesh& lodMesh, std::vector<BoneMetadata>& boneListInfos, uint32 fmdlIndex);

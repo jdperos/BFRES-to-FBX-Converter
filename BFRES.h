@@ -709,9 +709,9 @@ public:
             {
                 return &fmat->textureRefs.textures[i];
             }
-            
         }
-        
+
+        return NULL;
     }
 };
 

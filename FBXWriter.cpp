@@ -15,11 +15,142 @@ FBXWriter::~FBXWriter()
 {
 }
 
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 void FBXWriter::CreateFBX(FbxScene*& pScene, const BFRES& bfres)
 {
     for (uint32 i = 0; i < bfres.fmdl.size(); i++)
     {
         WriteModel(pScene, bfres.fmdl[i], i);
+    }
+
+    for( const Anim& anim : bfres.fska.anims )
+    {
+        WriteAnimations( pScene, anim );
+    }
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void FBXWriter::WriteAnimations( FbxScene*& pScene, const Anim& anim )
+{
+    // One AnimStack per animation
+    FbxAnimStack* pAnimStack = FbxAnimStack::Create( pScene, anim.m_szName.c_str() );
+
+    FbxString tempString = "Anim Stack: ";
+    tempString += anim.m_szName.c_str();
+    pAnimStack->Description = tempString;
+
+    FbxTime fbxTime;
+    fbxTime.SetFrame( anim.m_cFrames, FbxTime::eFrames30 );
+    pAnimStack->LocalStop.Set( fbxTime );
+
+    // One AnimLayer per AnimStack
+    tempString = "Anim Layer: ";
+    tempString += anim.m_szName.c_str();
+    FbxAnimLayer* pAnimLayer = FbxAnimLayer::Create( pScene, tempString );
+    pAnimStack->AddMember( pAnimLayer );
+
+    for( const BoneAnim& boneAnim : anim.m_vBoneAnims )
+    {
+        // Get bone that matches boneAnim name
+        FbxNode* pBone = pScene->FindNodeByName( boneAnim.m_szName.c_str() );
+        assert( pBone );
+        if( pBone )
+        {
+            // Curve Node for Bone Translation
+            CreateTranslationAnimCurveNode( pAnimLayer, pBone, boneAnim );
+
+            // Curve Node for Bone Rotation
+            CreateRotationAnimCurveNode( pAnimLayer, pBone, boneAnim );
+
+            // Curve Node for Bone Scale
+            CreateScaleAnimCurveNode( pAnimLayer, pBone, boneAnim );
+        }
+    }
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void FBXWriter::CreateScaleAnimCurveNode( FbxAnimLayer*& pAnimLayer, FbxNode*& pBone, const BoneAnim& boneAnim )
+{
+    // Add keyframes to X Channel
+    FbxAnimCurve* pXAnimCurve = pBone->LclScaling.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X, true );
+    AddKeyFramesToAnimCurve( pXAnimCurve, boneAnim.m_XSCA, AnimTrackType::eScale );
+
+    // Add keyframes to Y Channel
+    FbxAnimCurve* pYAnimCurve = pBone->LclScaling.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y, true );
+    AddKeyFramesToAnimCurve( pYAnimCurve, boneAnim.m_YSCA, AnimTrackType::eScale );
+
+    // Add keyframes to Z Channel
+    FbxAnimCurve* pZAnimCurve = pBone->LclScaling.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z, true );
+    AddKeyFramesToAnimCurve( pZAnimCurve, boneAnim.m_ZSCA, AnimTrackType::eScale );
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void FBXWriter::CreateRotationAnimCurveNode( FbxAnimLayer*& pAnimLayer, FbxNode*& pBone, const BoneAnim& boneAnim )
+{
+    assert( boneAnim.m_eRotType == BoneAnim::AnimRotationType::EULER );
+
+    // Add keyframes to X Channel
+    FbxAnimCurve* pXAnimCurve = pBone->LclRotation.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X, true );
+    AddKeyFramesToAnimCurve( pXAnimCurve, boneAnim.m_XROT, AnimTrackType::eRotation );
+
+    // Add keyframes to Y Channel
+    FbxAnimCurve* pYAnimCurve = pBone->LclRotation.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y, true );
+    AddKeyFramesToAnimCurve( pYAnimCurve, boneAnim.m_YROT, AnimTrackType::eRotation );
+
+    // Add keyframes to Z Channel
+    FbxAnimCurve* pZAnimCurve = pBone->LclRotation.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z, true );
+    AddKeyFramesToAnimCurve( pZAnimCurve, boneAnim.m_ZROT, AnimTrackType::eRotation );
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void FBXWriter::CreateTranslationAnimCurveNode( FbxAnimLayer*& pAnimLayer, FbxNode*& pBone, const BoneAnim& boneAnim )
+{
+    // Add keyframes to X Channel
+    FbxAnimCurve* pXAnimCurve = pBone->LclTranslation.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X, true );
+    AddKeyFramesToAnimCurve( pXAnimCurve, boneAnim.m_XPOS, AnimTrackType::eTranslation );
+
+    // Add keyframes to Y Channel
+    FbxAnimCurve* pYAnimCurve = pBone->LclTranslation.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y, true );
+    AddKeyFramesToAnimCurve( pYAnimCurve, boneAnim.m_YPOS, AnimTrackType::eTranslation );
+
+    // Add keyframes to Z Channel
+    FbxAnimCurve* pZAnimCurve = pBone->LclTranslation.GetCurve( pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z, true );
+    AddKeyFramesToAnimCurve( pZAnimCurve, boneAnim.m_ZPOS, AnimTrackType::eTranslation );
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void FBXWriter::AddKeyFramesToAnimCurve( FbxAnimCurve*& pAnimCurve, const AnimTrack& animTrack, AnimTrackType animTrackType )
+{
+    if( pAnimCurve && ( animTrack.m_cKeys > 1 ) )
+    {
+        assert( animTrack.m_eInterpolationType == AnimTrack::CurveInterpolationType::HERMITE );
+        pAnimCurve->KeyModifyBegin();
+        for( uint32 i = 1; i < animTrack.m_cKeys; ++i )
+        {
+            const KeyFrame& keyFrame = animTrack.m_vKeyFrames[ i ];
+            FbxTime fbxTime;
+            fbxTime.SetFrame( keyFrame.m_uiFrame, FbxTime::eFrames30 );
+            uint32 uiKeyIndex = pAnimCurve->KeyAdd( fbxTime );
+
+            float fValue = keyFrame.m_fValue;
+            if( animTrackType == AnimTrackType::eRotation )
+                fValue = ( float ) Math::ConvertRadiansToDegrees( fValue );
+
+            pAnimCurve->KeySet( uiKeyIndex, fbxTime, fValue, FbxAnimCurveDef::eInterpolationCubic, FbxAnimCurveDef::eTangentAuto, keyFrame.m_fSlope1, keyFrame.m_fSlope2 );
+        }
+        pAnimCurve->KeyModifyEnd();
     }
 }
 
@@ -47,10 +178,10 @@ void FBXWriter::WriteSkeleton(FbxScene*& pScene, const FSKL& fskl, std::vector<B
     const uint32 uiTotalBones = fskl.bones.size();
     std::vector<FbxNode*> boneNodes(uiTotalBones);
 
-    for (int32 i = 0; i < uiTotalBones; i++)
+    for (uint32 i = 0; i < uiTotalBones; i++)
         CreateBone(pScene, fskl.bones[i], boneNodes[i], boneInfoList);
 
-    for (int32 i = 0; i < uiTotalBones; i++)
+    for (uint32 i = 0; i < uiTotalBones; i++)
     {
         const Bone& bone = fskl.bones[i];
         if (bone.parentIndex >= 0)

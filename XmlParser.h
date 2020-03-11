@@ -30,17 +30,7 @@ public:
 
     static void ParseDocument(File &file, Document &doc);
 
-    static void ParseFMDL(FMDL& fmdl, Element* pElement);
-    static void ParseFSKL(FSKL& fskl, Element* pElement);
-    static void ParseBone(Bone& bone, Element* pElement);
 
-    static void ParseTextureRefs(TextureRefs& textureRefs, Element* pElement);
-    static void ParseMaterials(std::vector <FMAT>& fmats, Element* pElement);
-    static void ParseFMAT(FMAT& fmat, Element* pElement);
-    static void ParseShapes(uint32 modelIndex, std::vector<FSHP>& fshps, Element* pElement);
-    static void ParseFSHP(FSHP& fshp, Element* pElement);
-    static void ParseLODMesh(LODMesh& lodMesh, Element* pElement);
-    static void ParseFVTX(FVTX& fvtx, Element* pElement);
 
     // General type parsers
     template<uint32 uiLen>
@@ -525,6 +515,80 @@ public:
         return true;
     }
 
+	template<uint32 uiLen>
+	static bool ParseAttributeSkeletalAnimFlagsScale(Anim::SkeletalAnimFlagsScale& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "None"      ) eType = Anim::SkeletalAnimFlagsScale::None;
+		else if (token == "Standard"  ) eType = Anim::SkeletalAnimFlagsScale::Standard;
+		else if (token == "Maya"      ) eType = Anim::SkeletalAnimFlagsScale::Maya;
+		else if (token == "Softimage" ) eType = Anim::SkeletalAnimFlagsScale::Softimage;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+	template<uint32 uiLen>
+	static bool ParseAttributeAnimRotationType(BoneAnim::AnimRotationType& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "EULER"     ) eType = BoneAnim::AnimRotationType::EULER;
+		else if (token == "QUATERNION") eType = BoneAnim::AnimRotationType::QUATERNION;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+	template<uint32 uiLen>
+	static bool ParseAttributeCurveInterpolationType(AnimTrack::CurveInterpolationType& eType, Element* pElement, const char(&attrName)[uiLen])
+	{
+		std::string token = "";
+		if (!ParseAttributeString(token, pElement, attrName))
+			return false;
+
+		if      (token == "LINEAR"  ) eType = AnimTrack::CurveInterpolationType::LINEAR;
+		else if (token == "CONSTANT") eType = AnimTrack::CurveInterpolationType::CONSTANT;
+		else if (token == "HERMITE" ) eType = AnimTrack::CurveInterpolationType::HERMITE;
+		else if (token == "STEP"    ) eType = AnimTrack::CurveInterpolationType::STEP;
+        else if (token == "STEPBOOL") eType = AnimTrack::CurveInterpolationType::STEPBOOL;
+		else
+		{
+			assert(0 && "Invalid argument");
+			return false;
+		}
+		return true;
+	}
+
+private:
+	static void ParseFMDL(FMDL& fmdl, Element* pElement);
+	static void ParseFSKL(FSKL& fskl, Element* pElement);
+	static void ParseBone(Bone& bone, Element* pElement);
+
+	static void ParseTextureRefs(TextureRefs& textureRefs, Element* pElement);
+	static void ParseMaterials(std::vector <FMAT>& fmats, Element* pElement);
+	static void ParseFMAT(FMAT& fmat, Element* pElement);
+	static void ParseShapes(uint32 modelIndex, std::vector<FSHP>& fshps, Element* pElement);
+	static void ParseFSHP(FSHP& fshp, Element* pElement);
+	static void ParseLODMesh(LODMesh& lodMesh, Element* pElement);
+	static void ParseFVTX(FVTX& fvtx, Element* pElement);
+
+	static void ParseFSKA(FSKA& fska, Element* pElement);
+	static void ParseAnim(Anim& anim, Element* pElement);
+    static void ParseBoneAnim(BoneAnim& boneAnim, Element* pElement);
+    static void ParseAnimTrack(AnimTrack& animTrack, Element* pElement);
+    static void ParseKeyFrame(KeyFrame& keyFrame, Element* pElement);
 };
 
 

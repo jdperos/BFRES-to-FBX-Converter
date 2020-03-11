@@ -605,9 +605,9 @@ struct UserData
 		Byte
 	};
 
-    string       m_szName;
-    UserDataType m_eType;
-    double       m_fValue;
+    string        m_szName;
+    UserDataType  m_eType;
+    vector<float> m_vfValues;
 };
 
 // -----------------------------------------------------------------------
@@ -666,7 +666,7 @@ struct FSKA
 struct BFRES
 {
 	vector<FMDL> fmdl;
-    vector<FSKA> fska;
+    FSKA         fska;
 };
 
 class BFRESManager

@@ -325,31 +325,31 @@ public:
     }
 
     template<uint32 uiLen>
-    static bool ParseAttributeGX2PrimitiveType(GX2PrimitiveType& eType, Element* pElement, const char(&attrName)[uiLen])
+    static bool ParseAttributeGX2PrimitiveType(LODMesh::GX2PrimitiveType& eType, Element* pElement, const char(&attrName)[uiLen])
     {
         std::string token = "";
         if (!ParseAttributeString(token, pElement, attrName))
             return false;
 
-        if      (token == "Points"                 )    eType = GX2PrimitiveType::Points;
-        else if (token == "Lines"                  )    eType = GX2PrimitiveType::Lines;
-        else if (token == "LineStrip"              )    eType = GX2PrimitiveType::LineStrip;
-        else if (token == "Triangles"              )    eType = GX2PrimitiveType::Triangles;
-        else if (token == "TriangleFan"            )    eType = GX2PrimitiveType::TriangleFan;
-        else if (token == "TriangleStrip"          )    eType = GX2PrimitiveType::TriangleStrip;
-        else if (token == "LinesAdjacency"         )    eType = GX2PrimitiveType::LinesAdjacency;
-        else if (token == "LineStripAdjacency"     )    eType = GX2PrimitiveType::LineStripAdjacency;
-        else if (token == "TriangleStripAdjacency" )    eType = GX2PrimitiveType::TriangleStripAdjacency;
-        else if (token == "Rects"                  )    eType = GX2PrimitiveType::Rects;
-        else if (token == "LineLoop"               )    eType = GX2PrimitiveType::LineLoop;
-        else if (token == "Quads"                  )    eType = GX2PrimitiveType::Quads;
-        else if (token == "QuadStrip"              )    eType = GX2PrimitiveType::QuadStrip;
-        else if (token == "TessellateLines"        )    eType = GX2PrimitiveType::TessellateLines;
-        else if (token == "TessellateLineStrip"    )    eType = GX2PrimitiveType::TessellateLineStrip;
-        else if (token == "TessellateTriangles"    )    eType = GX2PrimitiveType::TessellateTriangles;
-        else if (token == "TessellateTriangleStrip")    eType = GX2PrimitiveType::TessellateTriangleStrip;
-        else if (token == "TessellateQuads"        )    eType = GX2PrimitiveType::TessellateQuads;
-        else if (token == "TessellateQuadStrip"    )    eType = GX2PrimitiveType::TessellateQuadStrip;
+        if      (token == "Points"                 )    eType = LODMesh::GX2PrimitiveType::Points;
+        else if (token == "Lines"                  )    eType = LODMesh::GX2PrimitiveType::Lines;
+        else if (token == "LineStrip"              )    eType = LODMesh::GX2PrimitiveType::LineStrip;
+        else if (token == "Triangles"              )    eType = LODMesh::GX2PrimitiveType::Triangles;
+        else if (token == "TriangleFan"            )    eType = LODMesh::GX2PrimitiveType::TriangleFan;
+        else if (token == "TriangleStrip"          )    eType = LODMesh::GX2PrimitiveType::TriangleStrip;
+        else if (token == "LinesAdjacency"         )    eType = LODMesh::GX2PrimitiveType::LinesAdjacency;
+        else if (token == "LineStripAdjacency"     )    eType = LODMesh::GX2PrimitiveType::LineStripAdjacency;
+        else if (token == "TriangleStripAdjacency" )    eType = LODMesh::GX2PrimitiveType::TriangleStripAdjacency;
+        else if (token == "Rects"                  )    eType = LODMesh::GX2PrimitiveType::Rects;
+        else if (token == "LineLoop"               )    eType = LODMesh::GX2PrimitiveType::LineLoop;
+        else if (token == "Quads"                  )    eType = LODMesh::GX2PrimitiveType::Quads;
+        else if (token == "QuadStrip"              )    eType = LODMesh::GX2PrimitiveType::QuadStrip;
+        else if (token == "TessellateLines"        )    eType = LODMesh::GX2PrimitiveType::TessellateLines;
+        else if (token == "TessellateLineStrip"    )    eType = LODMesh::GX2PrimitiveType::TessellateLineStrip;
+        else if (token == "TessellateTriangles"    )    eType = LODMesh::GX2PrimitiveType::TessellateTriangles;
+        else if (token == "TessellateTriangleStrip")    eType = LODMesh::GX2PrimitiveType::TessellateTriangleStrip;
+        else if (token == "TessellateQuads"        )    eType = LODMesh::GX2PrimitiveType::TessellateQuads;
+        else if (token == "TessellateQuadStrip"    )    eType = LODMesh::GX2PrimitiveType::TessellateQuadStrip;
         else
         {
             assert(0 && "Invalid argument");
@@ -359,20 +359,20 @@ public:
     }
 
 	template<uint32 uiLen>
-    static bool ParseAttributeGX2TexClamp(GX2TexClamp& eType, Element* pElement, const char(&attrName)[uiLen])
+    static bool ParseAttributeGX2TexClamp(TextureRef::GX2TexClamp& eType, Element* pElement, const char(&attrName)[uiLen])
     {
         std::string token = "";
         if (!ParseAttributeString(token, pElement, attrName))
             return false;
 
-		if      (token == "Wrap"                )    eType = GX2TexClamp::Wrap;
-		else if (token == "Mirror"              )    eType = GX2TexClamp::Mirror;
-		else if (token == "Clamp"               )    eType = GX2TexClamp::Clamp;
-		else if (token == "MirrorOnce"          )    eType = GX2TexClamp::MirrorOnce;
-		else if (token == "ClampHalfBorder"     )    eType = GX2TexClamp::ClampHalfBorder;
-		else if (token == "MirrorOnceHalfBorder")    eType = GX2TexClamp::MirrorOnceHalfBorder;
-		else if (token == "ClampBorder"         )    eType = GX2TexClamp::ClampBorder;
-		else if (token == "MirrorOnceBorder"    )    eType = GX2TexClamp::MirrorOnceBorder;
+		if      (token == "Wrap"                )    eType = TextureRef::GX2TexClamp::Wrap;
+		else if (token == "Mirror"              )    eType = TextureRef::GX2TexClamp::Mirror;
+		else if (token == "Clamp"               )    eType = TextureRef::GX2TexClamp::Clamp;
+		else if (token == "MirrorOnce"          )    eType = TextureRef::GX2TexClamp::MirrorOnce;
+		else if (token == "ClampHalfBorder"     )    eType = TextureRef::GX2TexClamp::ClampHalfBorder;
+		else if (token == "MirrorOnceHalfBorder")    eType = TextureRef::GX2TexClamp::MirrorOnceHalfBorder;
+		else if (token == "ClampBorder"         )    eType = TextureRef::GX2TexClamp::ClampBorder;
+		else if (token == "MirrorOnceBorder"    )    eType = TextureRef::GX2TexClamp::MirrorOnceBorder;
         else
         {
             assert(0 && "Invalid argument");

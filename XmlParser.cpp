@@ -268,7 +268,7 @@ namespace XML
     void XmlParser::ParseLODMesh(LODMesh& lodMesh, Element* pElement)
     {
         // Parse primitive and index type for real instead of hardcoding these values
-        lodMesh.primitiveType = GX2PrimitiveType::Triangles;
+        lodMesh.primitiveType = LODMesh::GX2PrimitiveType::Triangles;
         lodMesh.indexFormat = GX2IndexFormat::UInt16;
         ParseAttributeUInt(lodMesh.indexCount      , pElement, "IndexCount"  );
         ParseAttributeUInt(lodMesh.firstVertex     , pElement, "FirstVertex" );

@@ -71,7 +71,7 @@ void FBXWriter::CreateBone(FbxScene*& pScene, const Bone& bone, FbxNode*& lBoneN
     // Set transform data
     FbxDouble3 fBoneScale = FbxDouble3(bone.scale.X, bone.scale.Y, bone.scale.Z);
     lBoneNode->LclScaling.Set(fBoneScale);
-    if (bone.rotationType == RotationType::EulerXYZ)
+    if (bone.rotationType == Bone::RotationType::EulerXYZ)
     {
         FbxDouble3 fBoneRot = FbxDouble3(
             Math::ConvertRadiansToDegrees(bone.rotation.X),

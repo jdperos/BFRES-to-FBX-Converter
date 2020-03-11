@@ -306,16 +306,16 @@ public:
 
     // Enum parser templates
     template<uint32 uiLen>
-    static bool ParseAttributeRotationType(RotationType& eType, Element* pElement, const char(&attrName)[uiLen])
+    static bool ParseAttributeRotationType(Bone::RotationType& eType, Element* pElement, const char(&attrName)[uiLen])
     {
         std::string token = "";
         if (!ParseAttributeString(token, pElement, attrName))
             return false;
 
         if (token == "Quaternion")
-            eType = RotationType::Quaternion;
+            eType = Bone::RotationType::Quaternion;
         else if (token == "EulerXYZ")
-            eType = RotationType::EulerXYZ;
+            eType = Bone::RotationType::EulerXYZ;
         else
         {
             assert(0 && "Invalid argument");

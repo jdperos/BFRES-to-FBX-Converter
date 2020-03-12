@@ -27,7 +27,12 @@ namespace BFRES_Importer
             }
             FileName = Path.GetFileNameWithoutExtension(FilePath);
 
-            ResU.ResFile res = new ResU.ResFile(FilePath);
+            ResU.ResFile res;
+            if (FilePath.EndsWith(".sbfres"))
+                res = new ResU.ResFile(new System.IO.MemoryStream(EveryFileExplorer.YAZ0.Decompress(FilePath)));
+            else
+                res = new ResU.ResFile(FilePath);
+
             WriteResToXML(res);
         }
 

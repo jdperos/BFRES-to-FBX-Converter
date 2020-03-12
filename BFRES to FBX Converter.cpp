@@ -78,7 +78,7 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
 int main()
 {
     std::string medianFilePath = MEDIAN_FILE_DIR;
-    medianFilePath.append( "Dump.xml" );
+    medianFilePath.append( "Npc_Gerudo_Queen.xml" );
 
     BFRESStructs::BFRES* bfres = g_BFRESManager.GetBFRES();
     XML::XmlParser::Parse(medianFilePath.c_str(), *bfres);

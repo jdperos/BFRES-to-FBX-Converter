@@ -454,7 +454,7 @@ void FBXWriter::SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSu
             break;
         }
 
-        std::string filePath = MEDIAN_FILE_DIR + textureName + ".tga";
+        std::string filePath = ( MEDIAN_FILE_DIR + (std::string)"Textures/" + textureName + ".tga" );
 		lTexture->SetFileName(filePath.c_str());
 		lTexture->SetTextureUse(textureUse);
 		lTexture->SetMappingType(FbxTexture::eUV);

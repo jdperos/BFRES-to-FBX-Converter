@@ -4,4 +4,4 @@
 #define OUTPUT_FILE_DIR "FBXExports/"
 #define PRINT_DEBUG_INFO false
 #define FLIP_UV_VERTICAL true
-#define WRITE_TEXTURES false
+#define WRITE_TEXTURES true

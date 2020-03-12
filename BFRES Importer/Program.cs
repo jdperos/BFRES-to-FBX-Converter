@@ -17,7 +17,7 @@ namespace BFRES_Importer
         {
             if (args.Length == 0)
             {
-                FilePath = (AssetDir + "Npc_Gerudo_Queen.Tex1.bfres");
+                FilePath = (AssetDir + "Npc_Gerudo_Queen.Tex2.bfres");
                 OutputDir = "../../../../MedianDumps/";
             }
             else
@@ -70,9 +70,11 @@ namespace BFRES_Importer
                             jpTexture.SaveBitMap(OutputDir + "Mips/" + jpTexture.Name + i + ".tga", false, false, 0, i);
                         }
                     else
+                    {
                         if (!Directory.Exists(OutputDir + "Textures/"))
                             Directory.CreateDirectory(OutputDir + "Textures/");
-                    jpTexture.SaveBitMap(OutputDir + "Textures/" + jpTexture.Name + ".tga");
+                        jpTexture.SaveBitMap(OutputDir + "Textures/" + jpTexture.Name + ".tga");
+                    }
                     FTEX.WriteFTEXData(writer, res.Textures[ii]);
                 }
                 writer.WriteEndElement();

@@ -9,12 +9,24 @@ namespace BFRES_Importer
     class Program
     {
         const string AssetDir = "../../../../TestAssets/";
-        const string OutputDir = "../../../../MedianDumps/";
         public static string FilePath;
+        public static string FileName;
+        public static string OutputDir;
 
         static void Main(string[] args)
         {
-            FilePath = (AssetDir + "Npc_Gerudo_Queen_Animation.bfres");
+            if (args.Length == 0)
+            {
+                FilePath = (AssetDir + "Npc_Gerudo_Queen_Animation.bfres");
+                OutputDir = "../../../../MedianDumps/";
+            }
+            else
+            {
+                FilePath = args[0];
+                OutputDir = args[1];
+            }
+            FileName = Path.GetFileNameWithoutExtension(FilePath);
+
             ResU.ResFile res = new ResU.ResFile(FilePath);
             WriteResToXML(res);
         }
@@ -30,7 +42,7 @@ namespace BFRES_Importer
 
             if (!Directory.Exists(Program.OutputDir))
                 Directory.CreateDirectory(Program.OutputDir);
-            XmlWriter writer = XmlWriter.Create(Program.OutputDir + "Dump.xml", settings);
+            XmlWriter writer = XmlWriter.Create(Program.OutputDir + FileName + ".xml", settings);
 
             writer.WriteStartDocument();
             writer.WriteStartElement("BFRES");

@@ -1,9 +1,9 @@
 [submodule "NintenTools.Bfres"]
-	path = NintenTools.Bfres
+	path = src/NintenTools.Bfres
 	url = https://github.com/KillzXGaming/NintenTools.Bfres.git
 [submodule "Maths"]
-	path = Maths
+	path = src/Maths
 	url = https://gitlab.com/Syroot/Maths.git
 [submodule "BinaryData"]
-	path = BinaryData
+	path = src/BinaryData
 	url = https://gitlab.com/Syroot/BinaryData.git

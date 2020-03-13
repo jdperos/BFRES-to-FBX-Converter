@@ -39,7 +39,7 @@ for sbfresFile in sorted(os.listdir(inDir)):
 			print("Subdirectory for filegroup exists already")
 			
 		# Run Importer
-		print("Running Importer: \"" + importerFP + "\" " + os.path.join(inDir,sbfresFile) + " " + fileGroupSubPath + "\\" )
+		print("Running Importer: \"" + importerFP + "\" \"" + os.path.join(inDir,sbfresFile) + "\" \"" + fileGroupSubPath + "\\\"" )
 		os.system("\"" + importerFP + "\" " + os.path.join(inDir,sbfresFile) + " " + fileGroupSubPath + "\\" )
 		
 		inputXMLPath = os.path.join(fileGroupSubPath,fileNameNoExt + ".xml")
@@ -50,5 +50,5 @@ for sbfresFile in sorted(os.listdir(inDir)):
 				print("Export Path" + outputFBXPath)
 				os.system("\"" + exporterFP + "\" " + inputXMLPath + " " + outputFBXPath)
 		
-		os.system("xcopy /y " + inputXMLPath + " "+ os.path.join(fileGroupSubPath,"XMLDumps",""))
-		os.system("del /q " + inputXMLPath)
+		os.system("xcopy /y \"" + inputXMLPath + "\" \""+ os.path.join(fileGroupSubPath,"XMLDumps","\""))
+		os.system("del /q \"" + inputXMLPath + "\"")

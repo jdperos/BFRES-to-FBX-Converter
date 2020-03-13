@@ -18,6 +18,25 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Headers\BFRES.h" />
+    <ClInclude Include="Headers\ConsoleColor.h" />
+    <ClInclude Include="Headers\FBXWriter.h" />
+    <ClInclude Include="Headers\Globals.h" />
+    <ClInclude Include="Headers\JPMath.h" />
+    <ClInclude Include="Headers\MyFBXCube.h" />
+    <ClInclude Include="Headers\Primitives.h" />
+    <ClInclude Include="Headers\resource.h" />
+    <ClInclude Include="Headers\XmlParser.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\BFRES to FBX Converter.cpp" />
+    <ClCompile Include="Source\BFRES.cpp" />
+    <ClCompile Include="Source\FBXWriter.cpp" />
+    <ClCompile Include="Source\Math.cpp" />
+    <ClCompile Include="Source\MyFBXCube.cpp" />
+    <ClCompile Include="Source\XmlParser.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{5D570411-9DEA-47C6-A5BC-8A0CF9C28426}</ProjectGuid>
@@ -90,7 +109,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;FBXSDK_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>libs\FBX SDK\include;libs\RapidXML;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>libs\FBX SDK\include;libs\RapidXML;Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,28 +171,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="BFRES to FBX Converter.cpp" />
-    <ClCompile Include="BFRES.cpp" />
-    <ClCompile Include="FBXWriter.cpp" />
-    <ClCompile Include="Math.cpp" />
-    <ClCompile Include="MyFBXCube.cpp" />
-    <ClCompile Include="XmlParser.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="BFRES.h" />
-    <ClInclude Include="ConsoleColor.h" />
-    <ClInclude Include="FBXWriter.h" />
-    <ClInclude Include="Globals.h" />
-    <ClInclude Include="Math.h" />
-    <ClInclude Include="MyFBXCube.h" />
-    <ClInclude Include="Primitives.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="XmlParser.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="BFRES to FBX Converter.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

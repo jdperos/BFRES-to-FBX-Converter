@@ -2,9 +2,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net472</TargetFramework>
-    <RootNamespace>BFRES_Importer</RootNamespace>
+    <RootNamespace>BFRESImporter</RootNamespace>
     <FileUpgradeFlags>40</FileUpgradeFlags>
-    <UpgradeBackupLocation>D:\Work\BFRES-FBX\BFRES-to-FBX-Converter\Backup\BFRES Importer\</UpgradeBackupLocation>
+    <UpgradeBackupLocation>D:\Work\BFRES-FBX\BFRES-to-FBX-Converter\Backup\BFRESImporter\</UpgradeBackupLocation>
     <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <ItemGroup>

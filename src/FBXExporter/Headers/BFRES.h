@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Math.h"
+#include "JPMath.h"
 #include "Primitives.h"
 
 namespace BFRESStructs

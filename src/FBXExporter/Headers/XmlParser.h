@@ -4,7 +4,7 @@
 #include <iostream>
 #include <assert.h>
 #include <sstream>
-#include "Math.h"
+#include "JPMath.h"
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
 #include "BFRES.h"

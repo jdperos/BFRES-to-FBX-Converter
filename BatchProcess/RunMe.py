@@ -3,10 +3,19 @@ import shutil
 
 initialWD = os.getcwd()
 
+isDebug = false
+if isDebug == true
+	importerDir = "Importer\\Debug"
+	exporterDir = "Exporter\\Debug"
+else
+	importerDir = "Importer\\Release"
+	exporterDir = "Exporter\\Release"
+	
 inDir = os.path.join(initialWD, "In\\")
 outDir = os.path.join(initialWD, "Out\\")
-importerFP = os.path.join(initialWD, "Importer", "BFRES Importer.exe")
-exporterFP = os.path.join(initialWD, "Exporter", "BFRES to FBX Converter.exe")
+
+importerFP = os.path.join(initialWD, importerPath, "BFRESImporter.exe")
+exporterFP = os.path.join(initialWD, exporterPath, "FBXExporter.exe")
 
 for sbfresFile in sorted(os.listdir(inDir)):
 	if sbfresFile.endswith(".sbfres"): 

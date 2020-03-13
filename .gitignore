@@ -343,3 +343,5 @@ healthchecksdb
 /FBXExports/
 /BatchProcess/Importer/
 /BatchProcess/Exporter/
+/BatchProcess/In/
+/BatchProcess/Out/

@@ -1,21 +1,19 @@
+import sys
 import os
 import shutil
 
 initialWD = os.getcwd()
 
-isDebug = false
-if isDebug == true
-	importerDir = "Importer\\Debug"
-	exporterDir = "Exporter\\Debug"
-else
-	importerDir = "Importer\\Release"
-	exporterDir = "Exporter\\Release"
+isDebug = True
+if len(sys.argv) > 1:
+	isDebug = False if sys.argv[1] == "Release" else True  
+configType = "Debug" if isDebug else "Release"
 	
 inDir = os.path.join(initialWD, "In\\")
 outDir = os.path.join(initialWD, "Out\\")
 
-importerFP = os.path.join(initialWD, importerPath, "BFRESImporter.exe")
-exporterFP = os.path.join(initialWD, exporterPath, "FBXExporter.exe")
+importerFP = os.path.join(initialWD, "Importer", configType, "BFRESImporter.exe")
+exporterFP = os.path.join(initialWD, "Exporter", configType, "FBXExporter.exe")
 
 for sbfresFile in sorted(os.listdir(inDir)):
 	if sbfresFile.endswith(".sbfres"): 
@@ -41,15 +39,16 @@ for sbfresFile in sorted(os.listdir(inDir)):
 			print("Subdirectory for filegroup exists already")
 			
 		# Run Importer
-		print("\"" + importerFP + "\" " + inDir + sbfresFile + " " + fileGroupSubPath + "\\" )
-		os.system("\"" + importerFP + "\" " + inDir + sbfresFile + " " + fileGroupSubPath + "\\" )
+		print("Running Importer: \"" + importerFP + "\" " + os.path.join(inDir,sbfresFile) + " " + fileGroupSubPath + "\\" )
+		os.system("\"" + importerFP + "\" " + os.path.join(inDir,sbfresFile) + " " + fileGroupSubPath + "\\" )
 		
+		inputXMLPath = os.path.join(fileGroupSubPath,fileNameNoExt + ".xml")
 		if not sbfresFile.endswith(".Tex1.sbfres"):
 			if not sbfresFile.endswith(".Tex2.sbfres"):
-				print("fileGroupSubPath=" + fileGroupSubPath)
-				inputXMLPath = fileGroupSubPath + "\\" + fileNameNoExt + ".xml"
-				print(inputXMLPath)
+				print("Input XML Path = " + inputXMLPath)
 				outputFBXPath = fileGroupSubPath + "\\"
-				print(outputFBXPath)
+				print("Export Path" + outputFBXPath)
 				os.system("\"" + exporterFP + "\" " + inputXMLPath + " " + outputFBXPath)
 		
+		os.system("xcopy /y " + inputXMLPath + " "+ os.path.join(fileGroupSubPath,"XMLDumps",""))
+		os.system("del /q " + inputXMLPath)

@@ -133,11 +133,11 @@ void FBXWriter::CreateTranslationAnimCurveNode( FbxAnimLayer*& pAnimLayer, FbxNo
 // -----------------------------------------------------------------------
 void FBXWriter::AddKeyFramesToAnimCurve( FbxAnimCurve*& pAnimCurve, const AnimTrack& animTrack, AnimTrackType animTrackType )
 {
-    if( pAnimCurve && ( animTrack.m_cKeys > 1 ) )
+    if( pAnimCurve && ( animTrack.m_cKeys > 0 ) )
     {
         assert( animTrack.m_eInterpolationType == AnimTrack::CurveInterpolationType::HERMITE );
         pAnimCurve->KeyModifyBegin();
-        for( uint32 i = 1; i < animTrack.m_cKeys; ++i )
+        for( uint32 i = 0; i < animTrack.m_cKeys; ++i )
         {
             const KeyFrame& keyFrame = animTrack.m_vKeyFrames[ i ];
             FbxTime fbxTime;

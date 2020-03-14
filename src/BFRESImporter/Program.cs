@@ -9,13 +9,30 @@ namespace BFRES_Importer
     class Program
     {
         const string AssetDir = "../../../../TestAssets/";
-        const string OutputDir = "../../../../MedianDumps/";
         public static string FilePath;
+        public static string FileName;
+        public static string OutputDir;
 
         static void Main(string[] args)
         {
-            FilePath = (AssetDir + "Npc_Gerudo_Queen.bfres");
-            ResU.ResFile res = new ResU.ResFile(FilePath);
+            if (args.Length == 0)
+            {
+                FilePath = (AssetDir + "Npc_Gerudo_Queen.Tex2.bfres");
+                OutputDir = "../../../../MedianDumps/";
+            }
+            else
+            {
+                FilePath = args[0];
+                OutputDir = args[1];
+            }
+            FileName = Path.GetFileNameWithoutExtension(FilePath);
+
+            ResU.ResFile res;
+            if (FilePath.EndsWith(".sbfres"))
+                res = new ResU.ResFile(new System.IO.MemoryStream(EveryFileExplorer.YAZ0.Decompress(FilePath)));
+            else
+                res = new ResU.ResFile(FilePath);
+
             WriteResToXML(res);
         }
 
@@ -30,7 +47,7 @@ namespace BFRES_Importer
 
             if (!Directory.Exists(Program.OutputDir))
                 Directory.CreateDirectory(Program.OutputDir);
-            XmlWriter writer = XmlWriter.Create(Program.OutputDir + "Dump.xml", settings);
+            XmlWriter writer = XmlWriter.Create(Program.OutputDir + FileName + ".xml", settings);
 
             writer.WriteStartDocument();
             writer.WriteStartElement("BFRES");
@@ -58,12 +75,22 @@ namespace BFRES_Importer
                             jpTexture.SaveBitMap(OutputDir + "Mips/" + jpTexture.Name + i + ".tga", false, false, 0, i);
                         }
                     else
-                        jpTexture.SaveBitMap(OutputDir + jpTexture.Name + ".tga");
+                    {
+                        if (!Directory.Exists(OutputDir + "Textures/"))
+                            Directory.CreateDirectory(OutputDir + "Textures/");
+                        jpTexture.SaveBitMap(OutputDir + "Textures/" + jpTexture.Name + ".tga");
+                    }
                     FTEX.WriteFTEXData(writer, res.Textures[ii]);
                 }
                 writer.WriteEndElement();
             }
 
+            if (res.SkeletalAnims.Count > 0)
+            {
+                writer.WriteStartElement("FSKA");
+                FSKA.WriteSkeletalAnimations(writer, res);
+                writer.WriteEndElement();
+            }
 
             writer.WriteEndElement();
             writer.WriteEndDocument();

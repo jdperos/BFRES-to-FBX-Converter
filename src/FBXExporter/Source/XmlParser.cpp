@@ -28,13 +28,11 @@ namespace XML
             fmdlIndex++;
         }
 
-        //pNode = pNode->first_node("Shapes")->first_node();
-        //while(pNode)
-        //{
-        //    if (!(pNode->next_sibling()))
-        //        break;
-        //    pNode = pNode->next_sibling();
-        //}
+        pNode = pRoot->first_node("FSKA");
+        if(pNode)
+        {
+            ParseFSKA(bfres.fska, pNode);
+        }
 
         //pNode = pNode->first_node("Vertices")->first_node();
         //while(pNode)
@@ -268,8 +266,8 @@ namespace XML
     void XmlParser::ParseLODMesh(LODMesh& lodMesh, Element* pElement)
     {
         // Parse primitive and index type for real instead of hardcoding these values
-        lodMesh.primitiveType = GX2PrimitiveType::Triangles;
-        lodMesh.indexFormat = GX2IndexFormat::UInt16;
+        lodMesh.primitiveType = LODMesh::GX2PrimitiveType::Triangles;
+        lodMesh.indexFormat = LODMesh::GX2IndexFormat::UInt16;
         ParseAttributeUInt(lodMesh.indexCount      , pElement, "IndexCount"  );
         ParseAttributeUInt(lodMesh.firstVertex     , pElement, "FirstVertex" );
         ParseAttributeIntArray(lodMesh.faceVertices, pElement, "FaceVertices");
@@ -298,5 +296,131 @@ namespace XML
         if (!ParseAttributeVector4(fvtx.blendIndex, pElement, "BlendIndex"))
             fvtx.blendIndex = { 0,0,0,0 };
     }
+
+
+	// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+	void XmlParser::ParseFSKA(FSKA& fska, Element* pElement)
+	{
+		Element* pNode = pElement->first_node("Anim");
+		while (pNode)
+		{
+			Anim anim;
+			ParseAnim(anim, pNode);
+			fska.anims.push_back(anim);
+			pNode = pNode->next_sibling("Anim");
+		}
+	}
+
+
+	// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+	void XmlParser::ParseAnim(Anim& anim, Element* pElement)
+	{
+        ParseAttributeString                (anim.m_szName      , pElement, "Name"              );
+        ParseAttributeBool                  (anim.m_bIsBaked    , pElement, "IsBaked"           );
+        ParseAttributeBool                  (anim.m_bIsLooping  , pElement, "IsLooping"         );
+        ParseAttributeSkeletalAnimFlagsScale(anim.m_eScalingType, pElement, "ScalingType"       );
+        ParseAttributeUInt                  (anim.m_cFrames     , pElement, "FrameCount"        );
+        ParseAttributeUInt                  (anim.m_cBoneAnims  , pElement, "BoneAnimationCount");
+        ParseAttributeUInt                  (anim.m_cUserData   , pElement, "UserDataCount"     );
+
+        // parse bone anims
+		Element* pNode = pElement->first_node("BoneAnims");
+        pNode = pNode->first_node("BoneAnim");
+		while (pNode)
+		{
+			BoneAnim boneAnim;
+			ParseBoneAnim(boneAnim, pNode);
+			anim.m_vBoneAnims.push_back(boneAnim);
+			pNode = pNode->next_sibling("BoneAnim");
+		}
+
+        // parse user data
+        pNode = pElement->first_node("UserDatas");
+        pNode = pNode->first_node("UserData");
+        while (pNode)
+        {
+            UserData userData;
+
+            ParseAttributeString(userData.m_szName, pNode, "Name");
+            userData.m_eType = UserData::UserDataType::Single; // TODO don't hardcode this, come on
+            ParseAttributeFloatArray(userData.m_vfValues, pNode, "Values");
+            anim.m_vUserData.push_back(userData);
+            pNode = pNode->next_sibling("UserData");
+        }
+	}
+
+
+	// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+	void XmlParser::ParseBoneAnim(BoneAnim& boneAnim, Element* pElement)
+	{
+        ParseAttributeString          (boneAnim.m_szName                    , pElement, "Name"                     );
+        ParseAttributeInt             (boneAnim.m_iHash                     , pElement, "Hash"                     );
+        ParseAttributeAnimRotationType(boneAnim.m_eRotType                  , pElement, "RotType"                  );
+        ParseAttributeBool            (boneAnim.m_bUseSegmentScaleCompensate, pElement, "UseSegmentScaleCompensate");
+
+		Element* pNode = pElement->first_node("AnimationTracks");
+		pNode = pNode->first_node("XSCA");
+        ParseAnimTrack( boneAnim.m_XSCA, pNode);
+		pNode = pNode->next_sibling("YSCA");
+		ParseAnimTrack( boneAnim.m_YSCA, pNode);
+		pNode = pNode->next_sibling("ZSCA");
+		ParseAnimTrack( boneAnim.m_ZSCA, pNode);
+
+		pNode = pNode->next_sibling("XROT");
+		ParseAnimTrack( boneAnim.m_XROT, pNode);
+		pNode = pNode->next_sibling("YROT");
+		ParseAnimTrack( boneAnim.m_YROT, pNode);
+		pNode = pNode->next_sibling("ZROT");
+		ParseAnimTrack( boneAnim.m_ZROT, pNode);
+		pNode = pNode->next_sibling("WROT");
+		ParseAnimTrack( boneAnim.m_WROT, pNode);
+
+		pNode = pNode->next_sibling("XPOS");
+		ParseAnimTrack( boneAnim.m_XPOS, pNode);
+		pNode = pNode->next_sibling("YPOS");
+		ParseAnimTrack( boneAnim.m_YPOS, pNode);
+		pNode = pNode->next_sibling("ZPOS");
+		ParseAnimTrack( boneAnim.m_ZPOS, pNode);
+	}
+
+
+	// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+	void XmlParser::ParseAnimTrack(AnimTrack& animTrack, Element* pElement)
+	{
+		ParseAttributeString                (animTrack.m_szName            , pElement, "Name"             );
+        ParseAttributeCurveInterpolationType(animTrack.m_eInterpolationType, pElement, "InterpolationType");
+        ParseAttributeBool                  (animTrack.m_bConstant         , pElement, "Constant"         );
+        ParseAttributeUInt                  (animTrack.m_cFrames           , pElement, "FrameCount"       );
+        ParseAttributeUInt                  (animTrack.m_uiStartFrame      , pElement, "StartFrame"       );
+        ParseAttributeUInt                  (animTrack.m_uiEndFrame        , pElement, "EndFrame"         );
+        ParseAttributeFloat                 (animTrack.m_fDelta            , pElement, "Delta"            );
+        ParseAttributeUInt                  (animTrack.m_cKeys             , pElement, "KeyCount"         );
+
+        Element* pNode = pElement->first_node("KeyFrame");
+        while (pNode)
+        {
+			KeyFrame keyFrame;
+			ParseKeyFrame(keyFrame, pNode);
+			animTrack.m_vKeyFrames.push_back(keyFrame);
+			pNode = pNode->next_sibling("KeyFrame");
+        }
+	}
+
+
+	// -----------------------------------------------------------------------
+	// -----------------------------------------------------------------------
+	void XmlParser::ParseKeyFrame(KeyFrame& keyFrame, Element* pElement)
+	{
+        ParseAttributeUInt (keyFrame.m_uiFrame    , pElement, "Frame"    );
+        ParseAttributeFloat(keyFrame.m_fValue     , pElement, "Value"    );
+        ParseAttributeBool (keyFrame.m_bIsDegrees , pElement, "IsDegrees");
+        ParseAttributeBool (keyFrame.m_bIsWeighted, pElement, "Weighted" );
+        ParseAttributeFloat(keyFrame.m_fSlope1    , pElement, "Slope1"   );
+        ParseAttributeFloat(keyFrame.m_fSlope2    , pElement, "Slope2"   );
+	}
 
 }

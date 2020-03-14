@@ -75,11 +75,26 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
     return lStatus;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::string medianFilePath = MEDIAN_FILE_DIR;
-    medianFilePath.append( "Dump.xml" );
+    assert(argc == 1 || argc == 3);
+    std::string medianFilePath;
+    if (argc == 1)
+	{
+        medianFilePath = MEDIAN_FILE_DIR;
+		medianFilePath.append("Npc_Gerudo_Queen.xml");
+    }
+    else
+    {
+        medianFilePath = argv[1];
+    }
 
+	uint32 lastIndex = medianFilePath.find_last_of(".");
+    uint32 lastSlashIndex = medianFilePath.find_last_of("\\");
+    std::string fileName = medianFilePath.substr(lastSlashIndex + 1, lastIndex - lastSlashIndex - 1);
+
+
+    
     BFRESStructs::BFRES* bfres = g_BFRESManager.GetBFRES();
     XML::XmlParser::Parse(medianFilePath.c_str(), *bfres);
 
@@ -101,11 +116,24 @@ int main()
     FBXWriter* fbx = new FBXWriter();
     fbx->CreateFBX(pScene, *bfres);
 
-    if( !CreateDirectoryA( OUTPUT_FILE_DIR, NULL ) && ERROR_ALREADY_EXISTS != GetLastError() )
-        assert( 0 && "Failed to create directory." );
+    std::string fbxExportPath;
+    if (argc == 1)
+    {
+		if (!CreateDirectoryA(OUTPUT_FILE_DIR, NULL) && ERROR_ALREADY_EXISTS != GetLastError())
+			assert(0 && "Failed to create directory.");
 
-    std::string fbxExportPath = OUTPUT_FILE_DIR;
-    fbxExportPath.append( "Name.fbx" );
+        fbxExportPath = OUTPUT_FILE_DIR;
+		fbxExportPath.append("Name.fbx");
+    }
+    else
+    {
+        if (!CreateDirectoryA(argv[2], NULL) && ERROR_ALREADY_EXISTS != GetLastError())
+            assert(0 && "Failed to create directory.");
+
+        fbxExportPath = argv[2];
+        fbxExportPath.append( fileName + ".fbx" );
+    }
+
 
 	std::cout << pScene->GetMemberCount() << "\n\n";
 	

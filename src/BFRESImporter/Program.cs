@@ -8,7 +8,7 @@ namespace BFRES_Importer
 {
     class Program
     {
-        const string AssetDir = "../../../../TestAssets/";
+        const string AssetDir = "../../../../../TestAssets/";
         public static string FilePath;
         public static string FileName;
         public static string OutputDir;
@@ -17,8 +17,8 @@ namespace BFRES_Importer
         {
             if (args.Length == 0)
             {
-                FilePath = (AssetDir + "Npc_Gerudo_Queen.Tex2.bfres");
-                OutputDir = "../../../../MedianDumps/";
+                FilePath = (AssetDir + "Npc_Gerudo_Queen.bfres");
+                OutputDir = "../../../../../MedianDumps/";
             }
             else
             {

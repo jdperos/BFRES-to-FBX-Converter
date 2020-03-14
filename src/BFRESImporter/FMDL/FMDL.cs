@@ -188,6 +188,7 @@ namespace BFRES_Importer
                     writer.WriteAttributeString("Offset", subMsh.Offset.ToString());
                     writer.WriteEndElement();
                 }
+                Debug.Assert(msh.SubMeshes.Count == 1, "WARNING! More than one submesh. TODO: Handle multiple submeshes");
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();

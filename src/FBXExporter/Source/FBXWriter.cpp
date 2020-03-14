@@ -259,8 +259,11 @@ void FBXWriter::WriteShape(FbxScene*& pScene, const FSHP& fshp, std::vector<Bone
     // Array lChildNodes contains geometries of all LOD levels
 	for( int j = 0; j < fshp.lodMeshes.size(); j++ )
     {
-    	WriteMesh(pScene, lLodGroup, fshp, fshp.lodMeshes[j], boneListInfos, fmdlIndex);
+        WriteMesh( pScene, lLodGroup, fshp, fshp.lodMeshes[ j ], boneListInfos, fmdlIndex );
+        //lLodGroupAttr->AddDisplayLevel( FbxLODGroup::EDisplayLevel::eUseLOD );
+        //lLodGroupAttr->AddThreshold( 500 * j );
 	}
+    lLodGroup->SetNodeAttribute( lLodGroupAttr );
     pScene->GetRootNode()->AddChild( lLodGroup );
 }
 
@@ -271,8 +274,9 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, FbxNode*& pLodGroup, const FSHP& fs
 {
     bool hasSkeleton = boneListInfos.size() > 0;
 
+    uint32 uiLODIndex = pLodGroup->GetChildCount();
     std::string meshName = fshp.name;
-    meshName += "_LOD" + std::to_string( pLodGroup->GetChildCount() );
+    meshName += "_LOD" + std::to_string( uiLODIndex );
 	
     // Create a node for our mesh in the scene.
     FbxNode* lMeshNode = FbxNode::Create(pScene, meshName.c_str());
@@ -368,21 +372,27 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, FbxNode*& pLodGroup, const FSHP& fs
 
     MapFacesToVertices(lodMesh, lMesh);
 
+    // TODO set materials to an LOD group, not the mesh - fix the hack
 	// Set material mapping.
 	FbxGeometryElementMaterial* lMaterialElement = lMesh->CreateElementMaterial();
 	lMaterialElement->SetMappingMode(FbxGeometryElement::eByPolygon);
 	lMaterialElement->SetReferenceMode(FbxGeometryElement::eDirect);
 
-	FbxString lMaterialName = "M_";
-    lMaterialName += fshp.name.c_str();
-    FbxSurfacePhong* lMaterial = FbxSurfacePhong::Create(pScene, lMaterialName);
-	lMeshNode->AddMaterial(lMaterial);
-    
-    lMeshNode->SetShadingMode(FbxNode::eTextureShading);
+    // HACK HACK HACK HACK HACK
+	if ( uiLODIndex == 0 )
+	{
+		FbxString lMaterialName = "M_";
+	    lMaterialName += fshp.name.c_str();
+	    FbxSurfacePhong* lMaterial = FbxSurfacePhong::Create(pScene, lMaterialName);
+		lMeshNode->AddMaterial(lMaterial);
+        lMeshNode->SetShadingMode( FbxNode::eTextureShading );
 
 #if WRITE_TEXTURES // Currently it appears that FBX doesn't support AO maps
-    SetTexturesToMaterial(pScene, fshp, lMaterial, lLayerElementUV0, lLayerElementUV1, lLayerElementUV2);
+        SetTexturesToMaterial( pScene, fshp, lMaterial, lLayerElementUV0, lLayerElementUV1, lLayerElementUV2 );
 #endif // WRITE_TEXTURES
+	}
+    
+
 
     // TODO move this function call into write animations
     WriteBindPose(pScene, lMeshNode);

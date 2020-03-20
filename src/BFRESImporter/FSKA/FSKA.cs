@@ -46,15 +46,16 @@ namespace BFRES_Importer
             jPSkeletalAnim.LoadAnimData(anim);
 
             writer.WriteStartElement("Anim");
-            writer.WriteAttributeString("Name", anim.Name);
-            writer.WriteAttributeString("IsBaked", anim.Baked.ToString());
-            writer.WriteAttributeString("IsLooping", anim.Loop.ToString());
-            writer.WriteAttributeString("ScalingType", anim.FlagsScale.ToString());
-            writer.WriteAttributeString("RotationType", anim.FlagsRotate.ToString());
-            writer.WriteAttributeString("FrameCount", anim.FrameCount.ToString());
+
+            writer.WriteAttributeString("Name"              , anim.Name                      );
+            writer.WriteAttributeString("IsBaked"           , anim.Baked          .ToString());
+            writer.WriteAttributeString("IsLooping"         , anim.Loop           .ToString());
+            writer.WriteAttributeString("ScalingType"       , anim.FlagsScale     .ToString());
+            writer.WriteAttributeString("RotationType"      , anim.FlagsRotate    .ToString());
+            writer.WriteAttributeString("FrameCount"        , anim.FrameCount     .ToString());
             writer.WriteAttributeString("BoneAnimationCount", anim.BoneAnims.Count.ToString());
-            writer.WriteAttributeString("BakedSize", anim.BakedSize.ToString());
-            writer.WriteAttributeString("UserDataCount", anim.UserData.Count.ToString()); // TODO Is this printing IK data??
+            writer.WriteAttributeString("BakedSize"         , anim.BakedSize      .ToString());
+            writer.WriteAttributeString("UserDataCount"     , anim.UserData.Count .ToString()); // TODO Is this printing IK data??
             string bindIndices = "";
             for (int i = 0; i < anim.BindIndices.Length; i++)
             {
@@ -65,11 +66,16 @@ namespace BFRES_Importer
             writer.WriteAttributeString("BindIndices", bindIndices);
 
             writer.WriteStartElement("BoneAnims");
-            //foreach (BoneAnim boneAnim in anim.BoneAnims) This is the elder ways
-            //{
-            //    WriteBoneAnimData(writer, boneAnim);
 
-            //}
+            // Check for non hermite curves
+            for (int i = 0; i < anim.BoneAnims.Count; i++)
+            {
+                for (int j = 0; j < anim.BoneAnims[i].Curves.Count; j++)
+                {
+                    Debug.Assert(anim.BoneAnims[i].Curves[j].CurveType == AnimCurveType.Cubic, "Hey buddy this animation has a non hermite curve");
+                }
+            }
+            
             WriteJPSkeletonBoneAnimData(writer, jPSkeletalAnim);
 
             writer.WriteEndElement();
@@ -131,8 +137,6 @@ namespace BFRES_Importer
             writer.WriteEndElement();
             // anim.BindSkeleton just know this exists
 
-            //writer.WriteAttributeString("CurveCount", anim..ToString()); Where is this curve information??
-
             writer.WriteEndElement();
         }
 
@@ -145,7 +149,7 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("Hash", bone.Hash.ToString());
                 writer.WriteAttributeString("RotType", bone.RotType.ToString());
                 writer.WriteAttributeString("UseSegmentScaleCompensate", bone.UseSegmentScaleCompensate.ToString());
-
+                
                 // Animation tracks
                 writer.WriteStartElement("AnimationTracks");
                 WriteAnimTrack(writer, bone.XSCA);

@@ -5,8 +5,17 @@ import shutil
 initialWD = os.getcwd()
 
 isDebug = True
+writeTextures = ""
 if len(sys.argv) > 1:
-	isDebug = False if sys.argv[1] == "Release" else True  
+	i = 1
+	while i < len(sys.argv):
+		if sys.argv[i] == "-t":
+			writeTextures = " -t"
+		elif sys.argv[i] == "-r":
+			isDebug = False
+		else:
+			raise Exception("Invalid argmument! Use '-r' for release and '-t' to write textures.")
+		i += 1
 configType = "Debug" if isDebug else "Release"
 	
 inDir = os.path.join(initialWD, "In\\")
@@ -39,16 +48,20 @@ for sbfresFile in sorted(os.listdir(inDir)):
 			print("Subdirectory for filegroup exists already")
 			
 		# Run Importer
-		print("Running Importer: \"" + importerFP + "\" \"" + os.path.join(inDir,sbfresFile) + "\" \"" + fileGroupSubPath + "\\\"" )
-		os.system("\"" + importerFP + "\" " + os.path.join(inDir,sbfresFile) + " " + fileGroupSubPath + "\\" )
+		importerCommand = "\"" + importerFP + "\" \"" + os.path.join(inDir,sbfresFile) + "\" \"" + fileGroupSubPath + "/\"" 
+		print("Running Importer:"  + importerCommand )
+		os.system( "\"" + importerCommand + "\"")
 		
+
+		# If it's not a texture Bfres, run the exporter
 		inputXMLPath = os.path.join(fileGroupSubPath,fileNameNoExt + ".xml")
 		if not sbfresFile.endswith(".Tex1.sbfres"):
 			if not sbfresFile.endswith(".Tex2.sbfres"):
 				print("Input XML Path = " + inputXMLPath)
-				outputFBXPath = fileGroupSubPath + "\\"
+				outputFBXPath = fileGroupSubPath + "/"
 				print("Export Path" + outputFBXPath)
-				os.system("\"" + exporterFP + "\" " + inputXMLPath + " " + outputFBXPath)
+				exporterCommand = "\"" + exporterFP + "\" \"" + inputXMLPath + "\" \"" + outputFBXPath + "\"" + writeTextures
+				os.system( "\"" + exporterCommand + "\"" )
 		
 		os.system("xcopy /y \"" + inputXMLPath + "\" \""+ os.path.join(fileGroupSubPath,"XMLDumps","\""))
 		os.system("del /q \"" + inputXMLPath + "\"")

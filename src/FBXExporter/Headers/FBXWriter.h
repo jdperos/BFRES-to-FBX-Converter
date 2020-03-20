@@ -2,6 +2,7 @@
 #include <fbxsdk.h>
 #include "BFRES.h"
 #include <map>
+#include <string>
 
 using namespace BFRESStructs;
 
@@ -10,6 +11,8 @@ class FBXWriter
 public:
     FBXWriter();
     ~FBXWriter();
+
+    static bool g_bWriteTextures;
 
     struct SkinCluster 
     {

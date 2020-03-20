@@ -12,6 +12,9 @@
     #define IOS_REF (*(pManager->GetIOSettings()))
 #endif
 
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // Export document, the format is ascii by default
 bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFilename, int pFileFormat = -1, bool pEmbedMedia = false)
 {
@@ -75,10 +78,44 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
     return lStatus;
 }
 
-int main(int argc, char* argv[])
+
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// Parse any flags after the initial mandatory arguments
+void ParseArguments( int argc, char* argv[] )
 {
-    assert(argc == 1 || argc == 3);
-    std::string medianFilePath;
+    getchar();
+    medianFilePath.assign( argv[ 1 ] );
+    uint32 counter = 0;
+    while (counter < argc)
+    {
+        std::cout << "Argument " << counter << " is " << argv[ counter++ ] << "\n";
+    }
+    getchar();
+
+    for (uint32 i = 3; i < argc; i++)
+    {
+        std::string argument = argv[ i ];
+        std::cout << "ARGUMENT NUMBER " << i << " IS EQUAL TO " << argv[ i ];
+        if ( argument == "-t")
+        {
+            FBXWriter::g_bWriteTextures = true;
+        }
+        else
+        {
+            assert( 0, "Invalid flag. Please use '[program.exe] [inputfile] [outputFolder] [flags]' where the flag 't' is to write textures into the FBX" );
+        }
+    }
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+int main( int argc, char* argv[] )
+{
+    // If there are no arguments, assume this is debugging and use the debugging filepath
     if (argc == 1)
 	{
         medianFilePath = MEDIAN_FILE_DIR;
@@ -86,7 +123,8 @@ int main(int argc, char* argv[])
     }
     else
     {
-        medianFilePath = argv[1];
+        ParseArguments( argc, argv );
+
     }
 
 	uint32 lastIndex = medianFilePath.find_last_of(".");
@@ -113,27 +151,23 @@ int main(int argc, char* argv[])
 
     FbxSystemUnit::m.ConvertScene( pScene, lConversionOptions );
 
-    FBXWriter* fbx = new FBXWriter();
-    fbx->CreateFBX(pScene, *bfres);
-
-    std::string fbxExportPath;
     if (argc == 1)
     {
 		if (!CreateDirectoryA(OUTPUT_FILE_DIR, NULL) && ERROR_ALREADY_EXISTS != GetLastError())
 			assert(0 && "Failed to create directory.");
 
         fbxExportPath = OUTPUT_FILE_DIR;
-		fbxExportPath.append("Name.fbx");
+        fileName = "Name";
     }
     else
     {
-        if (!CreateDirectoryA(argv[2], NULL) && ERROR_ALREADY_EXISTS != GetLastError())
+        fbxExportPath = argv[ 2 ];
+        if (!CreateDirectoryA( fbxExportPath.c_str(), NULL) && ERROR_ALREADY_EXISTS != GetLastError())
             assert(0 && "Failed to create directory.");
-
-        fbxExportPath = argv[2];
-        fbxExportPath.append( fileName + ".fbx" );
     }
 
+    FBXWriter* fbx = new FBXWriter();
+    fbx->CreateFBX( pScene, *bfres );
 
 	std::cout << pScene->GetMemberCount() << "\n\n";
 	
@@ -172,7 +206,8 @@ int main(int argc, char* argv[])
 
     // Convert the scene to centimeters using the defined options.
     FbxSystemUnit::cm.ConvertScene( pScene, lConversionOptions );
-
+        
+    fbxExportPath.append( fileName + ".fbx" );
     SaveDocument(lSdkManager, pScene, fbxExportPath.c_str());
 
     return 0;

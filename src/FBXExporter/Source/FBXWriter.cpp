@@ -5,8 +5,6 @@
 #include "assert.h"
 #include "Globals.h"
 
-
-
 FBXWriter::FBXWriter()
 {
 }
@@ -15,6 +13,7 @@ FBXWriter::~FBXWriter()
 {
 }
 
+bool FBXWriter::g_bWriteTextures = false;
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
@@ -387,9 +386,11 @@ void FBXWriter::WriteMesh(FbxScene*& pScene, FbxNode*& pLodGroup, const FSHP& fs
 		lMeshNode->AddMaterial(lMaterial);
         lMeshNode->SetShadingMode( FbxNode::eTextureShading );
 
-#if WRITE_TEXTURES // Currently it appears that FBX doesn't support AO maps
-        SetTexturesToMaterial( pScene, fshp, lMaterial, lLayerElementUV0, lLayerElementUV1, lLayerElementUV2 );
-#endif // WRITE_TEXTURES
+        if ( g_bWriteTextures )
+        {
+            SetTexturesToMaterial( pScene, fshp, lMaterial, lLayerElementUV0, lLayerElementUV1, lLayerElementUV2 );
+        }
+        
 	}
     
 
@@ -474,7 +475,7 @@ void FBXWriter::SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSu
             break;
         }
 
-        std::string filePath = ( MEDIAN_FILE_DIR + (std::string)"Textures/" + textureName + ".tga" );
+        std::string filePath = ( fbxExportPath + (std::string)"Textures/" + textureName + ".tga" );
 		lTexture->SetFileName(filePath.c_str());
 		lTexture->SetTextureUse(textureUse);
 		lTexture->SetMappingType(FbxTexture::eUV);

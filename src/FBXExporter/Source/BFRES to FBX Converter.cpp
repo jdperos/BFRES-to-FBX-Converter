@@ -84,16 +84,14 @@ bool SaveDocument(FbxManager* pManager, FbxDocument* pDocument, const char* pFil
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // Parse any flags after the initial mandatory arguments
-void ParseArguments( int argc, char* argv[] )
+void ParseArguments( int argc, char**& argv )
 {
-    getchar();
     medianFilePath.assign( argv[ 1 ] );
     uint32 counter = 0;
     while (counter < argc)
     {
         std::cout << "Argument " << counter << " is " << argv[ counter++ ] << "\n";
     }
-    getchar();
 
     for (uint32 i = 3; i < argc; i++)
     {

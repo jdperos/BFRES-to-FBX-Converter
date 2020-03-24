@@ -6,6 +6,7 @@ using Syroot.NintenTools.Bfres;
 using ResU = Syroot.NintenTools.Bfres;
 using Syroot.Maths;
 using OpenTK;
+using System.Diagnostics;
 
 namespace BFRES_Importer
 {
@@ -26,11 +27,16 @@ namespace BFRES_Importer
                 skeleton.MatrixToBoneList = new List<ushort>();
 
             writer.WriteAttributeString("SkeletonBoneCount", skeleton.MatrixToBoneList.Count.ToString());
+
+            Debug.Assert(skeleton.FlagsRotation == SkeletonFlagsRotation.EulerXYZ, "Skeleton is not using EulerXYZ rotation");
             writer.WriteAttributeString("FlagsRotation", skeleton.FlagsRotation.ToString());
+
+            Debug.Assert(skeleton.FlagsScaling == SkeletonFlagsScaling.Maya, "Skeleton is not using Maya scaling.");
             writer.WriteAttributeString("FlagsScaling", skeleton.FlagsScaling.ToString());
             // TODO figure out what the hell this Inverse Model Matrices is
             writer.WriteAttributeString("InverseModelMatrices", skeleton.InverseModelMatrices.ToString());
 
+            // Write bone list, which is the list of bones used by the animations, starting with smooth skinned, then rigid skinned.
             int nodes = 0;
             string tempBoneList = "";
             foreach (ushort node in skeleton.MatrixToBoneList)
@@ -42,6 +48,7 @@ namespace BFRES_Importer
             tempBoneList = tempBoneList.Trim(',');
             writer.WriteAttributeString("BoneList", tempBoneList);
 
+            // Write each bone's data
             int boneIndex = 0;
             foreach (Bone bone in skeleton.Bones.Values)
             {
@@ -62,15 +69,23 @@ namespace BFRES_Importer
         /// <param name="SetParent"></param>
         public static void WriteBone(XmlWriter writer, Bone bn, bool SetParent = true)
         {
-            writer.WriteAttributeString("Name", bn.Name);
-            writer.WriteAttributeString("IsVisible", bn.Flags.HasFlag(BoneFlags.Visible).ToString());
-            writer.WriteAttributeString("RigidMatrixIndex", bn.RigidMatrixIndex.ToString());
-            writer.WriteAttributeString("SmoothMatrixIndex", bn.SmoothMatrixIndex.ToString());
-            writer.WriteAttributeString("BillboardIndex", bn.BillboardIndex.ToString());
-            writer.WriteAttributeString("FlagsRotation", bn.FlagsRotation.ToString());
-            writer.WriteAttributeString("FlagsBillboard", bn.FlagsBillboard.ToString());
-            writer.WriteAttributeString("FlagsTransform", bn.FlagsTransform.ToString());
-            writer.WriteAttributeString("FlagsTransformCumulative", bn.FlagsTransformCumulative.ToString());
+            // Asserts for most unhandled bone cases.
+            Debug.Assert( bn.Flags.HasFlag( BoneFlags.Visible )                           , "Bone is not visible, case not handled."                         );
+            Debug.Assert( bn.BillboardIndex           == 65535                            , "Billboard index is set, whatever the fuck that means"           );
+            Debug.Assert( bn.FlagsRotation            == BoneFlagsRotation.EulerXYZ       , "Bone is not EulerXYZ, case  not handled."                       );
+            Debug.Assert( bn.FlagsBillboard           == BoneFlagsBillboard.None          , "Billboard flag is set, whatever the fuck that means"            );
+            Debug.Assert( bn.FlagsTransformCumulative == BoneFlagsTransformCumulative.None, "Bone flags transform cumulative set to true, case not handled?" );
+
+            // Writing bone data
+            writer.WriteAttributeString( "Name"                    , bn.Name                                          );
+            writer.WriteAttributeString( "IsVisible"               , bn.Flags.HasFlag( BoneFlags.Visible ).ToString() );
+            writer.WriteAttributeString( "RigidMatrixIndex"        , bn.RigidMatrixIndex                  .ToString() );
+            writer.WriteAttributeString( "SmoothMatrixIndex"       , bn.SmoothMatrixIndex                 .ToString() );
+            writer.WriteAttributeString( "BillboardIndex"          , bn.BillboardIndex                    .ToString() );
+            writer.WriteAttributeString( "FlagsRotation"           , bn.FlagsRotation                     .ToString() );
+            writer.WriteAttributeString( "FlagsBillboard"          , bn.FlagsBillboard                    .ToString() );
+            writer.WriteAttributeString( "FlagsTransform"          , bn.FlagsTransform                    .ToString() ); // TODO Figure out what all of these transform flags mean.
+            writer.WriteAttributeString( "FlagsTransformCumulative", bn.FlagsTransformCumulative          .ToString() );
 
             bool bUseRigidMatrix = bn.RigidMatrixIndex != -1;
             writer.WriteAttributeString("UseRigidMatrix", bUseRigidMatrix.ToString());
@@ -78,12 +93,19 @@ namespace BFRES_Importer
             writer.WriteAttributeString("UseSmoothMatrix", bUseSmoothMatrix.ToString());
 
             short signedParentIndex = (short)bn.ParentIndex;
-            if (SetParent)
-                writer.WriteAttributeString("ParentIndex", signedParentIndex.ToString());
-            if (bn.FlagsRotation == BoneFlagsRotation.Quaternion)
-                writer.WriteAttributeString("RotationType", "Quaternion");
-            else if (bn.FlagsRotation == BoneFlagsRotation.EulerXYZ)
-                writer.WriteAttributeString("RotationType", "EulerXYZ");
+            if( SetParent )
+            {
+                writer.WriteAttributeString( "ParentIndex", signedParentIndex.ToString() );
+            }
+            if( bn.FlagsRotation == BoneFlagsRotation.Quaternion )
+            {
+                Debug.Assert( false, "Bone flags set to Quaternion. Case not handled." );
+                writer.WriteAttributeString( "RotationType", "Quaternion" );
+            }
+            else if( bn.FlagsRotation == BoneFlagsRotation.EulerXYZ )
+            {
+                writer.WriteAttributeString( "RotationType", "EulerXYZ" );
+            }
 
             writer.WriteAttributeString("Scale", Program.Vector3FToString(bn.Scale));
             writer.WriteAttributeString("Rotation", Program.Vector4FToString(bn.Rotation));

@@ -20,7 +20,7 @@ namespace BFRES_Importer
         public void WriteFMDLData(XmlWriter writer, ResU.Model model)
         {
             writer.WriteStartElement("FMDL");
-            writer.WriteAttributeString("Name"         , model.Name                          );
+            writer.WriteAttributeString("Name", model.Name);
 
             // TODO Wrap these functions in if exists conditions, so that the xml only contains relevant data
             JPSkeleton jpSkeleton = new JPSkeleton();
@@ -66,8 +66,10 @@ namespace BFRES_Importer
             writer.WriteAttributeString("Name"                , shp.Name                        );
             writer.WriteAttributeString("Flags"               , shp.Flags            .ToString());
             writer.WriteAttributeString("MaterialIndex"       , shp.MaterialIndex    .ToString());
+            Debug.Assert( shp.BoneIndex == 0, "Bone index is set. Why?" );
             writer.WriteAttributeString("BoneIndex"           , shp.BoneIndex        .ToString());
             writer.WriteAttributeString("VertexBufferIndex"   , shp.VertexBufferIndex.ToString());
+
             // Write Bounding Radius
             string tempRadiusArray = "";
             foreach (float rad in shp.RadiusArray)
@@ -78,6 +80,7 @@ namespace BFRES_Importer
             
             writer.WriteAttributeString("RadiusArray"         , tempRadiusArray                 );
             writer.WriteAttributeString("VertexSkinCount"     , shp.VertexSkinCount  .ToString());
+            Debug.Assert( shp.TargetAttribCount == 0, "Shape has target attribute count of greater than 0. Unsure of this meaning." );
             writer.WriteAttributeString("TargetAttributeCount", shp.TargetAttribCount.ToString());
 
             // Write Skin Bone Indices
@@ -92,8 +95,8 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("SkinBoneIndices", tempSkinBoneIndices);
             }
 
-            // TODO Write Key Shapes
-
+            // Write Key Shapes
+            Debug.Assert( shp.KeyShapes.Count == 0, "If you hit this assert, write KeyShapes you lazy fuck." );
 
             // Write Bounding Boxes
             //
@@ -155,40 +158,43 @@ namespace BFRES_Importer
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="shp"></param>
-        private static void WriteMeshes(XmlWriter writer, Shape shp)
+        private static void WriteMeshes( XmlWriter writer, Shape shp )
         {
-            writer.WriteStartElement("Meshes");
-            writer.WriteAttributeString("LODMeshCount", shp.Meshes.Count.ToString());
-            foreach (Mesh msh in shp.Meshes)
+            writer.WriteStartElement( "Meshes" );
+            writer.WriteAttributeString( "LODMeshCount", shp.Meshes.Count.ToString() );
+            foreach( Mesh msh in shp.Meshes )
             {
                 uint FaceCount = msh.IndexCount;
                 uint[] indicesArray = msh.GetIndices().ToArray();
 
 
-                writer.WriteStartElement("LODMesh");
+                writer.WriteStartElement( "LODMesh" );
 
-                writer.WriteAttributeString("PrimitiveType", msh.PrimitiveType.ToString());
-                writer.WriteAttributeString("IndexFormat"  , msh.IndexFormat  .ToString());
-                writer.WriteAttributeString("IndexCount"   , msh.IndexCount   .ToString());
-                writer.WriteAttributeString("FirstVertex"  , msh.FirstVertex  .ToString());
+                Debug.Assert( msh.PrimitiveType == GX2PrimitiveType.Triangles, "Mesh is not using triangles. Case is not handled." );
+                Debug.Assert( msh.IndexFormat   == GX2IndexFormat.UInt16     , "Mesh index format is unhandled."                   );
+                
+                writer.WriteAttributeString( "PrimitiveType", msh.PrimitiveType.ToString() );
+                writer.WriteAttributeString( "IndexFormat"  , msh.IndexFormat  .ToString() );
+                writer.WriteAttributeString( "IndexCount"   , msh.IndexCount   .ToString() );
+                writer.WriteAttributeString( "FirstVertex"  , msh.FirstVertex  .ToString() );
 
                 List<int> tempFaceList = new List<int>();
-                for (int face = 0; face < FaceCount; face++)
-                    tempFaceList.Add((int)indicesArray[face] + (int)msh.FirstVertex);
+                for( int face = 0; face < FaceCount; face++ )
+                    tempFaceList.Add( (int)indicesArray[ face ] + (int)msh.FirstVertex );
                 string tempFaces = "";
-                foreach (int fc in tempFaceList)
-                    tempFaces += (fc + ",");
-                tempFaces = tempFaces.Trim(',');
-                writer.WriteAttributeString("FaceVertices", tempFaces);
+                foreach( int fc in tempFaceList )
+                    tempFaces += ( fc + "," );
+                tempFaces = tempFaces.Trim( ',' );
+                writer.WriteAttributeString( "FaceVertices", tempFaces );
 
-                foreach (SubMesh subMsh in msh.SubMeshes)
+                foreach( SubMesh subMsh in msh.SubMeshes )
                 {
-                    writer.WriteStartElement("SubMesh");
-                    writer.WriteAttributeString("Count" , subMsh.Count.ToString());
-                    writer.WriteAttributeString("Offset", subMsh.Offset.ToString());
+                    writer.WriteStartElement( "SubMesh" );
+                    writer.WriteAttributeString( "Count", subMsh.Count.ToString() );
+                    writer.WriteAttributeString( "Offset", subMsh.Offset.ToString() );
                     writer.WriteEndElement();
                 }
-                Debug.Assert(msh.SubMeshes.Count == 1, "WARNING! More than one submesh. TODO: Handle multiple submeshes");
+                Debug.Assert( msh.SubMeshes.Count == 1, "WARNING! More than one submesh. TODO: Handle multiple submeshes" );
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -206,7 +212,7 @@ namespace BFRES_Importer
         private static void WriteVertexBuffer(XmlWriter writer, Shape shp, VertexBuffer vtx, ResU.Model model, JPSkeleton jPSkeleton)
         {
             //Create a buffer instance which stores all the buffer data
-            VertexBufferHelper helper = new VertexBufferHelper(vtx, Syroot.BinaryData.ByteOrder.BigEndian);
+            VertexBufferHelper helper = new VertexBufferHelper(vtx, Syroot.BinaryData.ByteOrder.BigEndian); // TODO if this supports Switch files, you will need to re-look at this
 
             //Set each array first from the lib if exist. Then add the data all in one loop
             Syroot.Maths.Vector4F[] vec4Positions = new Syroot.Maths.Vector4F[0];
@@ -388,14 +394,14 @@ namespace BFRES_Importer
 
                 writer.WriteAttributeString("Index"    , i                              .ToString());
                 writer.WriteAttributeString("Position0", Program.Vector3ToString(vertices[i].pos)  );
-                writer.WriteAttributeString("Position1", Program.Vector3ToString(vertices[i].pos1) );
-                writer.WriteAttributeString("Position2", Program.Vector3ToString(vertices[i].pos2) );
+                writer.WriteAttributeString("Position1", Program.Vector3ToString(vertices[i].pos1) ); Debug.Assert( vertices[ i ].pos1 == OpenTK.Vector3.Zero ); // Add C++ support
+                writer.WriteAttributeString("Position2", Program.Vector3ToString(vertices[i].pos2) ); Debug.Assert( vertices[ i ].pos2 == OpenTK.Vector3.Zero ); // Add C++ support
                 writer.WriteAttributeString("Normal"   , Program.Vector3ToString(vertices[i].nrm)  );
                 writer.WriteAttributeString("UV0"      , Program.Vector2ToString(vertices[i].uv0)  );
                 writer.WriteAttributeString("UV1"      , Program.Vector2ToString(vertices[i].uv1)  );
                 writer.WriteAttributeString("UV2"      , Program.Vector2ToString(vertices[i].uv2)  );
-                writer.WriteAttributeString("Color0"   , Program.Vector4ToString(vertices[i].col)  );
-                writer.WriteAttributeString("Color1"   , Program.Vector4ToString(vertices[i].col2) );
+                writer.WriteAttributeString("Color0"   , Program.Vector4ToString(vertices[i].col)  ); Debug.Assert( vertices[ i ].col  == OpenTK.Vector4.One ); // Add C++ support
+                writer.WriteAttributeString("Color1"   , Program.Vector4ToString(vertices[i].col2) ); Debug.Assert( vertices[ i ].col2 == OpenTK.Vector4.One ); // Add C++ support
                 writer.WriteAttributeString("Tangent"  , Program.Vector4ToString(vertices[i].tan)  );
                 writer.WriteAttributeString("Binormal" , Program.Vector4ToString(vertices[i].bitan));
                 

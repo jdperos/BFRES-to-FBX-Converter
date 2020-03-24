@@ -13,27 +13,27 @@ namespace BFRES_Importer
 {
     class FMAT
     {
-        public static float[] ValueFloat;
-        public static bool[] ValueBool;
-        public static uint[] ValueUint;
-        public static int[] ValueInt;
-        public static byte[] ValueReserved;
-        public static Srt2D ValueSrt2D;
-        public static Srt3D ValueSrt3D;
-        public static TexSrt ValueTexSrt;
+        public static float[]  ValueFloat;
+        public static bool[]   ValueBool;
+        public static uint[]   ValueUint;
+        public static int[]    ValueInt;
+        public static byte[]   ValueReserved;
+        public static Srt2D    ValueSrt2D;
+        public static Srt3D    ValueSrt3D;
+        public static TexSrt   ValueTexSrt;
         public static TexSrtEx ValueTexSrtEx;
 
-        public bool HasDiffuseMap = false;
-        public bool HasNormalMap = false;
-        public bool HasSpecularMap = false;
-        public bool HasEmissionMap = false;
-        public bool HasDiffuseLayer = false;
-        public bool HasTeamColorMap = false; //Splatoon uses this (TLC)
-        public bool HasTransparencyMap = false;
-        public bool HasShadowMap = false;
-        public bool HasAmbientOcclusionMap = false;
-        public bool HasLightMap = false;
-        public bool HasSphereMap = false;
+        public bool HasDiffuseMap              = false;
+        public bool HasNormalMap               = false;
+        public bool HasSpecularMap             = false;
+        public bool HasEmissionMap             = false;
+        public bool HasDiffuseLayer            = false;
+        public bool HasTeamColorMap            = false; //Splatoon uses this (TLC)
+        public bool HasTransparencyMap         = false;
+        public bool HasShadowMap               = false;
+        public bool HasAmbientOcclusionMap     = false;
+        public bool HasLightMap                = false;
+        public bool HasSphereMap               = false;
         public bool HasSubSurfaceScatteringMap = false;
 
         //PBR (Switch) data
@@ -107,12 +107,15 @@ namespace BFRES_Importer
             writer.WriteStartElement("FMAT");
             writer.WriteAttributeString("Name", mat.Name);
 
-            if (mat.Flags == MaterialFlags.Visible)
-                //m.Enabled = true;
-                writer.WriteAttributeString("Visible", "True");
+            if( mat.Flags == MaterialFlags.Visible )
+            {
+                writer.WriteAttributeString( "Visible", "True" );
+            }
             else
-                //m.Enabled = false;
-                writer.WriteAttributeString("Visible", "False");
+            {
+                Debug.Assert( false, "Material is invisible. How are we handling this? May not be a problem." );
+                writer.WriteAttributeString( "Visible", "False" );
+            }
 
             ReadRenderInfo(writer, mat);
             ReadShaderAssign(writer, mat);
@@ -460,6 +463,11 @@ namespace BFRES_Importer
                 writer.WriteStartElement("Texture");
                 TextureName = tex.Name;
 
+                // Asserts for assumptions made
+                Debug.Assert( mat.Samplers[ id ].TexSampler.ClampX == GX2TexClamp.Wrap  );
+                Debug.Assert( mat.Samplers[ id ].TexSampler.ClampY == GX2TexClamp.Wrap  );
+                Debug.Assert( mat.Samplers[ id ].TexSampler.ClampZ == GX2TexClamp.Clamp );
+
                 writer.WriteAttributeString("TextureName", tex.Name);
                 writer.WriteAttributeString("ClampX", mat.Samplers[id].TexSampler.ClampX.ToString());
                 writer.WriteAttributeString("ClampY", mat.Samplers[id].TexSampler.ClampY.ToString());
@@ -484,13 +492,14 @@ namespace BFRES_Importer
                 if (mat.Samplers[id].TexSampler.MagFilter == GX2TexXYFilterType.Bilinear)
                     writer.WriteAttributeString("MagFilter", "Linear");
 
+                // TODO : Figure out what the hell any of these are and why they are relevant.
                 writer.WriteAttributeString("ZFilter"            , mat.Samplers[id].TexSampler.ZFilter            .ToString());
                 writer.WriteAttributeString("MipFilter"          , mat.Samplers[id].TexSampler.MipFilter          .ToString());
                 writer.WriteAttributeString("MaxAnisotropicRatio", mat.Samplers[id].TexSampler.MaxAnisotropicRatio.ToString());
                 writer.WriteAttributeString("BorderType"         , mat.Samplers[id].TexSampler.BorderType         .ToString());
                 writer.WriteAttributeString("DepthCompareFunc"   , mat.Samplers[id].TexSampler.DepthCompareFunc   .ToString());
-                writer.WriteAttributeString("MinLod"             , mat.Samplers[id].TexSampler.MinLod             .ToString());
-                writer.WriteAttributeString("MaxLod"             , mat.Samplers[id].TexSampler.MaxLod             .ToString());
+                writer.WriteAttributeString("MinLod"             , mat.Samplers[id].TexSampler.MinLod             .ToString()); Debug.Assert( mat.Samplers[ id ].TexSampler.MinLod == 0 );
+                writer.WriteAttributeString("MaxLod"             , mat.Samplers[id].TexSampler.MaxLod             .ToString()); 
                 writer.WriteAttributeString("LodBias"            , mat.Samplers[id].TexSampler.LodBias            .ToString());
                 writer.WriteAttributeString("DepthCompareEnabled", mat.Samplers[id].TexSampler.DepthCompareEnabled.ToString());
 
@@ -525,17 +534,10 @@ namespace BFRES_Importer
                     Debug.WriteLine("_sd0 not yet verified to be of a type yet."); // TODO find out what _sd0 is
                     writer.WriteAttributeString("Type", "Shadow");
                 }
-
-
-                //Console.WriteLine($"{useSampler} {texture.Type}");
-
-                //texture.textureUnit = textureUnit++;
                 writer.WriteAttributeString("textureUnit", textureUnit++.ToString());
-
-                //texture.Name = TextureName;
-                //m.TextureMaps.Add(texture);
                 writer.WriteEndElement();
 
+                // TODO I believe this code is irrelevant now. Remove and test it.
                 if (tex.Texture != null)
                 {
                     writer.WriteStartElement("TextureInfo");
@@ -580,6 +582,7 @@ namespace BFRES_Importer
         {
             writer.WriteStartElement("RenderState");
 
+            // TODO what the fuck is any of this?
             writer.WriteAttributeString("DepthTestEnabled", renderState.DepthTestEnabled.ToString());
             writer.WriteAttributeString("DepthWriteEnabled", renderState.DepthWriteEnabled.ToString());
             writer.WriteAttributeString("DepthFunc", renderState.DepthFunc.ToString());
@@ -610,17 +613,18 @@ namespace BFRES_Importer
         public static void UpdateRenderPass(XmlWriter writer, Material mat)
         {
             writer.WriteStartElement("RenderPass");
-            if (mat != null)
+            if( mat != null )
             {
                 bool bIsOpaque = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Opaque;
                 bool bIsTranslucent = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Translucent;
                 bool bIsTransparentMask = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.AlphaMask;
                 bool bIsCustom = mat.RenderState.FlagsMode == ResU.RenderStateFlagsMode.Custom;
 
-                writer.WriteAttributeString("IsOpaque", bIsOpaque.ToString());
-                writer.WriteAttributeString("IsTranslucent", bIsTranslucent.ToString());
-                writer.WriteAttributeString("IsTransparentMask", bIsTransparentMask.ToString());
-                writer.WriteAttributeString("IsCustom", bIsCustom.ToString());
+                writer.WriteAttributeString( "IsOpaque"         , bIsOpaque         .ToString() );
+                writer.WriteAttributeString( "IsTranslucent"    , bIsTranslucent    .ToString() );
+                writer.WriteAttributeString( "IsTransparentMask", bIsTransparentMask.ToString() );
+                writer.WriteAttributeString( "IsCustom"         , bIsCustom         .ToString() );
+                Debug.Assert( !bIsCustom, "Render pass is custom" );
             }
             writer.WriteEndElement();
         }

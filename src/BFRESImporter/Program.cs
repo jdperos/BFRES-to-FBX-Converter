@@ -2,7 +2,9 @@
 using System.IO;
 using System.Xml;
 using System.Text;
+using System.Diagnostics;
 using ResU = Syroot.NintenTools.Bfres;
+using Toolbox.Library.IO;
 
 namespace BFRES_Importer
 {
@@ -28,11 +30,26 @@ namespace BFRES_Importer
             FileName = Path.GetFileNameWithoutExtension(FilePath);
 
             ResU.ResFile res;
+            // Decompress sbfres with Yaz0
             if (FilePath.EndsWith(".sbfres"))
                 res = new ResU.ResFile(new System.IO.MemoryStream(EveryFileExplorer.YAZ0.Decompress(FilePath)));
             else
                 res = new ResU.ResFile(FilePath);
 
+            // Check if it is a WiiU file or not
+            using( FileReader reader = new FileReader( FilePath, true ) )
+            {
+                reader.ByteOrder = Syroot.BinaryData.ByteOrder.BigEndian;
+                reader.Position = 4;
+
+                Debug.Assert( reader.ReadInt32() != 0x20202020, "This is not a WiiU file." );
+                //if( reader.ReadInt32() != 0x20202020 )
+                //    IsWiiU = true;
+
+                reader.Position = 0;
+            }
+
+            // Begin main writing
             WriteResToXML(res);
         }
 

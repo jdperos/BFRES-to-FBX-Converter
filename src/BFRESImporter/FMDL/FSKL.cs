@@ -28,10 +28,10 @@ namespace BFRES_Importer
 
             writer.WriteAttributeString("SkeletonBoneCount", skeleton.MatrixToBoneList.Count.ToString());
 
-            Debug.Assert(skeleton.FlagsRotation == SkeletonFlagsRotation.EulerXYZ, "Skeleton is not using EulerXYZ rotation");
+            Program.AssertAndLog(skeleton.FlagsRotation == SkeletonFlagsRotation.EulerXYZ, "Skeleton is not using EulerXYZ rotation");
             writer.WriteAttributeString("FlagsRotation", skeleton.FlagsRotation.ToString());
 
-            Debug.Assert(skeleton.FlagsScaling == SkeletonFlagsScaling.Maya, "Skeleton is not using Maya scaling.");
+            Program.AssertAndLog(skeleton.FlagsScaling == SkeletonFlagsScaling.Maya, "Skeleton is not using Maya scaling.");
             writer.WriteAttributeString("FlagsScaling", skeleton.FlagsScaling.ToString());
             // TODO figure out what the hell this Inverse Model Matrices is
             writer.WriteAttributeString("InverseModelMatrices", skeleton.InverseModelMatrices.ToString());
@@ -70,11 +70,11 @@ namespace BFRES_Importer
         public static void WriteBone(XmlWriter writer, Bone bn, bool SetParent = true)
         {
             // Asserts for most unhandled bone cases.
-            Debug.Assert( bn.Flags.HasFlag( BoneFlags.Visible )                           , "Bone is not visible, case not handled."                         );
-            Debug.Assert( bn.BillboardIndex           == 65535                            , "Billboard index is set, whatever the fuck that means"           );
-            Debug.Assert( bn.FlagsRotation            == BoneFlagsRotation.EulerXYZ       , "Bone is not EulerXYZ, case  not handled."                       );
-            Debug.Assert( bn.FlagsBillboard           == BoneFlagsBillboard.None          , "Billboard flag is set, whatever the fuck that means"            );
-            Debug.Assert( bn.FlagsTransformCumulative == BoneFlagsTransformCumulative.None, "Bone flags transform cumulative set to true, case not handled?" );
+            Program.AssertAndLog( bn.Flags.HasFlag( BoneFlags.Visible )                           , "Bone is not visible, case not handled."                         );
+            Program.AssertAndLog( bn.BillboardIndex           == 65535                            , "Billboard index is set, whatever the fuck that means"           );
+            Program.AssertAndLog( bn.FlagsRotation            == BoneFlagsRotation.EulerXYZ       , "Bone is not EulerXYZ, case  not handled."                       );
+            Program.AssertAndLog( bn.FlagsBillboard           == BoneFlagsBillboard.None          , "Billboard flag is set, whatever the fuck that means"            );
+            Program.AssertAndLog( bn.FlagsTransformCumulative == BoneFlagsTransformCumulative.None, "Bone flags transform cumulative set to true, case not handled?" );
 
             // Writing bone data
             writer.WriteAttributeString( "Name"                    , bn.Name                                          );
@@ -99,7 +99,7 @@ namespace BFRES_Importer
             }
             if( bn.FlagsRotation == BoneFlagsRotation.Quaternion )
             {
-                Debug.Assert( false, "Bone flags set to Quaternion. Case not handled." );
+                Program.AssertAndLog( false, "Bone flags set to Quaternion. Case not handled." );
                 writer.WriteAttributeString( "RotationType", "Quaternion" );
             }
             else if( bn.FlagsRotation == BoneFlagsRotation.EulerXYZ )

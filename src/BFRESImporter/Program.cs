@@ -15,6 +15,28 @@ namespace BFRES_Importer
         public static string FileName;
         public static string OutputDir;
 
+        public static void AssertAndLog(bool condition, string message)
+        {
+            Debug.Assert(condition, message);
+            if(!condition)
+            {
+                using (StreamWriter w = File.AppendText("log.csv"))
+                {
+                    Log(message, w);
+                }
+            }
+        }
+
+        //public static void AssertAndLog(bool condition)
+        //{
+        //    AssertAndLog(condition, "no message");
+        //}
+
+        public static void Log(string logMessage, TextWriter w)
+        {
+            w.Write($"\r\n{FileName};{logMessage}");
+        }
+
         static void Main(string[] args)
         {
             if (args.Length == 0)
@@ -42,7 +64,7 @@ namespace BFRES_Importer
                 reader.ByteOrder = Syroot.BinaryData.ByteOrder.BigEndian;
                 reader.Position = 4;
 
-                Debug.Assert( reader.ReadInt32() != 0x20202020, "This is not a WiiU file." );
+                Program.AssertAndLog( reader.ReadInt32() != 0x20202020, "This is not a WiiU file." );
                 //if( reader.ReadInt32() != 0x20202020 )
                 //    IsWiiU = true;
 

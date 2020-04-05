@@ -400,8 +400,8 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("UV0"      , Program.Vector2ToString(vertices[i].uv0)  );
                 writer.WriteAttributeString("UV1"      , Program.Vector2ToString(vertices[i].uv1)  );
                 writer.WriteAttributeString("UV2"      , Program.Vector2ToString(vertices[i].uv2)  );
-                writer.WriteAttributeString("Color0"   , Program.Vector4ToString(vertices[i].col)  ); Program.AssertAndLog( vertices[ i ].col  == OpenTK.Vector4.One, $"Vertex index {i} col is set to {vertices[i].col} and not One"); // Add C++ support
-                writer.WriteAttributeString("Color1"   , Program.Vector4ToString(vertices[i].col2) ); Program.AssertAndLog( vertices[ i ].col2 == OpenTK.Vector4.One, $"Vertex index {i} col2 is set to {vertices[i].col2} and not One"); // Add C++ support
+                writer.WriteAttributeString("Color0"   , Program.Vector4ToString(vertices[i].col)  );
+                writer.WriteAttributeString("Color1"   , Program.Vector4ToString(vertices[i].col2) ); Program.AssertAndLog( vertices[ i ].col2 == OpenTK.Vector4.One, $"Vertex index {i} col2 is set to {vertices[i].col2} and not One"); // Add C++ support. Unknown use of col2
                 writer.WriteAttributeString("Tangent"  , Program.Vector4ToString(vertices[i].tan)  );
                 writer.WriteAttributeString("Binormal" , Program.Vector4ToString(vertices[i].bitan));
                 

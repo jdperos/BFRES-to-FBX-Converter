@@ -422,6 +422,8 @@ void FBXWriter::SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSu
         GX2TextureMapType type = tex.type;
         FbxTexture::ETextureUse textureUse;
         FbxString uvLayerName;
+        FbxTexture::EWrapMode wrapModeX;
+        FbxTexture::EWrapMode wrapModeY;
 
         std::string& textureName = g_BFRESManager.GetTextureFromMaterialByType(fmat, type)->name;
 		FbxFileTexture* lTexture = FbxFileTexture::Create(pScene, textureName.c_str());
@@ -482,6 +484,54 @@ void FBXWriter::SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSu
             break;
         }
 
+        switch( tex.clampX )
+        {
+        case BFRESStructs::TextureRef::GX2TexClamp::Wrap:
+            wrapModeX = FbxTexture::eRepeat;
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::Mirror:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::Clamp:
+            wrapModeX = FbxTexture::eClamp;
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::MirrorOnce:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::ClampHalfBorder:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::MirrorOnceHalfBorder:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::ClampBorder:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::MirrorOnceBorder:
+            break;
+        default:
+            break;
+        }
+
+        switch( tex.clampY )
+        {
+        case BFRESStructs::TextureRef::GX2TexClamp::Wrap:
+            wrapModeY = FbxTexture::eRepeat;
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::Mirror:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::Clamp:
+            wrapModeY = FbxTexture::eClamp;
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::MirrorOnce:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::ClampHalfBorder:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::MirrorOnceHalfBorder:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::ClampBorder:
+            break;
+        case BFRESStructs::TextureRef::GX2TexClamp::MirrorOnceBorder:
+            break;
+        default:
+            break;
+        }
+
         std::string filePath = ( fbxExportPath + (std::string)"Textures/" + textureName + ".tga" );
 		lTexture->SetFileName(filePath.c_str());
 		lTexture->SetTextureUse(textureUse);
@@ -492,6 +542,7 @@ void FBXWriter::SetTexturesToMaterial(FbxScene*& pScene, const FSHP& fshp, FbxSu
 		lTexture->SetScale(1.0, 1.0);
 		lTexture->SetRotation(0.0, 0.0);
 		lTexture->UVSet.Set(uvLayerName); // Connect texture to the proper UV
+        lTexture->SetWrapMode( wrapModeX, wrapModeY );
 			
     }
 }

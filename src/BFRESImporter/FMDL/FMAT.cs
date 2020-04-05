@@ -464,8 +464,8 @@ namespace BFRES_Importer
                 TextureName = tex.Name;
 
                 // Asserts for assumptions made
-                Program.AssertAndLog( mat.Samplers[ id ].TexSampler.ClampX == GX2TexClamp.Wrap,  $"{tex.Name} tex sampler clamp X is set to {mat.Samplers[id].TexSampler.ClampX} and not Wrap"  );
-                Program.AssertAndLog( mat.Samplers[ id ].TexSampler.ClampY == GX2TexClamp.Wrap,  $"{tex.Name} tex sampler clamp Y is set to {mat.Samplers[id].TexSampler.ClampY} and not Wrap"  );
+                Program.AssertAndLog( mat.Samplers[ id ].TexSampler.ClampX == GX2TexClamp.Wrap && mat.Samplers[id].TexSampler.ClampX == GX2TexClamp.Clamp,  $"{tex.Name} tex sampler clamp X is set to {mat.Samplers[id].TexSampler.ClampX} and not Wrap or Clamp"  );
+                Program.AssertAndLog( mat.Samplers[ id ].TexSampler.ClampY == GX2TexClamp.Wrap && mat.Samplers[id].TexSampler.ClampY == GX2TexClamp.Clamp,  $"{tex.Name} tex sampler clamp Y is set to {mat.Samplers[id].TexSampler.ClampY} and not Wrap or Clamp"  );
                 Program.AssertAndLog( mat.Samplers[ id ].TexSampler.ClampZ == GX2TexClamp.Clamp, $"{tex.Name} tex sampler clamp Z is set to {mat.Samplers[id].TexSampler.ClampZ} and not Clamp" );
 
                 writer.WriteAttributeString("TextureName", tex.Name);

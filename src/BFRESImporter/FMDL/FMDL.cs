@@ -66,7 +66,7 @@ namespace BFRES_Importer
             writer.WriteAttributeString("Name"                , shp.Name                        );
             writer.WriteAttributeString("Flags"               , shp.Flags            .ToString());
             writer.WriteAttributeString("MaterialIndex"       , shp.MaterialIndex    .ToString());
-            Program.AssertAndLog( shp.BoneIndex == 0, "Bone index is set. Why?" );
+            Program.AssertAndLog( shp.BoneIndex == 0, $"{shp.Name}: Bone index is set. Why?" );
             writer.WriteAttributeString("BoneIndex"           , shp.BoneIndex        .ToString());
             writer.WriteAttributeString("VertexBufferIndex"   , shp.VertexBufferIndex.ToString());
 
@@ -80,7 +80,7 @@ namespace BFRES_Importer
             
             writer.WriteAttributeString("RadiusArray"         , tempRadiusArray                 );
             writer.WriteAttributeString("VertexSkinCount"     , shp.VertexSkinCount  .ToString());
-            Program.AssertAndLog( shp.TargetAttribCount == 0, "Shape has target attribute count of greater than 0. Unsure of this meaning." );
+            Program.AssertAndLog( shp.TargetAttribCount == 0, $"Shape {shp.Name} has target attribute count of greater than 0. Unsure of this meaning." );
             writer.WriteAttributeString("TargetAttributeCount", shp.TargetAttribCount.ToString());
 
             // Write Skin Bone Indices
@@ -171,7 +171,7 @@ namespace BFRES_Importer
                 writer.WriteStartElement( "LODMesh" );
 
                 Program.AssertAndLog( msh.PrimitiveType == GX2PrimitiveType.Triangles, "Mesh is not using triangles. Case is not handled." );
-                Program.AssertAndLog( msh.IndexFormat   == GX2IndexFormat.UInt16     , "Mesh index format is unhandled."                   );
+                Program.AssertAndLog( msh.IndexFormat   == GX2IndexFormat.UInt16     , $"Mesh in {shp.Name} index format is unhandled."                   );
                 
                 writer.WriteAttributeString( "PrimitiveType", msh.PrimitiveType.ToString() );
                 writer.WriteAttributeString( "IndexFormat"  , msh.IndexFormat  .ToString() );
@@ -194,7 +194,7 @@ namespace BFRES_Importer
                     writer.WriteAttributeString( "Offset", subMsh.Offset.ToString() );
                     writer.WriteEndElement();
                 }
-                Program.AssertAndLog( msh.SubMeshes.Count == 1, "WARNING! More than one submesh. TODO: Handle multiple submeshes" );
+                Program.AssertAndLog( msh.SubMeshes.Count == 1, $"More than one submesh in {shp.Name}. TODO: Handle multiple submeshes" );
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -263,7 +263,7 @@ namespace BFRES_Importer
                 else if (att.Name == "_p2")
                     vec4Positions2 = AttributeData(att, helper, "_p2");
                 else
-                    Program.AssertAndLog(false, "Vertex Attribute type not handled.");
+                    Program.AssertAndLog(false, $"Vertex Attribute type {att.Name} not handled.");
             }
             List<Vertex> vertices = new List<Vertex>();
             for (int i = 0; i < vec4Positions.Length; i++)

@@ -72,7 +72,7 @@ namespace BFRES_Importer
             {
                 for (int j = 0; j < anim.BoneAnims[i].Curves.Count; j++)
                 {
-                    Program.AssertAndLog( Program.ErrorType.eNonHermiteAnimCurve, anim.BoneAnims[i].Curves[j].CurveType == AnimCurveType.Cubic, "Hey buddy this animation has a non hermite curve");
+                    Program.AssertAndLog( Program.ErrorType.eNonHermiteAnimCurve, anim.BoneAnims[i].Curves[j].CurveType == AnimCurveType.Cubic, $"{anim.BoneAnims[i].Curves[j].CurveType} is a non hermite curve");
                 }
             }
             

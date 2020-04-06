@@ -31,7 +31,7 @@ namespace BFRES_Importer
             Program.AssertAndLog( Program.ErrorType.eNonEulerSkeletonRotation, skeleton.FlagsRotation == SkeletonFlagsRotation.EulerXYZ, "Skeleton is not using EulerXYZ rotation");
             writer.WriteAttributeString("FlagsRotation", skeleton.FlagsRotation.ToString());
 
-            Program.AssertAndLog( Program.ErrorType.eNonMayaSkeletalScaling, skeleton.FlagsScaling == SkeletonFlagsScaling.Maya, "Skeleton is not using Maya scaling.");
+            Program.AssertAndLog( Program.ErrorType.eNonMayaSkeletalScaling, skeleton.FlagsScaling == SkeletonFlagsScaling.Maya, $"Skeleton is using {skeleton.FlagsScaling}, not Maya scaling.");
             writer.WriteAttributeString("FlagsScaling", skeleton.FlagsScaling.ToString());
             // TODO figure out what the hell this Inverse Model Matrices is
             writer.WriteAttributeString("InverseModelMatrices", skeleton.InverseModelMatrices.ToString());
@@ -70,11 +70,11 @@ namespace BFRES_Importer
         public static void WriteBone(XmlWriter writer, Bone bn, bool SetParent = true)
         {
             // Asserts for most unhandled bone cases.
-            Program.AssertAndLog( Program.ErrorType.eBoneInvisible              , bn.Flags.HasFlag( BoneFlags.Visible )                           , "Bone is not visible, case not handled."                         );
-            Program.AssertAndLog( Program.ErrorType.eBillboardIndexSet          , bn.BillboardIndex           == 65535                            , "Billboard index is set, whatever the fuck that means"           );
-            Program.AssertAndLog( Program.ErrorType.eNonEulerBone               , bn.FlagsRotation            == BoneFlagsRotation.EulerXYZ       , "Bone is not EulerXYZ, case  not handled."                       );
-            Program.AssertAndLog( Program.ErrorType.eBillboardFlagSet           , bn.FlagsBillboard           == BoneFlagsBillboard.None          , "Billboard flag is set, whatever the fuck that means"            );
-            Program.AssertAndLog( Program.ErrorType.eBoneFlagCumulativeTransform, bn.FlagsTransformCumulative == BoneFlagsTransformCumulative.None, "Bone flags transform cumulative set to true, case not handled?" );
+            Program.AssertAndLog( Program.ErrorType.eBoneInvisible              , bn.Flags.HasFlag( BoneFlags.Visible )                           , $"{bn.Name}: Bone is not visible, case not handled."                         );
+            Program.AssertAndLog( Program.ErrorType.eBillboardIndexSet          , bn.BillboardIndex           == 65535                            , $"{bn.Name}: Billboard index is set, whatever the fuck that means"           );
+            Program.AssertAndLog( Program.ErrorType.eNonEulerBone               , bn.FlagsRotation            == BoneFlagsRotation.EulerXYZ       , $"{bn.Name}: Bone is not EulerXYZ, case  not handled."                       );
+            Program.AssertAndLog( Program.ErrorType.eBillboardFlagSet           , bn.FlagsBillboard           == BoneFlagsBillboard.None          , $"{bn.Name}: Billboard flag is set, whatever the fuck that means"            );
+            Program.AssertAndLog( Program.ErrorType.eBoneFlagCumulativeTransform, bn.FlagsTransformCumulative == BoneFlagsTransformCumulative.None, $"{bn.Name}: Bone flags transform cumulative set to true, case not handled?" );
 
             // Writing bone data
             writer.WriteAttributeString( "Name"                    , bn.Name                                          );
@@ -99,7 +99,7 @@ namespace BFRES_Importer
             }
             if( bn.FlagsRotation == BoneFlagsRotation.Quaternion )
             {
-                Program.AssertAndLog( Program.ErrorType.eBoneFlagSetQuaternion, false, "Bone flags set to Quaternion. Case not handled." );
+                Program.AssertAndLog( Program.ErrorType.eBoneFlagSetQuaternion, false, $"{bn.Name}: Bone flags set to Quaternion. Case not handled." );
                 writer.WriteAttributeString( "RotationType", "Quaternion" );
             }
             else if( bn.FlagsRotation == BoneFlagsRotation.EulerXYZ )

@@ -62,6 +62,12 @@ for sbfresFile in sorted(os.listdir(inDir)):
 				print("Export Path" + outputFBXPath)
 				exporterCommand = "\"" + exporterFP + "\" \"" + inputXMLPath + "\" \"" + outputFBXPath + "\"" + writeTextures
 				os.system( "\"" + exporterCommand + "\"" )
+				# Throw an error if an FBX is not written
+				outputFBXFilename = os.path.splitext(os.path.basename(inputXMLPath))[0]
+				if not os.path.exists(os.path.join(outputFBXPath, outputFBXFilename + ".fbx")):
+					with open('log.csv', 'a+') as logFile:
+						logFile.write("\n" + outputFBXFilename + ";-1;Fbx file failed to write.")
+
 		
 		os.system("xcopy /y \"" + inputXMLPath + "\" \""+ os.path.join(fileGroupSubPath,"XMLDumps","\""))
 		os.system("del /q \"" + inputXMLPath + "\"")

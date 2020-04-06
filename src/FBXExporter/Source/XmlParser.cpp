@@ -136,19 +136,6 @@ namespace XML
     void XmlParser::ParseTextureRefs(TextureRefs& textureRefs, Element* pElement)
     {
         pElement = pElement->first_node("TextureRefs");
-
-        ParseAttributeBool(textureRefs.hasDiffuseMap  , pElement, "HasDiffuseMap");
-        ParseAttributeBool(textureRefs.hasNormalMap   , pElement, "HasNormalMap");
-        ParseAttributeBool(textureRefs.hasSpeculareMap, pElement, "HasSpecularMap");
-        ParseAttributeBool(textureRefs.hasDiffuse2Map , pElement, "HasDiffuseLayer2Map");
-        ParseAttributeBool(textureRefs.hasDiffuse3Map , pElement, "HasDiffuseLayer3Map");
-        ParseAttributeBool(textureRefs.hasAOMap       , pElement, "HasAmbientOcclusionMap");
-        ParseAttributeBool(textureRefs.hasEmissionMap , pElement, "HasEmissionMap");
-        ParseAttributeBool(textureRefs.hasShadowMap   , pElement, "HasShadowMap");
-        ParseAttributeBool(textureRefs.hasLightMap    , pElement, "HasLightMap");
-        ParseAttributeBool(textureRefs.hasRoughnessMap, pElement, "HasRoughnessMap");
-        ParseAttributeBool(textureRefs.hasMetalnessMap, pElement, "HasMetalnessMap");
-        ParseAttributeBool(textureRefs.hasSSSMap      , pElement, "HasSubSurfaceScatteringMap");
         ParseAttributeUInt(textureRefs.textureCount   , pElement, "TextureCount");
 
         pElement = pElement->first_node("Texture");

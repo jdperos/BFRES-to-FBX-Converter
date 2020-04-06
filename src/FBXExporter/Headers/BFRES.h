@@ -164,18 +164,6 @@ struct TextureRef
 // -----------------------------------------------------------------------
 struct TextureRefs
 {
-    bool hasDiffuseMap   = false;
-    bool hasNormalMap    = false;
-    bool hasSpeculareMap = false;
-    bool hasDiffuse2Map  = false;
-    bool hasDiffuse3Map  = false;
-    bool hasAOMap        = false;
-    bool hasEmissionMap  = false;
-    bool hasShadowMap    = false;
-    bool hasLightMap     = false;
-    bool hasRoughnessMap = false;
-    bool hasMetalnessMap = false;
-    bool hasSSSMap       = false;
     uint32 textureCount;
     vector<TextureRef> textures;
 };

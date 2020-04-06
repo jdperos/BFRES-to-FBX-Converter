@@ -15,14 +15,42 @@ namespace BFRES_Importer
         public static string FileName;
         public static string OutputDir;
 
-        public static void AssertAndLog(bool condition, string message)
+        public enum ErrorType
         {
-            Debug.Assert(condition, message);
-            if(!condition)
+            eInvisibleMaterial,
+            eUnsupportedTexture,
+            eUnsupportedTexClamp,
+            eUnsupportedMinLOD,
+            eCustomRenderPass,
+            eBoneIndexSet,
+            eShapeTargetAttributeCountGreaterThanZero,
+            eKeyShapes,
+            eNonTrianglePolygon,
+            eUnhandledMeshIndexFormat,
+            eMultipleSubmeshes,
+            eUnhandledVertexAttrType,
+            eVertexPosSet,
+            eVertexColorSet,
+            eNonEulerSkeletonRotation,
+            eNonMayaSkeletalScaling,
+            eBoneInvisible,
+            eBillboardIndexSet,
+            eNonEulerBone,
+            eBillboardFlagSet,
+            eBoneFlagCumulativeTransform,
+            eBoneFlagSetQuaternion,
+            eNonHermiteAnimCurve,
+            eNonWiiUFile,
+            eUnhandled
+        };
+        public static void AssertAndLog( ErrorType errorType, bool condition, string message )
+        {
+            Debug.Assert( condition, message );
+            if( !condition )
             {
-                using (StreamWriter w = File.AppendText("log.csv"))
+                using( StreamWriter w = File.AppendText( "log.csv" ) )
                 {
-                    Log(message, w);
+                    Log( errorType, message, w );
                 }
             }
         }
@@ -32,9 +60,10 @@ namespace BFRES_Importer
         //    AssertAndLog(condition, "no message");
         //}
 
-        public static void Log(string logMessage, TextWriter w)
+        public static void Log( ErrorType errorType, string logMessage, TextWriter w )
         {
-            w.Write($"\r\n{FileName};{logMessage}");
+            object errorVal = Convert.ChangeType( errorType, errorType.GetTypeCode() );
+            w.Write( $"\r\n{FileName};{errorVal};{logMessage}" );
         }
 
         static void Main(string[] args)
@@ -64,7 +93,7 @@ namespace BFRES_Importer
                 reader.ByteOrder = Syroot.BinaryData.ByteOrder.BigEndian;
                 reader.Position = 4;
 
-                Program.AssertAndLog( reader.ReadInt32() != 0x20202020, "This is not a WiiU file." );
+                Program.AssertAndLog( Program.ErrorType.eNonWiiUFile, reader.ReadInt32() != 0x20202020, "This is not a WiiU file." );
                 //if( reader.ReadInt32() != 0x20202020 )
                 //    IsWiiU = true;
 

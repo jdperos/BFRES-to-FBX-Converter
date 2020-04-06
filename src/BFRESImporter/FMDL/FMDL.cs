@@ -66,7 +66,7 @@ namespace BFRES_Importer
             writer.WriteAttributeString("Name"                , shp.Name                        );
             writer.WriteAttributeString("Flags"               , shp.Flags            .ToString());
             writer.WriteAttributeString("MaterialIndex"       , shp.MaterialIndex    .ToString());
-            Program.AssertAndLog( shp.BoneIndex == 0, "Bone index is set. Why?" );
+            Program.AssertAndLog( Program.ErrorType.eBoneIndexSet, shp.BoneIndex == 0, "Bone index is set. Why?" );
             writer.WriteAttributeString("BoneIndex"           , shp.BoneIndex        .ToString());
             writer.WriteAttributeString("VertexBufferIndex"   , shp.VertexBufferIndex.ToString());
 
@@ -80,7 +80,7 @@ namespace BFRES_Importer
             
             writer.WriteAttributeString("RadiusArray"         , tempRadiusArray                 );
             writer.WriteAttributeString("VertexSkinCount"     , shp.VertexSkinCount  .ToString());
-            Program.AssertAndLog( shp.TargetAttribCount == 0, "Shape has target attribute count of greater than 0. Unsure of this meaning." );
+            Program.AssertAndLog( Program.ErrorType.eShapeTargetAttributeCountGreaterThanZero, shp.TargetAttribCount == 0, "Shape has target attribute count of greater than 0. Unsure of this meaning." );
             writer.WriteAttributeString("TargetAttributeCount", shp.TargetAttribCount.ToString());
 
             // Write Skin Bone Indices
@@ -96,7 +96,7 @@ namespace BFRES_Importer
             }
 
             // Write Key Shapes
-            Program.AssertAndLog( shp.KeyShapes.Count == 0, "If you hit this assert, write KeyShapes you lazy fuck." );
+            Program.AssertAndLog( Program.ErrorType.eKeyShapes, shp.KeyShapes.Count == 0, "If you hit this assert, write KeyShapes you lazy fuck." );
 
             // Write Bounding Boxes
             //
@@ -170,8 +170,8 @@ namespace BFRES_Importer
 
                 writer.WriteStartElement( "LODMesh" );
 
-                Program.AssertAndLog( msh.PrimitiveType == GX2PrimitiveType.Triangles, "Mesh is not using triangles. Case is not handled." );
-                Program.AssertAndLog( msh.IndexFormat   == GX2IndexFormat.UInt16     , "Mesh index format is unhandled."                   );
+                Program.AssertAndLog( Program.ErrorType.eNonTrianglePolygon      , msh.PrimitiveType == GX2PrimitiveType.Triangles, "Mesh is not using triangles. Case is not handled." );
+                Program.AssertAndLog( Program.ErrorType.eUnhandledMeshIndexFormat, msh.IndexFormat   == GX2IndexFormat.UInt16     , "Mesh index format is unhandled."                   );
                 
                 writer.WriteAttributeString( "PrimitiveType", msh.PrimitiveType.ToString() );
                 writer.WriteAttributeString( "IndexFormat"  , msh.IndexFormat  .ToString() );
@@ -194,7 +194,7 @@ namespace BFRES_Importer
                     writer.WriteAttributeString( "Offset", subMsh.Offset.ToString() );
                     writer.WriteEndElement();
                 }
-                Program.AssertAndLog( msh.SubMeshes.Count == 1, "WARNING! More than one submesh. TODO: Handle multiple submeshes" );
+                Program.AssertAndLog( Program.ErrorType.eMultipleSubmeshes, msh.SubMeshes.Count == 1, "WARNING! More than one submesh. TODO: Handle multiple submeshes" );
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -263,7 +263,7 @@ namespace BFRES_Importer
                 else if (att.Name == "_p2")
                     vec4Positions2 = AttributeData(att, helper, "_p2");
                 else
-                    Program.AssertAndLog(false, "Vertex Attribute type not handled.");
+                    Program.AssertAndLog( Program.ErrorType.eUnhandledVertexAttrType, false, "Vertex Attribute type not handled.");
             }
             List<Vertex> vertices = new List<Vertex>();
             for (int i = 0; i < vec4Positions.Length; i++)
@@ -394,14 +394,14 @@ namespace BFRES_Importer
 
                 writer.WriteAttributeString("Index"    , i                              .ToString());
                 writer.WriteAttributeString("Position0", Program.Vector3ToString(vertices[i].pos)  );
-                writer.WriteAttributeString("Position1", Program.Vector3ToString(vertices[i].pos1) ); Program.AssertAndLog( vertices[ i ].pos1 == OpenTK.Vector3.Zero, $"Vertex index {i} pos1 is set to {vertices[i].pos1} and not 0"); // Add C++ support
-                writer.WriteAttributeString("Position2", Program.Vector3ToString(vertices[i].pos2) ); Program.AssertAndLog( vertices[ i ].pos2 == OpenTK.Vector3.Zero, $"Vertex index {i} pos2 is set to {vertices[i].pos2} and not 0"); // Add C++ support
+                writer.WriteAttributeString("Position1", Program.Vector3ToString(vertices[i].pos1) ); Program.AssertAndLog( Program.ErrorType.eVertexPosSet, vertices[ i ].pos1 == OpenTK.Vector3.Zero, $"Vertex index {i} pos1 is set to {vertices[i].pos1} and not 0"); // Add C++ support
+                writer.WriteAttributeString("Position2", Program.Vector3ToString(vertices[i].pos2) ); Program.AssertAndLog( Program.ErrorType.eVertexPosSet, vertices[ i ].pos2 == OpenTK.Vector3.Zero, $"Vertex index {i} pos2 is set to {vertices[i].pos2} and not 0"); // Add C++ support
                 writer.WriteAttributeString("Normal"   , Program.Vector3ToString(vertices[i].nrm)  );
                 writer.WriteAttributeString("UV0"      , Program.Vector2ToString(vertices[i].uv0)  );
                 writer.WriteAttributeString("UV1"      , Program.Vector2ToString(vertices[i].uv1)  );
                 writer.WriteAttributeString("UV2"      , Program.Vector2ToString(vertices[i].uv2)  );
-                writer.WriteAttributeString("Color0"   , Program.Vector4ToString(vertices[i].col)  ); Program.AssertAndLog( vertices[ i ].col  == OpenTK.Vector4.One, $"Vertex index {i} col is set to {vertices[i].col} and not One"); // Add C++ support
-                writer.WriteAttributeString("Color1"   , Program.Vector4ToString(vertices[i].col2) ); Program.AssertAndLog( vertices[ i ].col2 == OpenTK.Vector4.One, $"Vertex index {i} col2 is set to {vertices[i].col2} and not One"); // Add C++ support
+                writer.WriteAttributeString("Color0"   , Program.Vector4ToString(vertices[i].col)  ); Program.AssertAndLog( Program.ErrorType.eVertexColorSet, vertices[ i ].col  == OpenTK.Vector4.One, $"Vertex index {i} col is set to {vertices[i].col} and not One"); // Add C++ support
+                writer.WriteAttributeString("Color1"   , Program.Vector4ToString(vertices[i].col2) ); Program.AssertAndLog( Program.ErrorType.eVertexColorSet, vertices[ i ].col2 == OpenTK.Vector4.One, $"Vertex index {i} col2 is set to {vertices[i].col2} and not One"); // Add C++ support
                 writer.WriteAttributeString("Tangent"  , Program.Vector4ToString(vertices[i].tan)  );
                 writer.WriteAttributeString("Binormal" , Program.Vector4ToString(vertices[i].bitan));
                 

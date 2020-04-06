@@ -113,7 +113,7 @@ namespace BFRES_Importer
             }
             else
             {
-                Program.AssertAndLog( false, "Material is invisible. How are we handling this? May not be a problem." );
+                Program.AssertAndLog( Program.ErrorType.eInvisibleMaterial, false, "Material is invisible. How are we handling this? May not be a problem." );
                 writer.WriteAttributeString( "Visible", "False" );
             }
 
@@ -441,19 +441,19 @@ namespace BFRES_Importer
                 else if (useSampler == "_e0")           writer.WriteAttributeString("HasEmissionMap"            , "True");
                 else if (useSampler == "_b0")           writer.WriteAttributeString("HasShadowMap"              , "True");
                 else if (useSampler == "_b1")           writer.WriteAttributeString("HasLightMap"               , "True");
-                else if (TextureName.Contains("Emm")) { writer.WriteAttributeString("HasEmissionMap"            , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("Spm")) { writer.WriteAttributeString("HasSpecularMap"            , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("b00")) { writer.WriteAttributeString("HasShadowMap"              , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (texSamplerName == "bake0")   { writer.WriteAttributeString("HasShadowMap"              , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("Moc")) { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("AO"))  { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("b01")) { writer.WriteAttributeString("HasLightMap"               , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("MRA")) { writer.WriteAttributeString("HasRoughnessMap"           , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("mtl")) { writer.WriteAttributeString("HasMetalnessMap"           , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("rgh")) { writer.WriteAttributeString("HasRoughnessMap"           , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (TextureName.Contains("sss")) { writer.WriteAttributeString("HasSubSurfaceScatteringMap", "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else if (texSamplerName == "_ao0")    { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Program.AssertAndLog(false, "Texture type not yet supported"); }
-                else Program.AssertAndLog(false, "Texture type not yet supported");
+                else if (TextureName.Contains("Emm")) { writer.WriteAttributeString("HasEmissionMap"            , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("Spm")) { writer.WriteAttributeString("HasSpecularMap"            , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("b00")) { writer.WriteAttributeString("HasShadowMap"              , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (texSamplerName == "bake0")   { writer.WriteAttributeString("HasShadowMap"              , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("Moc")) { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("AO"))  { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("b01")) { writer.WriteAttributeString("HasLightMap"               , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("MRA")) { writer.WriteAttributeString("HasRoughnessMap"           , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("mtl")) { writer.WriteAttributeString("HasMetalnessMap"           , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("rgh")) { writer.WriteAttributeString("HasRoughnessMap"           , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (TextureName.Contains("sss")) { writer.WriteAttributeString("HasSubSurfaceScatteringMap", "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else if (texSamplerName == "_ao0")    { writer.WriteAttributeString("HasAmbientOcclusionMap"    , "True"); Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported"); }
+                else Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, "Texture type not yet supported");
             }
 
             int textureUnit = 1;
@@ -464,9 +464,9 @@ namespace BFRES_Importer
                 TextureName = tex.Name;
 
                 // Asserts for assumptions made
-                Program.AssertAndLog( mat.Samplers[ id ].TexSampler.ClampX == GX2TexClamp.Wrap,  $"{tex.Name} tex sampler clamp X is set to {mat.Samplers[id].TexSampler.ClampX} and not Wrap"  );
-                Program.AssertAndLog( mat.Samplers[ id ].TexSampler.ClampY == GX2TexClamp.Wrap,  $"{tex.Name} tex sampler clamp Y is set to {mat.Samplers[id].TexSampler.ClampY} and not Wrap"  );
-                Program.AssertAndLog( mat.Samplers[ id ].TexSampler.ClampZ == GX2TexClamp.Clamp, $"{tex.Name} tex sampler clamp Z is set to {mat.Samplers[id].TexSampler.ClampZ} and not Clamp" );
+                Program.AssertAndLog( Program.ErrorType.eUnsupportedTexClamp, mat.Samplers[ id ].TexSampler.ClampX == GX2TexClamp.Wrap,  $"{tex.Name} tex sampler clamp X is set to {mat.Samplers[id].TexSampler.ClampX} and not Wrap"  );
+                Program.AssertAndLog( Program.ErrorType.eUnsupportedTexClamp, mat.Samplers[ id ].TexSampler.ClampY == GX2TexClamp.Wrap,  $"{tex.Name} tex sampler clamp Y is set to {mat.Samplers[id].TexSampler.ClampY} and not Wrap"  );
+                Program.AssertAndLog( Program.ErrorType.eUnsupportedTexClamp, mat.Samplers[ id ].TexSampler.ClampZ == GX2TexClamp.Clamp, $"{tex.Name} tex sampler clamp Z is set to {mat.Samplers[id].TexSampler.ClampZ} and not Clamp" );
 
                 writer.WriteAttributeString("TextureName", tex.Name);
                 writer.WriteAttributeString("ClampX", mat.Samplers[id].TexSampler.ClampX.ToString());
@@ -498,7 +498,7 @@ namespace BFRES_Importer
                 writer.WriteAttributeString("MaxAnisotropicRatio", mat.Samplers[id].TexSampler.MaxAnisotropicRatio.ToString());
                 writer.WriteAttributeString("BorderType"         , mat.Samplers[id].TexSampler.BorderType         .ToString());
                 writer.WriteAttributeString("DepthCompareFunc"   , mat.Samplers[id].TexSampler.DepthCompareFunc   .ToString());
-                writer.WriteAttributeString("MinLod"             , mat.Samplers[id].TexSampler.MinLod             .ToString()); Program.AssertAndLog( mat.Samplers[ id ].TexSampler.MinLod == 0, $"{tex.Name} tex sampler MinLod is set to {mat.Samplers[id].TexSampler.MinLod} and not 0");
+                writer.WriteAttributeString("MinLod"             , mat.Samplers[id].TexSampler.MinLod             .ToString()); Program.AssertAndLog( Program.ErrorType.eUnsupportedMinLOD, mat.Samplers[ id ].TexSampler.MinLod == 0, $"{tex.Name} tex sampler MinLod is set to {mat.Samplers[id].TexSampler.MinLod} and not 0");
                 writer.WriteAttributeString("MaxLod"             , mat.Samplers[id].TexSampler.MaxLod             .ToString()); 
                 writer.WriteAttributeString("LodBias"            , mat.Samplers[id].TexSampler.LodBias            .ToString());
                 writer.WriteAttributeString("DepthCompareEnabled", mat.Samplers[id].TexSampler.DepthCompareEnabled.ToString());
@@ -624,7 +624,7 @@ namespace BFRES_Importer
                 writer.WriteAttributeString( "IsTranslucent"    , bIsTranslucent    .ToString() );
                 writer.WriteAttributeString( "IsTransparentMask", bIsTransparentMask.ToString() );
                 writer.WriteAttributeString( "IsCustom"         , bIsCustom         .ToString() );
-                Program.AssertAndLog( !bIsCustom, "Render pass is custom" );
+                Program.AssertAndLog( Program.ErrorType.eCustomRenderPass, !bIsCustom, "Render pass is custom" );
             }
             writer.WriteEndElement();
         }

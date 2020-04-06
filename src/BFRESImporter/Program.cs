@@ -17,31 +17,31 @@ namespace BFRES_Importer
 
         public enum ErrorType
         {
-            eInvisibleMaterial,
-            eUnsupportedTexture,
-            eUnsupportedTexClamp,
-            eUnsupportedMinLOD,
-            eCustomRenderPass,
-            eBoneIndexSet,
-            eShapeTargetAttributeCountGreaterThanZero,
-            eKeyShapes,
-            eNonTrianglePolygon,
-            eUnhandledMeshIndexFormat,
-            eMultipleSubmeshes,
-            eUnhandledVertexAttrType,
-            eVertexPosSet,
-            eVertexColorSet,
-            eNonEulerSkeletonRotation,
-            eNonMayaSkeletalScaling,
-            eBoneInvisible,
-            eBillboardIndexSet,
-            eNonEulerBone,
-            eBillboardFlagSet,
-            eBoneFlagCumulativeTransform,
-            eBoneFlagSetQuaternion,
-            eNonHermiteAnimCurve,
-            eNonWiiUFile,
-            eUnhandled
+            eInvisibleMaterial,                        // 0
+            eUnsupportedTexture,                       // 1
+            eUnsupportedTexClamp,                      // 2
+            eUnsupportedMinLOD,                        // 3
+            eCustomRenderPass,                         // 4
+            eBoneIndexSet,                             // 5
+            eShapeTargetAttributeCountGreaterThanZero, // 6
+            eKeyShapes,                                // 7
+            eNonTrianglePolygon,                       // 8
+            eUnhandledMeshIndexFormat,                 // 9
+            eMultipleSubmeshes,                        // 10
+            eUnhandledVertexAttrType,                  // 11
+            eVertexPosSet,                             // 12
+            eVertexColorSet,                           // 13
+            eNonEulerSkeletonRotation,                 // 14
+            eNonMayaSkeletalScaling,                   // 15
+            eBoneInvisible,                            // 16
+            eBillboardIndexSet,                        // 17
+            eNonEulerBone,                             // 18
+            eBillboardFlagSet,                         // 19
+            eBoneFlagCumulativeTransform,              // 20
+            eBoneFlagSetQuaternion,                    // 21
+            eNonHermiteAnimCurve,                      // 22
+            eNonWiiUFile,                              // 23
+            eUnhandled                                 // 24
         };
         public static void AssertAndLog( ErrorType errorType, bool condition, string message )
         {

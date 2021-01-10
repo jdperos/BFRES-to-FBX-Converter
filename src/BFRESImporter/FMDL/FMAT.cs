@@ -454,7 +454,8 @@ namespace BFRES_Importer
                 else if( TextureName.Contains( "rgh" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
                 else if( TextureName.Contains( "sss" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
                 else if( texSamplerName == "_ao0" ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
-                else if( TextureName.Contains("Alb") );
+                else if( TextureName.Contains("Alb") ) ;
+                else if( TextureName.Contains("_Nrm") ) ;
                 else Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" );
             }
 

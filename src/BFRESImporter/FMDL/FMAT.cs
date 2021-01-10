@@ -430,31 +430,32 @@ namespace BFRES_Importer
                 if (mat.ShaderAssign.SamplerAssigns.ContainsKey(useSampler))
                     useSampler = mat.ShaderAssign.SamplerAssigns[useSampler];
 
-                if (useSampler == "s_diffuse");
-                else if (useSampler == "s_normal");
-                else if (useSampler == "s_specmask");
-                else if (useSampler == "_a0");
-                else if (useSampler == "_a1");
-                else if (useSampler == "_a2");
-                else if (useSampler == "_n0");
-                else if (useSampler == "_s0");
-                else if (useSampler == "_ao0");
-                else if (useSampler == "_e0");
-                else if (useSampler == "_b0");
-                else if (useSampler == "_b1");
-                else if (TextureName.Contains("Emm")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("Spm")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("b00")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (texSamplerName == "bake0")   { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("Moc")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("AO"))  { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("b01")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("MRA")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("mtl")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("rgh")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (TextureName.Contains("sss")) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else if (texSamplerName == "_ao0")    { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported"); }
-                else Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported");
+                if( useSampler == "s_diffuse" ) ;
+                else if( useSampler == "s_normal" ) ;
+                else if( useSampler == "s_specmask" ) ;
+                else if( useSampler == "_a0" ) ;
+                else if( useSampler == "_a1" ) ;
+                else if( useSampler == "_a2" ) ;
+                else if( useSampler == "_n0" ) ;
+                else if( useSampler == "_s0" ) ;
+                else if( useSampler == "_ao0" ) ;
+                else if( useSampler == "_e0" ) ;
+                else if( useSampler == "_b0" ) ;
+                else if( useSampler == "_b1" ) ;
+                else if( TextureName.Contains( "Emm" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "Spm" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "b00" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( texSamplerName == "bake0" ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "Moc" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "AO" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "b01" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "MRA" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "mtl" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "rgh" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains( "sss" ) ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( texSamplerName == "_ao0" ) { Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" ); }
+                else if( TextureName.Contains("Alb") );
+                else Program.AssertAndLog( Program.ErrorType.eUnsupportedTexture, false, $"Texture type {TextureName} not yet supported" );
             }
 
             int textureUnit = 1;
@@ -481,31 +482,33 @@ namespace BFRES_Importer
                     useSampler = mat.ShaderAssign.SamplerAssigns[ useSampler ];
                 writer.WriteAttributeString( "UseSampler", useSampler );
                 // Texture type
-                if (useSampler == "s_diffuse") { AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"             ); }
-                else if (useSampler == "s_normal")              writer.WriteAttributeString("Type", "Normal"              );
-                else if (useSampler == "s_specmask")            writer.WriteAttributeString("Type", "Specular"            );
-                else if (useSampler == "_a0") {  AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"             ); }
-                else if (useSampler == "_a1") {  AlbedoCount++; writer.WriteAttributeString("Type", "DiffuseLayer2"       ); }
-                else if (useSampler == "_a2") {  AlbedoCount++; writer.WriteAttributeString("Type", "DiffuseLayer3"       ); }
-                else if (useSampler == "_n0")                   writer.WriteAttributeString("Type", "Normal"              );
-                else if (useSampler == "_s0")                   writer.WriteAttributeString("Type", "Specular"            );
-                else if (useSampler == "_ao0")                  writer.WriteAttributeString("Type", "AO"                  );
-                else if (useSampler == "_e0")                   writer.WriteAttributeString("Type", "Emission"            );
-                else if (useSampler == "_b0")                   writer.WriteAttributeString("Type", "Shadow"              );
-                else if (useSampler == "_b1")                   writer.WriteAttributeString("Type", "Light"               );
-                else if (TextureName.Contains("Emm"))           writer.WriteAttributeString("Type", "Emission"            );
-                else if (TextureName.Contains("Spm"))           writer.WriteAttributeString("Type", "Specular"            );
-                else if (TextureName.Contains("b00"))           writer.WriteAttributeString("Type", "Shadow"              );
-                else if (texSamplerName == "bake0")             writer.WriteAttributeString("Type", "Shadow"              );
-                else if (TextureName.Contains("Moc"))           writer.WriteAttributeString("Type", "AO"                  );
-                else if (TextureName.Contains("AO"))            writer.WriteAttributeString("Type", "AO"                  );
-                else if (TextureName.Contains("b01"))           writer.WriteAttributeString("Type", "Light"               );
+                if (useSampler == "s_diffuse")       { AlbedoCount++;  writer.WriteAttributeString("Type", "Diffuse"             ); }
+                else if (useSampler == "s_normal")                     writer.WriteAttributeString("Type", "Normal"              );
+                else if (useSampler == "s_specmask")                   writer.WriteAttributeString("Type", "Specular"            );
+                else if (useSampler == "_a0")        { AlbedoCount++;  writer.WriteAttributeString("Type", "Diffuse"             ); }
+                else if (useSampler == "_a1")        { AlbedoCount++;  writer.WriteAttributeString("Type", "DiffuseLayer2"       ); }
+                else if (useSampler == "_a2")        { AlbedoCount++;  writer.WriteAttributeString("Type", "DiffuseLayer3"       ); }
+                else if (useSampler == "_n0")                          writer.WriteAttributeString("Type", "Normal"              );
+                else if (TextureName.Contains("_Nrm"))                 writer.WriteAttributeString("Type", "Normal"              );
+                else if (useSampler == "_s0")                          writer.WriteAttributeString("Type", "Specular"            );
+                else if (useSampler == "_ao0")                         writer.WriteAttributeString("Type", "AO"                  );
+                else if (useSampler == "_e0")                          writer.WriteAttributeString("Type", "Emission"            );
+                else if (useSampler == "_b0")                          writer.WriteAttributeString("Type", "Shadow"              );
+                else if (useSampler == "_b1")                          writer.WriteAttributeString("Type", "Light"               );
+                else if (TextureName.Contains("Emm"))                  writer.WriteAttributeString("Type", "Emission"            );
+                else if (TextureName.Contains("Spm"))                  writer.WriteAttributeString("Type", "Specular"            );
+                else if (TextureName.Contains("b00"))                  writer.WriteAttributeString("Type", "Shadow"              );
+                else if (texSamplerName == "bake0")                    writer.WriteAttributeString("Type", "Shadow"              );
+                else if (TextureName.Contains("Moc"))                  writer.WriteAttributeString("Type", "AO"                  );
+                else if (TextureName.Contains("AO"))                   writer.WriteAttributeString("Type", "AO"                  );
+                else if (TextureName.Contains("b01"))                  writer.WriteAttributeString("Type", "Light"               );
                 //Metalness, Roughness, and Cavity Map in one
-                else if (TextureName.Contains("MRA"))           writer.WriteAttributeString("Type", "MRA"                 );
-                else if (TextureName.Contains("mtl"))           writer.WriteAttributeString("Type", "Metalness"           );
-                else if (TextureName.Contains("rgh"))           writer.WriteAttributeString("Type", "Roughness"           );
-                else if (TextureName.Contains("sss"))           writer.WriteAttributeString("Type", "SubSurfaceScattering");
-                else if (texSamplerName == "_ao0")              writer.WriteAttributeString("Type", "AO"                  );
+                else if (TextureName.Contains("MRA"))                  writer.WriteAttributeString("Type", "MRA"                 );
+                else if (TextureName.Contains("mtl"))                  writer.WriteAttributeString("Type", "Metalness"           );
+                else if (TextureName.Contains("rgh"))                  writer.WriteAttributeString("Type", "Roughness"           );
+                else if (TextureName.Contains("sss"))                  writer.WriteAttributeString("Type", "SubSurfaceScattering");
+                else if (texSamplerName == "_ao0")                     writer.WriteAttributeString("Type", "AO"                  );
+                else if (TextureName.Contains("Alb")) { AlbedoCount++; writer.WriteAttributeString("Type", "Diffuse"             ); }
                 else if (texSamplerName == "_sd0")
                 {
                     Debug.WriteLine("_sd0 not yet verified to be of a type yet."); // TODO find out what _sd0 is
